@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>iconoPerfil.png</file>
+        <file>x.png</file>
+        <file>iconoPerfilIlumin.png</file>
+        <file>ixIlumin.png</file>
+    </qresource>
+</RCC>
