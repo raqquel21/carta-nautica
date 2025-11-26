@@ -1,13 +1,24 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
-    connect(ui->buttonLogIn, &QPushButton::clicked, this, &MainWindow::onLogInClicked);
+    // Mostrar login al inicio
+    ui->stackedWidget->setCurrentIndex(0);
+
+    // CONECTAR botones YA EXISTENTES en tu .ui
+    connect(ui->buttonLogIn, &QPushButton::clicked, this, [=](){
+        ui->stackedWidget->setCurrentIndex(1);
+    });
+
+    connect(ui->pushButtonVolver, &QPushButton::clicked, this, [=](){
+        ui->stackedWidget->setCurrentIndex(0);
+    });
 }
 
 MainWindow::~MainWindow()
@@ -17,14 +28,17 @@ MainWindow::~MainWindow()
 
 void MainWindow::onLogInClicked()
 {
-
     QString nickname = ui->enter_nickname->text().trimmed();
     QString password = ui->lineEdit_2->text().trimmed();
 
-    if (nickname.isEmpty() || password.isEmpty()) { // FALTARÍA AÑADIR LA VERIFICACION DE SI ESTÁ YA REGISTRADO
-        QMessageBox::warning(this, "Advertencia", "Por favor, introduce el nickname y/o contraseña correctos.");
+    if (nickname.isEmpty()
+        || password.isEmpty()) { // FALTARÍA AÑADIR LA VERIFICACION DE SI ESTÁ YA REGISTRADO
+        QMessageBox::warning(this,
+                             "Advertencia",
+                             "Por favor, introduce el nickname y/o contraseña correctos.");
         return;
     }
+
     // QModelIndex selectedIndex = ui->listView->currentIndex();
     // if (selectedIndex.isValid() && (selectedIndex.row() != -1)) {
     //     // Modificar el elemento seleccionado
@@ -55,4 +69,3 @@ void MainWindow::onLogInClicked()
     // // Limpiar campos después de añadir o modificar
     // clearFields();
 }
-
