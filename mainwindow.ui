@@ -24,7 +24,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="login">
        <property name="minimumSize">
@@ -289,19 +289,19 @@
     border: none;
 	background-repeat: no-repeat;
     background-position: center;
-    background-image: url(:/images/iconoPerfil.png);
+    background-image: url(:/images/userIcono.png);
 
     min-width: 48px;
     min-height: 48px;
 }
 
 QPushButton:hover {
-    background-image: url(:/images/iconoPerfilIlumin.png);
+    background-image: url(:/images/userIconoIllum.png);
 	background-repeat: no-repeat;
 }
 
 QPushButton:pressed {
-	background-image: url(:/images/iconoPerfilIlumin.png);
+	background-image: url(:/images/userIconoIllum.png);
 	background-repeat: no-repeat;
 }
 </string>
