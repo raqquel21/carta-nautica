@@ -118,16 +118,32 @@ void MainWindow::onLogInClicked()
 
 void MainWindow::onRegisterClicked(){
 
-    QString name_reg = ui->enter_nickname_reg->text().trimmed();
+    QString nameReg = ui->enter_nickname_reg->text().trimmed();
+    QString birthDate = ui->enter_birth_date->text().trimmed();
+    QString mail = ui->enter_mail->text().trimmed();
     QString password1 = ui->enter_password_r1->text().trimmed();
     QString password2 = ui->enter_password_r2->text().trimmed();
 
 
-    if (name_reg.isEmpty()|| password1.isEmpty() || password2.isEmpty() || password1 != password2) {
+    if (nameReg.isEmpty()|| password1.isEmpty() || password2.isEmpty() || password1 != password2) {
         ui->stackedWidget->setCurrentIndex(1); // Que no pueda pasar al siguiente paso si no se ha logeado bien
         QMessageBox::warning(this,
                              "Advertencia",
                              "Por favor, introduce el nickname y/o contraseña correctos.");
+        return;
+    }
+
+    QDate fecha = QDate::fromString(birthDate, "dd/MM/yyyy");
+    if (!fecha.isValid()) {
+        QMessageBox::warning(this, "Fecha inválida",
+                             "Introduce una fecha válida en formato dd/MM/yyyy.");
+        return;
+    }
+
+    QRegularExpression emailRegex(R"((^[^\s@]+@[^\s@]+\.[^\s@]+$))");
+    if (!emailRegex.match(mail).hasMatch()) {
+        QMessageBox::warning(this, "Email inválido",
+                             "Introduce un email válido (ej: usuario@dominio.com).");
         return;
     }
 

@@ -45,6 +45,27 @@ public:
     QLineEdit *enter_nickname;
     QLabel *registrarse;
     QLabel *titulo;
+    QWidget *Register;
+    QWidget *layoutWidget;
+    QGridLayout *gridLayout_10;
+    QSpacerItem *verticalSpacer_13;
+    QSpacerItem *verticalSpacer_15;
+    QLabel *label_enter_nickname_2;
+    QLineEdit *enter_password_r2;
+    QLabel *label_enter_nickname;
+    QLineEdit *enter_password_r1;
+    QLabel *label_Register;
+    QSpacerItem *verticalSpacer_14;
+    QSpacerItem *verticalSpacer_16;
+    QLabel *label_password_3;
+    QLineEdit *enter_birth_date;
+    QLabel *label_password_4;
+    QPushButton *buttonRegister;
+    QLineEdit *enter_mail;
+    QLineEdit *enter_nickname_reg;
+    QLabel *label_enter_nickname_3;
+    QLabel *titulo_2;
+    QLabel *iniciar_sesion;
     QWidget *menuPrincipal;
     QGridLayout *gridLayout;
     QGridLayout *gridLayout_7;
@@ -72,7 +93,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName("MainWindow");
-        MainWindow->resize(683, 600);
+        MainWindow->resize(776, 691);
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName("centralwidget");
         gridLayout_3 = new QGridLayout(centralwidget);
@@ -185,6 +206,124 @@ public:
         gridLayout_6->addWidget(titulo, 0, 1, 1, 1);
 
         stackedWidget->addWidget(login);
+        Register = new QWidget();
+        Register->setObjectName("Register");
+        layoutWidget = new QWidget(Register);
+        layoutWidget->setObjectName("layoutWidget");
+        layoutWidget->setGeometry(QRect(60, 110, 581, 459));
+        gridLayout_10 = new QGridLayout(layoutWidget);
+        gridLayout_10->setObjectName("gridLayout_10");
+        gridLayout_10->setContentsMargins(0, 0, 0, 0);
+        verticalSpacer_13 = new QSpacerItem(20, 200, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
+
+        gridLayout_10->addItem(verticalSpacer_13, 13, 1, 1, 1);
+
+        verticalSpacer_15 = new QSpacerItem(20, 350, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
+
+        gridLayout_10->addItem(verticalSpacer_15, 17, 1, 1, 1);
+
+        label_enter_nickname_2 = new QLabel(layoutWidget);
+        label_enter_nickname_2->setObjectName("label_enter_nickname_2");
+        sizePolicy.setHeightForWidth(label_enter_nickname_2->sizePolicy().hasHeightForWidth());
+        label_enter_nickname_2->setSizePolicy(sizePolicy);
+        label_enter_nickname_2->setFont(font);
+
+        gridLayout_10->addWidget(label_enter_nickname_2, 5, 1, 1, 1);
+
+        enter_password_r2 = new QLineEdit(layoutWidget);
+        enter_password_r2->setObjectName("enter_password_r2");
+        enter_password_r2->setMinimumSize(QSize(0, 40));
+
+        gridLayout_10->addWidget(enter_password_r2, 15, 1, 1, 1);
+
+        label_enter_nickname = new QLabel(layoutWidget);
+        label_enter_nickname->setObjectName("label_enter_nickname");
+        sizePolicy.setHeightForWidth(label_enter_nickname->sizePolicy().hasHeightForWidth());
+        label_enter_nickname->setSizePolicy(sizePolicy);
+        label_enter_nickname->setFont(font);
+
+        gridLayout_10->addWidget(label_enter_nickname, 3, 1, 1, 1);
+
+        enter_password_r1 = new QLineEdit(layoutWidget);
+        enter_password_r1->setObjectName("enter_password_r1");
+        enter_password_r1->setMinimumSize(QSize(0, 40));
+
+        gridLayout_10->addWidget(enter_password_r1, 12, 1, 1, 1);
+
+        label_Register = new QLabel(layoutWidget);
+        label_Register->setObjectName("label_Register");
+        label_Register->setFont(font1);
+
+        gridLayout_10->addWidget(label_Register, 2, 1, 1, 1);
+
+        verticalSpacer_14 = new QSpacerItem(20, 100, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
+
+        gridLayout_10->addItem(verticalSpacer_14, 10, 1, 1, 1);
+
+        verticalSpacer_16 = new QSpacerItem(20, 250, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
+
+        gridLayout_10->addItem(verticalSpacer_16, 1, 1, 1, 1);
+
+        label_password_3 = new QLabel(layoutWidget);
+        label_password_3->setObjectName("label_password_3");
+        label_password_3->setFont(font);
+
+        gridLayout_10->addWidget(label_password_3, 11, 1, 1, 1);
+
+        enter_birth_date = new QLineEdit(layoutWidget);
+        enter_birth_date->setObjectName("enter_birth_date");
+        sizePolicy1.setHeightForWidth(enter_birth_date->sizePolicy().hasHeightForWidth());
+        enter_birth_date->setSizePolicy(sizePolicy1);
+        enter_birth_date->setMinimumSize(QSize(0, 40));
+
+        gridLayout_10->addWidget(enter_birth_date, 6, 1, 1, 1);
+
+        label_password_4 = new QLabel(layoutWidget);
+        label_password_4->setObjectName("label_password_4");
+        label_password_4->setFont(font);
+
+        gridLayout_10->addWidget(label_password_4, 14, 1, 1, 1);
+
+        buttonRegister = new QPushButton(layoutWidget);
+        buttonRegister->setObjectName("buttonRegister");
+        buttonRegister->setFont(font2);
+
+        gridLayout_10->addWidget(buttonRegister, 16, 1, 1, 1);
+
+        enter_mail = new QLineEdit(layoutWidget);
+        enter_mail->setObjectName("enter_mail");
+        sizePolicy1.setHeightForWidth(enter_mail->sizePolicy().hasHeightForWidth());
+        enter_mail->setSizePolicy(sizePolicy1);
+        enter_mail->setMinimumSize(QSize(0, 40));
+
+        gridLayout_10->addWidget(enter_mail, 9, 1, 1, 1);
+
+        enter_nickname_reg = new QLineEdit(layoutWidget);
+        enter_nickname_reg->setObjectName("enter_nickname_reg");
+        sizePolicy1.setHeightForWidth(enter_nickname_reg->sizePolicy().hasHeightForWidth());
+        enter_nickname_reg->setSizePolicy(sizePolicy1);
+        enter_nickname_reg->setMinimumSize(QSize(0, 40));
+
+        gridLayout_10->addWidget(enter_nickname_reg, 4, 1, 1, 1);
+
+        label_enter_nickname_3 = new QLabel(layoutWidget);
+        label_enter_nickname_3->setObjectName("label_enter_nickname_3");
+        sizePolicy.setHeightForWidth(label_enter_nickname_3->sizePolicy().hasHeightForWidth());
+        label_enter_nickname_3->setSizePolicy(sizePolicy);
+        label_enter_nickname_3->setFont(font);
+
+        gridLayout_10->addWidget(label_enter_nickname_3, 8, 1, 1, 1);
+
+        titulo_2 = new QLabel(Register);
+        titulo_2->setObjectName("titulo_2");
+        titulo_2->setGeometry(QRect(60, 10, 547, 73));
+        sizePolicy1.setHeightForWidth(titulo_2->sizePolicy().hasHeightForWidth());
+        titulo_2->setSizePolicy(sizePolicy1);
+        titulo_2->setFont(font3);
+        iniciar_sesion = new QLabel(Register);
+        iniciar_sesion->setObjectName("iniciar_sesion");
+        iniciar_sesion->setGeometry(QRect(10, 620, 551, 20));
+        stackedWidget->addWidget(Register);
         menuPrincipal = new QWidget();
         menuPrincipal->setObjectName("menuPrincipal");
         gridLayout = new QGridLayout(menuPrincipal);
@@ -347,7 +486,7 @@ public:
 
         retranslateUi(MainWindow);
 
-        stackedWidget->setCurrentIndex(2);
+        stackedWidget->setCurrentIndex(1);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -362,6 +501,15 @@ public:
         buttonLogIn->setText(QCoreApplication::translate("MainWindow", "Log In", nullptr));
         registrarse->setText(QCoreApplication::translate("MainWindow", "Don't have an account? Register", nullptr));
         titulo->setText(QCoreApplication::translate("MainWindow", "Carta n\303\241utica", nullptr));
+        label_enter_nickname_2->setText(QCoreApplication::translate("MainWindow", "Enter your birth date (dd/mm/yyyy)", nullptr));
+        label_enter_nickname->setText(QCoreApplication::translate("MainWindow", "Enter your nickname", nullptr));
+        label_Register->setText(QCoreApplication::translate("MainWindow", "Register", nullptr));
+        label_password_3->setText(QCoreApplication::translate("MainWindow", "Enter the password", nullptr));
+        label_password_4->setText(QCoreApplication::translate("MainWindow", "Repeat the password", nullptr));
+        buttonRegister->setText(QCoreApplication::translate("MainWindow", "Register", nullptr));
+        label_enter_nickname_3->setText(QCoreApplication::translate("MainWindow", "Enter your mail", nullptr));
+        titulo_2->setText(QCoreApplication::translate("MainWindow", "Carta n\303\241utica", nullptr));
+        iniciar_sesion->setText(QCoreApplication::translate("MainWindow", "Do you already have an account? Log in", nullptr));
         pushButtonVolver->setText(QCoreApplication::translate("MainWindow", "Volver", nullptr));
         perfil->setText(QString());
         salirPerfil->setText(QString());

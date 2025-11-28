@@ -7,6 +7,8 @@
 #include <QItemSelection>
 #include <QStandardItemModel>
 #include <QMessageBox>
+#include <QDate>
+#include <QRegularExpression>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -29,5 +31,6 @@ private slots:
     void onLogInClicked();
     //void completeProfile();
     //void enlace_reg();
+    void onRegisterClicked();
 };
 #endif // MAINWINDOW_H
