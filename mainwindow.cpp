@@ -9,7 +9,6 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-
     // Mostrar login al inicio
     ui->stackedWidget->setCurrentIndex(0);
 
