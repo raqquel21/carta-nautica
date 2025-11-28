@@ -1,6 +1,14 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+/*
+ * Me falta por añadir:
+ *  - Que cuando le des al tabulador del registro se use bien la navegacion en los campos
+ *  - Poner el logo del ojo al lado de la barra de password para tener la opcion de ver la contraseña (importante) !
+ *  - Poner la bbdd para comprobar el usuario
+ *
+ *  atte: la rakitraki
+ */
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -18,7 +26,15 @@ MainWindow::MainWindow(QWidget *parent)
      *
      */
 
-    // Mostrar login al inicio
+    // Login  (ocultar)
+    ui->lineEdit_2->setEchoMode(QLineEdit::Password);
+
+    // Register passwords
+    ui->enter_password_r1->setEchoMode(QLineEdit::Password);
+    ui->enter_password_r2->setEchoMode(QLineEdit::Password);
+
+
+    // Mostrar login al inicio (ocultar)
     ui->stackedWidget->setCurrentIndex(0);
 
     connect(ui->buttonLogIn, &QPushButton::clicked, this, &MainWindow::onLogInClicked);
@@ -82,38 +98,6 @@ void MainWindow::onLogInClicked()
         return;
     }
     ui->stackedWidget->setCurrentIndex(2); // Si lo ha hecho bien, adelante
-
-    //ui->nombre->setText("Nombre: " + nickname); // ESTO FUNCIONA PERO LO QUEIRO PONER EN UNA FUNCION A PARTE
-
-    // QModelIndex selectedIndex = ui->listView->currentIndex();
-    // if (selectedIndex.isValid() && (selectedIndex.row() != -1)) {
-    //     // Modificar el elemento seleccionado
-    //     listModelS->setData(selectedIndex, fullName);
-
-    // } else {
-    //     // Añadir nuevo elemento
-    //     QStandardItem *item = new QStandardItem(fullName);
-    //     listModelS->appendRow(item);
-    // }
-
-    // QPixmap avatar;
-    // switch(avatarIndex){
-    // case 0:
-    //     avatar = QPixmap(":/resources/images/Lloroso.png");
-    //     break;
-    // case 1:
-    //     avatar = QPixmap(":/resources/images/Pregunta.png");
-    //     break;
-    // case 2:
-    //     avatar = QPixmap(":/resources/images/Sonriente.png");
-    //     break;
-    // }
-
-    // ui->listView->clearSelection();
-    // ui->listView->selectionModel()->clearCurrentIndex();
-
-    // // Limpiar campos después de añadir o modificar
-    // clearFields();
 }
 
 void MainWindow::onRegisterClicked(){
@@ -146,6 +130,12 @@ void MainWindow::onRegisterClicked(){
                              "Introduce un email válido (ej: usuario@dominio.com).");
         return;
     }
+
+    //Ponerlo en el perfil
+    ui->nombre->setText("Nickname: " + nameReg);
+    ui->nacimiento->setText("Date birth: " + birthDate);
+    ui->email->setText("Email: " + mail);
+    ui->contrasenya->setText("Password: " + password1);
 
     ui->stackedWidget->setCurrentIndex(2); // Si lo ha hecho bien, adelante
 }
