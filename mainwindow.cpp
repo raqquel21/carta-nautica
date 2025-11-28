@@ -5,8 +5,10 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+
 {
     ui->setupUi(this);
+
 
     // Mostrar login al inicio
     ui->stackedWidget->setCurrentIndex(0);
@@ -18,6 +20,14 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->pushButtonVolver, &QPushButton::clicked, this, [=](){
         ui->stackedWidget->setCurrentIndex(0);
+    });
+
+    connect(ui->perfil, &QPushButton::clicked, this, [=](){
+        ui->stackedWidget->setCurrentIndex(2);
+    });
+
+    connect(ui->salirPerfil, &QPushButton::clicked, this, [=](){
+        ui->stackedWidget->setCurrentIndex(1);
     });
 }
 
