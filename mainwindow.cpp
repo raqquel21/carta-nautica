@@ -9,6 +9,15 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    // Notación de las ventanas
+    /*
+     * Log in: 0
+     * Registrarse: 1
+     * Ventana principal: 2
+     * Perfil: 3
+     *
+     */
+
     // Mostrar login al inicio
     ui->stackedWidget->setCurrentIndex(0);
 
@@ -19,12 +28,38 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     connect(ui->perfil, &QPushButton::clicked, this, [=](){
-        ui->stackedWidget->setCurrentIndex(2);
+        ui->stackedWidget->setCurrentIndex(3);
     });
 
     connect(ui->salirPerfil, &QPushButton::clicked, this, [=](){
-        ui->stackedWidget->setCurrentIndex(1);
+        ui->stackedWidget->setCurrentIndex(2);
     });
+
+    // Configurar link del registro
+    ui->registrarse->setTextFormat(Qt::RichText);
+    ui->registrarse->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    ui->registrarse->setOpenExternalLinks(false);
+
+    ui->registrarse->setText("Don't have an account? <a href=\"registrar\">Register</a>");
+
+    connect(ui->registrarse, &QLabel::linkActivated, this,
+            [=](const QString &link){
+                //qDebug() << "Link activado:" << link;
+                ui->stackedWidget->setCurrentIndex(1);  // Ir al widget 1
+            });
+
+    // Configurar link del inicio de sesion
+    ui->iniciar_sesion->setTextFormat(Qt::RichText);
+    ui->iniciar_sesion->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    ui->iniciar_sesion->setOpenExternalLinks(false);
+
+    ui->iniciar_sesion->setText("Do you already have an account? <a href=\"registrar\"> Log in</a>");
+
+    connect(ui->iniciar_sesion, &QLabel::linkActivated, this,
+            [=](const QString &link){
+                //qDebug() << "Link activado:" << link;
+                ui->stackedWidget->setCurrentIndex(0);  // Ir al widget 0
+            });
 }
 
 MainWindow::~MainWindow()
@@ -44,7 +79,9 @@ void MainWindow::onLogInClicked()
                              "Por favor, introduce el nickname y/o contraseña correctos.");
         return;
     }
-    ui->stackedWidget->setCurrentIndex(1); // Si lo ha hecho bien, adelante
+    ui->stackedWidget->setCurrentIndex(2); // Si lo ha hecho bien, adelante
+
+    //ui->nombre->setText("Nombre: " + nickname); // ESTO FUNCIONA PERO LO QUEIRO PONER EN UNA FUNCION A PARTE
 
     // QModelIndex selectedIndex = ui->listView->currentIndex();
     // if (selectedIndex.isValid() && (selectedIndex.row() != -1)) {

@@ -27,5 +27,7 @@ private:
 
 private slots:
     void onLogInClicked();
+    //void completeProfile();
+    //void enlace_reg();
 };
 #endif // MAINWINDOW_H
