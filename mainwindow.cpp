@@ -22,6 +22,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->stackedWidget->setCurrentIndex(0);
 
     connect(ui->buttonLogIn, &QPushButton::clicked, this, &MainWindow::onLogInClicked);
+    connect(ui->buttonRegister, &QPushButton::clicked, this, &MainWindow::onRegisterClicked);
+
 
     connect(ui->pushButtonVolver, &QPushButton::clicked, this, [=](){
         ui->stackedWidget->setCurrentIndex(0);
@@ -112,4 +114,22 @@ void MainWindow::onLogInClicked()
 
     // // Limpiar campos después de añadir o modificar
     // clearFields();
+}
+
+void MainWindow::onRegisterClicked(){
+
+    QString name_reg = ui->enter_nickname_reg->text().trimmed();
+    QString password1 = ui->enter_password_r1->text().trimmed();
+    QString password2 = ui->enter_password_r2->text().trimmed();
+
+
+    if (name_reg.isEmpty()|| password1.isEmpty() || password2.isEmpty() || password1 != password2) {
+        ui->stackedWidget->setCurrentIndex(1); // Que no pueda pasar al siguiente paso si no se ha logeado bien
+        QMessageBox::warning(this,
+                             "Advertencia",
+                             "Por favor, introduce el nickname y/o contraseña correctos.");
+        return;
+    }
+
+    ui->stackedWidget->setCurrentIndex(2); // Si lo ha hecho bien, adelante
 }
