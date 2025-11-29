@@ -1,14 +1,18 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
-#include <QString>
-#include<QStringListModel>
 #include <QItemSelection>
-#include <QStandardItemModel>
+#include <QMainWindow>
 #include <QMessageBox>
+#include <QStandardItemModel>
+#include <QString>
+#include <QStringListModel>
+
 #include <QDate>
 #include <QRegularExpression>
+
+#include <QGraphicsView>
+#include <QGraphicsScene>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -27,10 +31,20 @@ public:
 private:
     Ui::MainWindow *ui;
 
+    QGraphicsScene *scene;
+    QGraphicsView *view;
+
+    double scale = 1;
+    void applyZoom(double factor);
 private slots:
     void onLogInClicked();
+    void zoomInS();
+    void zoomOutS();
+    void setupMap();
+
     //void completeProfile();
     //void enlace_reg();
     void onRegisterClicked();
+
 };
 #endif // MAINWINDOW_H

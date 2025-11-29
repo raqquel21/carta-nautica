@@ -10,81 +10,115 @@
  *  atte: la rakitraki
  */
 
+#include <QPixmap>
+#include <QGraphicsPixmapItem>
+
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-
 {
     ui->setupUi(this);
 
-    // Notación de las ventanas
-    /*
-     * Log in: 0
-     * Registrarse: 1
-     * Ventana principal: 2
-     * Perfil: 3
-     *
-     */
-
-    // Login  (ocultar)
+    // Login passwords
     ui->lineEdit_2->setEchoMode(QLineEdit::Password);
-
-    // Register passwords
     ui->enter_password_r1->setEchoMode(QLineEdit::Password);
     ui->enter_password_r2->setEchoMode(QLineEdit::Password);
 
+    // Mostrar login al inicio
+    ui->stackedWidget->setCurrentIndex(0); ui->toolBar->setVisible(false);
 
-    // Mostrar login al inicio (ocultar)
-    ui->stackedWidget->setCurrentIndex(0);
-
+    // Conexiones login/register
     connect(ui->buttonLogIn, &QPushButton::clicked, this, &MainWindow::onLogInClicked);
     connect(ui->buttonRegister, &QPushButton::clicked, this, &MainWindow::onRegisterClicked);
 
-
-    connect(ui->pushButtonVolver, &QPushButton::clicked, this, [=](){
-        ui->stackedWidget->setCurrentIndex(0);
-    });
-
-    connect(ui->perfil, &QPushButton::clicked, this, [=](){
-        ui->stackedWidget->setCurrentIndex(3);
-    });
-
-    connect(ui->salirPerfil, &QPushButton::clicked, this, [=](){
-        ui->stackedWidget->setCurrentIndex(2);
-    });
-
-    // Configurar link del registro
+    // Links del registro y login
     ui->registrarse->setTextFormat(Qt::RichText);
     ui->registrarse->setTextInteractionFlags(Qt::TextBrowserInteraction);
     ui->registrarse->setOpenExternalLinks(false);
-
     ui->registrarse->setText("Don't have an account? <a href=\"registrar\">Register</a>");
+    connect(ui->registrarse, &QLabel::linkActivated, this, [=](const QString &){ ui->stackedWidget->setCurrentIndex(1); ui->toolBar->setVisible(false);});
 
-    connect(ui->registrarse, &QLabel::linkActivated, this,
-            [=](const QString &link){
-                //qDebug() << "Link activado:" << link;
-                ui->stackedWidget->setCurrentIndex(1);  // Ir al widget 1
-            });
-
-    // Configurar link del inicio de sesion
     ui->iniciar_sesion->setTextFormat(Qt::RichText);
     ui->iniciar_sesion->setTextInteractionFlags(Qt::TextBrowserInteraction);
     ui->iniciar_sesion->setOpenExternalLinks(false);
-
     ui->iniciar_sesion->setText("Do you already have an account? <a href=\"registrar\"> Log in</a>");
+    connect(ui->iniciar_sesion, &QLabel::linkActivated, this, [=](const QString &){ ui->stackedWidget->setCurrentIndex(0); ui->toolBar->setVisible(false); });
 
-    connect(ui->iniciar_sesion, &QLabel::linkActivated, this,
-            [=](const QString &link){
-                //qDebug() << "Link activado:" << link;
-                ui->stackedWidget->setCurrentIndex(0);  // Ir al widget 0
-            });
+    // Conexiones botones
+    connect(ui->pushButtonVolver, &QPushButton::clicked, this, [=](){ ui->stackedWidget->setCurrentIndex(0); ui->toolBar->setVisible(false); });
+    connect(ui->perfil, &QPushButton::clicked, this, [=](){ ui->stackedWidget->setCurrentIndex(3); ui->toolBar->setVisible(false); });
+    connect(ui->salirPerfil, &QPushButton::clicked, this, [=](){ ui->stackedWidget->setCurrentIndex(2); ui->toolBar->setVisible(false); });
+
+    // Map button
+    bool mapaListo = false;
+    connect(ui->Map, &QPushButton::clicked, this, [&](){
+        ui->stackedWidget->setCurrentIndex(4);
+        if (!mapaListo) {
+            setupMap();
+            mapaListo = true;
+        }
+        ui->toolBar->setVisible(true);
+    });
+
+
+    scene = new QGraphicsScene(this);
+    ui->graphicsView->setScene(scene);
+    QPixmap pm(":/images/carta_nautica.jpg");
+    scene->addPixmap(pm);
+    ui->graphicsView->scale(0.3, 0.3);
+    ui->graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
+    scale = 0.2;
+
+    connect(ui->zoomIn,&QAction::triggered,this,&MainWindow::zoomInS);
+    connect(ui->zoomOut,&QAction::triggered,this,&MainWindow::zoomOutS);
+}
+
+
+void MainWindow::setupMap() //funcion para hacer los cambios al mapa
+{
+
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
 }
+void MainWindow::zoomInS(){
 
+    applyZoom(1.15);
+}
+
+void MainWindow::zoomOutS(){
+
+    applyZoom(1.0/1.15);
+}
+
+void MainWindow::applyZoom(double factor){
+
+
+    double newScale = scale * factor;
+
+    const double minScale = 0.01;
+    const double maxScale = 1;
+
+    if (newScale < minScale){
+
+        factor = minScale / scale;
+        newScale = minScale;
+
+
+
+    }else if (newScale > maxScale){
+
+        factor = maxScale / scale;
+        newScale = maxScale;
+
+    }
+    ui->graphicsView->scale(factor,factor);
+    scale = newScale;
+
+}
 void MainWindow::onLogInClicked()
 {
     QString nickname = ui->enter_nickname->text().trimmed();
@@ -99,6 +133,7 @@ void MainWindow::onLogInClicked()
     }
     ui->stackedWidget->setCurrentIndex(2); // Si lo ha hecho bien, adelante
 }
+
 
 void MainWindow::onRegisterClicked(){
 
