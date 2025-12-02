@@ -72,6 +72,15 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->zoomIn,&QAction::triggered,this,&MainWindow::zoomInS);
     connect(ui->zoomOut,&QAction::triggered,this,&MainWindow::zoomOutS);
+
+    sidebarVisible = true;
+    ui->sidebarButton->setIcon(QIcon(":/images/flechaIzq.png"));
+    sidebarAnimation = new QPropertyAnimation(ui->sidebar_2, "maximumWidth", this);
+    sidebarAnimation->setDuration(300);
+
+    // 2. CONEXIÓN DEL BOTÓN
+    // Asegúrate de que el nombre del objeto sea correcto (el botón dentro del sidebar)
+    connect(ui->sidebarButton, &QPushButton::clicked, this, &MainWindow::toggleSidebar);
 }
 
 
@@ -173,4 +182,42 @@ void MainWindow::onRegisterClicked(){
     ui->contrasenya->setText("Password: " + password1);
 
     ui->stackedWidget->setCurrentIndex(2); // Si lo ha hecho bien, adelante
+}
+
+// ... la misma implementación ...
+
+// mainwindow.cpp
+
+void MainWindow::toggleSidebar()
+{
+    const int fullWidth = 300;
+    const int closedWidth = 60; // O 30, si quieres que el botón quede parcialmente visible
+
+    int startValue;
+    int endValue;
+
+    if (sidebarVisible) {
+
+        startValue = fullWidth;
+        endValue = closedWidth;
+        sidebarVisible = false;
+
+
+        ui->sidebarButton->setIcon(QIcon(":/images/flechaDer.png"));
+
+
+    } else {
+        startValue = closedWidth;
+        endValue = fullWidth;
+        sidebarVisible = true;
+
+
+        ui->sidebarButton->setIcon(QIcon(":/images/flechaIzq.png"));
+
+    }
+
+    // Iniciar Animación
+    sidebarAnimation->setStartValue(startValue);
+    sidebarAnimation->setEndValue(endValue);
+    sidebarAnimation->start();
 }

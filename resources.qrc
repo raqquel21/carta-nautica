@@ -10,5 +10,7 @@
         <file>ruler.svg</file>
         <file>transportador.svg</file>
         <file>carta_nautica.jpg</file>
+        <file>flechaDer.png</file>
+        <file>flechaIzq.png</file>
     </qresource>
 </RCC>

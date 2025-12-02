@@ -14,6 +14,8 @@
 #include <QGraphicsView>
 #include <QGraphicsScene>
 
+#include <QPropertyAnimation>
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -36,15 +38,21 @@ private:
 
     double scale = 1;
     void applyZoom(double factor);
+
+    QPropertyAnimation *sidebarAnimation;
+    bool sidebarVisible;
 private slots:
-    void onLogInClicked();
     void zoomInS();
     void zoomOutS();
     void setupMap();
 
+
     //void completeProfile();
     //void enlace_reg();
+    void onLogInClicked();
     void onRegisterClicked();
+
+    void toggleSidebar();
 
 };
 #endif // MAINWINDOW_H
