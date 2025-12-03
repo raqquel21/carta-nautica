@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "navigation.h"
 
 /*
  * Me falta por añadir:
@@ -13,8 +14,10 @@
 #include <QPixmap>
 #include <QGraphicsPixmapItem>
 
-#include <navigation.h>
+//#include <navigation.h>
 
+#include <QDebug>
+#include <QDir>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -83,6 +86,19 @@ MainWindow::MainWindow(QWidget *parent)
     // 2. CONEXIÓN DEL BOTÓN
     // Asegúrate de que el nombre del objeto sea correcto (el botón dentro del sidebar)
     connect(ui->sidebarButton, &QPushButton::clicked, this, &MainWindow::toggleSidebar);
+
+    //prueba bbdd
+    Navigation &nav = Navigation::instance();
+    User *u = nav.authenticate("user1", "User123!");
+
+    if (u) {
+        QMessageBox::information(this, "BBDD",
+                                 "LOGIN CORRECTO\nUsuario: " + u->nickName());
+    } else {
+        QMessageBox::critical(this, "BBDD",
+                              "LOGIN INCORRECTO o BBDD NO ENCONTRADA");
+    }
+
 }
 
 
