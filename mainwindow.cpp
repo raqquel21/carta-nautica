@@ -13,6 +13,8 @@
 #include <QPixmap>
 #include <QGraphicsPixmapItem>
 
+#include <navigation.h>
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -26,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->enter_password_r2->setEchoMode(QLineEdit::Password);
 
     // Mostrar login al inicio
-    ui->stackedWidget->setCurrentIndex(0); ui->toolBar->setVisible(false);
+    ui->stackedWidget->setCurrentIndex(0);
 
     // Conexiones login/register
     connect(ui->buttonLogIn, &QPushButton::clicked, this, &MainWindow::onLogInClicked);
@@ -37,18 +39,18 @@ MainWindow::MainWindow(QWidget *parent)
     ui->registrarse->setTextInteractionFlags(Qt::TextBrowserInteraction);
     ui->registrarse->setOpenExternalLinks(false);
     ui->registrarse->setText("Don't have an account? <a href=\"registrar\">Register</a>");
-    connect(ui->registrarse, &QLabel::linkActivated, this, [=](const QString &){ ui->stackedWidget->setCurrentIndex(1); ui->toolBar->setVisible(false);});
+    connect(ui->registrarse, &QLabel::linkActivated, this, [=](const QString &){ ui->stackedWidget->setCurrentIndex(1);});
 
     ui->iniciar_sesion->setTextFormat(Qt::RichText);
     ui->iniciar_sesion->setTextInteractionFlags(Qt::TextBrowserInteraction);
     ui->iniciar_sesion->setOpenExternalLinks(false);
     ui->iniciar_sesion->setText("Do you already have an account? <a href=\"registrar\"> Log in</a>");
-    connect(ui->iniciar_sesion, &QLabel::linkActivated, this, [=](const QString &){ ui->stackedWidget->setCurrentIndex(0); ui->toolBar->setVisible(false); });
+    connect(ui->iniciar_sesion, &QLabel::linkActivated, this, [=](const QString &){ ui->stackedWidget->setCurrentIndex(0);});
 
     // Conexiones botones
-    connect(ui->pushButtonVolver, &QPushButton::clicked, this, [=](){ ui->stackedWidget->setCurrentIndex(0); ui->toolBar->setVisible(false); });
-    connect(ui->perfil, &QPushButton::clicked, this, [=](){ ui->stackedWidget->setCurrentIndex(3); ui->toolBar->setVisible(false); });
-    connect(ui->salirPerfil, &QPushButton::clicked, this, [=](){ ui->stackedWidget->setCurrentIndex(2); ui->toolBar->setVisible(false); });
+    connect(ui->pushButtonVolver, &QPushButton::clicked, this, [=](){ ui->stackedWidget->setCurrentIndex(0);});
+    connect(ui->perfil, &QPushButton::clicked, this, [=](){ ui->stackedWidget->setCurrentIndex(3);});
+    connect(ui->salirPerfil, &QPushButton::clicked, this, [=](){ ui->stackedWidget->setCurrentIndex(2);});
 
     // Map button
     bool mapaListo = false;
@@ -58,7 +60,7 @@ MainWindow::MainWindow(QWidget *parent)
             setupMap();
             mapaListo = true;
         }
-        ui->toolBar->setVisible(true);
+
     });
 
 
@@ -70,8 +72,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
     scale = 0.2;
 
-    connect(ui->zoomIn,&QAction::triggered,this,&MainWindow::zoomInS);
-    connect(ui->zoomOut,&QAction::triggered,this,&MainWindow::zoomOutS);
+    connect(ui->zoomIn_2,&QToolButton::clicked,this,&MainWindow::zoomInS);
+    connect(ui->zoomOut_2,&QToolButton::clicked,this,&MainWindow::zoomOutS);
 
     sidebarVisible = true;
     ui->sidebarButton->setIcon(QIcon(":/images/flechaIzq.png"));
@@ -191,7 +193,7 @@ void MainWindow::onRegisterClicked(){
 void MainWindow::toggleSidebar()
 {
     const int fullWidth = 300;
-    const int closedWidth = 60; // O 30, si quieres que el botón quede parcialmente visible
+    const int closedWidth = 100; // O 30, si quieres que el botón quede parcialmente visible
 
     int startValue;
     int endValue;
