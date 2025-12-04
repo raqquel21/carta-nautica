@@ -103,14 +103,15 @@ public:
     QHBoxLayout *horizontalLayout_4;
     QWidget *sidebar_2;
     QGridLayout *sidebar;
-    QRadioButton *radioButton_3;
-    QRadioButton *radioButton_4;
-    QRadioButton *radioButton;
     QLabel *label;
-    QRadioButton *radioButton_2;
     QPushButton *pushButton_2;
     QSpacerItem *horizontalSpacer_5;
     QPushButton *sidebarButton;
+    QPushButton *pushButton_3;
+    QRadioButton *radioButton;
+    QRadioButton *radioButton_4;
+    QRadioButton *radioButton_3;
+    QRadioButton *radioButton_2;
     QVBoxLayout *verticalLayout_3;
     QHBoxLayout *horizontalLayout_2;
     QToolButton *lapiz_2;
@@ -542,38 +543,24 @@ public:
         sidebar = new QGridLayout(sidebar_2);
         sidebar->setObjectName("sidebar");
         sidebar->setSizeConstraint(QLayout::SizeConstraint::SetDefaultConstraint);
-        radioButton_3 = new QRadioButton(sidebar_2);
-        radioButton_3->setObjectName("radioButton_3");
-
-        sidebar->addWidget(radioButton_3, 5, 0, 1, 1);
-
-        radioButton_4 = new QRadioButton(sidebar_2);
-        radioButton_4->setObjectName("radioButton_4");
-
-        sidebar->addWidget(radioButton_4, 6, 0, 1, 1);
-
-        radioButton = new QRadioButton(sidebar_2);
-        radioButton->setObjectName("radioButton");
-
-        sidebar->addWidget(radioButton, 3, 0, 1, 1);
-
         label = new QLabel(sidebar_2);
         label->setObjectName("label");
-        QSizePolicy sizePolicy3(QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Preferred);
+        QSizePolicy sizePolicy3(QSizePolicy::Policy::MinimumExpanding, QSizePolicy::Policy::Preferred);
         sizePolicy3.setHorizontalStretch(0);
         sizePolicy3.setVerticalStretch(0);
         sizePolicy3.setHeightForWidth(label->sizePolicy().hasHeightForWidth());
         label->setSizePolicy(sizePolicy3);
+        label->setWordWrap(true);
 
         sidebar->addWidget(label, 2, 0, 1, 2);
 
-        radioButton_2 = new QRadioButton(sidebar_2);
-        radioButton_2->setObjectName("radioButton_2");
-
-        sidebar->addWidget(radioButton_2, 4, 0, 1, 1);
-
         pushButton_2 = new QPushButton(sidebar_2);
         pushButton_2->setObjectName("pushButton_2");
+        QSizePolicy sizePolicy4(QSizePolicy::Policy::MinimumExpanding, QSizePolicy::Policy::Fixed);
+        sizePolicy4.setHorizontalStretch(0);
+        sizePolicy4.setVerticalStretch(0);
+        sizePolicy4.setHeightForWidth(pushButton_2->sizePolicy().hasHeightForWidth());
+        pushButton_2->setSizePolicy(sizePolicy4);
 
         sidebar->addWidget(pushButton_2, 7, 0, 1, 1);
 
@@ -595,6 +582,47 @@ public:
 ""));
 
         sidebar->addWidget(sidebarButton, 0, 1, 1, 1);
+
+        pushButton_3 = new QPushButton(sidebar_2);
+        pushButton_3->setObjectName("pushButton_3");
+        QSizePolicy sizePolicy5(QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Fixed);
+        sizePolicy5.setHorizontalStretch(0);
+        sizePolicy5.setVerticalStretch(0);
+        sizePolicy5.setHeightForWidth(pushButton_3->sizePolicy().hasHeightForWidth());
+        pushButton_3->setSizePolicy(sizePolicy5);
+
+        sidebar->addWidget(pushButton_3, 7, 1, 1, 1);
+
+        radioButton = new QRadioButton(sidebar_2);
+        radioButton->setObjectName("radioButton");
+        QSizePolicy sizePolicy6(QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Maximum);
+        sizePolicy6.setHorizontalStretch(0);
+        sizePolicy6.setVerticalStretch(0);
+        sizePolicy6.setHeightForWidth(radioButton->sizePolicy().hasHeightForWidth());
+        radioButton->setSizePolicy(sizePolicy6);
+
+        sidebar->addWidget(radioButton, 3, 0, 1, 2);
+
+        radioButton_4 = new QRadioButton(sidebar_2);
+        radioButton_4->setObjectName("radioButton_4");
+        sizePolicy5.setHeightForWidth(radioButton_4->sizePolicy().hasHeightForWidth());
+        radioButton_4->setSizePolicy(sizePolicy5);
+
+        sidebar->addWidget(radioButton_4, 6, 0, 1, 2);
+
+        radioButton_3 = new QRadioButton(sidebar_2);
+        radioButton_3->setObjectName("radioButton_3");
+        sizePolicy5.setHeightForWidth(radioButton_3->sizePolicy().hasHeightForWidth());
+        radioButton_3->setSizePolicy(sizePolicy5);
+
+        sidebar->addWidget(radioButton_3, 5, 0, 1, 2);
+
+        radioButton_2 = new QRadioButton(sidebar_2);
+        radioButton_2->setObjectName("radioButton_2");
+        sizePolicy5.setHeightForWidth(radioButton_2->sizePolicy().hasHeightForWidth());
+        radioButton_2->setSizePolicy(sizePolicy5);
+
+        sidebar->addWidget(radioButton_2, 4, 0, 1, 2);
 
 
         horizontalLayout_4->addWidget(sidebar_2);
@@ -717,13 +745,14 @@ public:
         pushButton->setText(QCoreApplication::translate("MainWindow", "PushButton", nullptr));
         nombre->setText(QCoreApplication::translate("MainWindow", "Nombre:", nullptr));
         cerrarSesion->setText(QCoreApplication::translate("MainWindow", "Cerrar Sesi\303\263n", nullptr));
-        radioButton_3->setText(QCoreApplication::translate("MainWindow", "RadioButton", nullptr));
-        radioButton_4->setText(QCoreApplication::translate("MainWindow", "RadioButton", nullptr));
-        radioButton->setText(QCoreApplication::translate("MainWindow", "RadioButton", nullptr));
         label->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
-        radioButton_2->setText(QCoreApplication::translate("MainWindow", "RadioButton", nullptr));
         pushButton_2->setText(QCoreApplication::translate("MainWindow", "Verificar", nullptr));
         sidebarButton->setText(QString());
+        pushButton_3->setText(QCoreApplication::translate("MainWindow", "Siguiente Pregunta", nullptr));
+        radioButton->setText(QCoreApplication::translate("MainWindow", "RadioButton", nullptr));
+        radioButton_4->setText(QCoreApplication::translate("MainWindow", "RadioButton", nullptr));
+        radioButton_3->setText(QCoreApplication::translate("MainWindow", "RadioButton", nullptr));
+        radioButton_2->setText(QCoreApplication::translate("MainWindow", "RadioButton", nullptr));
         lapiz_2->setText(QCoreApplication::translate("MainWindow", "...", nullptr));
         goma_2->setText(QCoreApplication::translate("MainWindow", "...", nullptr));
         zoomIn_2->setText(QCoreApplication::translate("MainWindow", "...", nullptr));

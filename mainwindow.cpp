@@ -25,6 +25,18 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    //cargar problemas
+    problemas = nav.problems();
+
+    respbotones.append(ui->radioButton);
+    respbotones.append(ui->radioButton_2);
+    respbotones.append(ui->radioButton_3);
+    respbotones.append(ui->radioButton_4);
+
+    connect(ui->pushButton_3, &QPushButton::clicked, this, &MainWindow::showNextQuestion);
+
+    showNextQuestion(); //para que salga la primera xd
+
     // Login passwords
     ui->lineEdit_2->setEchoMode(QLineEdit::Password);
     ui->enter_password_r1->setEchoMode(QLineEdit::Password);
@@ -142,7 +154,6 @@ void MainWindow::onLogInClicked()
 {
     QString nickname = ui->enter_nickname->text().trimmed();
     QString password = ui->lineEdit_2->text().trimmed();
-    Navigation &nav = Navigation::instance();
     User *u = nav.authenticate(nickname, password);
 
     if (u) {
@@ -198,7 +209,6 @@ void MainWindow::onRegisterClicked(){
 
     User u(nameReg, mail, password1, avatar, fecha);
 
-    Navigation &nav = Navigation::instance();
     nav.addUser(u);
 
     //Ponerlo en el perfil
@@ -246,4 +256,29 @@ void MainWindow::toggleSidebar()
     sidebarAnimation->setStartValue(startValue);
     sidebarAnimation->setEndValue(endValue);
     sidebarAnimation->start();
+}
+
+//boton de siguiente pregunta
+void MainWindow::showNextQuestion()
+{
+
+    if (preg_actual >= problemas.size())
+        preg_actual = 0; // reiniciar si llegamos al final
+
+    const Problem &p = problemas[preg_actual];
+
+    ui->label->setText(p.text());
+
+    // actualizar radiobuttons
+    for (int i = 0; i < respbotones.size(); ++i) {
+        if (i < p.answers().size()) {
+            respbotones[i]->setText(p.answers()[i].text());
+            respbotones[i]->setVisible(true);
+            respbotones[i]->setChecked(false);
+        } else {
+            respbotones[i]->setVisible(false);
+        }
+    }
+
+    preg_actual++;
 }

@@ -1,6 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "navigation.h"
+#include "navtypes.h"
+#include "qradiobutton.h"
 #include <QItemSelection>
 #include <QMainWindow>
 #include <QMessageBox>
@@ -41,6 +44,13 @@ private:
 
     QPropertyAnimation *sidebarAnimation;
     bool sidebarVisible;
+
+    int preg_actual = 1;
+    QVector<Problem> problemas;
+    QVector<QRadioButton*> respbotones;
+
+    Navigation &nav = Navigation::instance();
+
 private slots:
     void zoomInS();
     void zoomOutS();
@@ -53,6 +63,8 @@ private slots:
     void onRegisterClicked();
 
     void toggleSidebar();
+
+    void showNextQuestion();
 
 };
 #endif // MAINWINDOW_H
