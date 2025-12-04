@@ -88,16 +88,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->sidebarButton, &QPushButton::clicked, this, &MainWindow::toggleSidebar);
 
     //prueba bbdd
-    Navigation &nav = Navigation::instance();
-    User *u = nav.authenticate("user1", "User123!");
 
-    if (u) {
-        QMessageBox::information(this, "BBDD",
-                                 "LOGIN CORRECTO\nUsuario: " + u->nickName());
-    } else {
-        QMessageBox::critical(this, "BBDD",
-                              "LOGIN INCORRECTO o BBDD NO ENCONTRADA");
-    }
+
 
 }
 
@@ -150,6 +142,15 @@ void MainWindow::onLogInClicked()
 {
     QString nickname = ui->enter_nickname->text().trimmed();
     QString password = ui->lineEdit_2->text().trimmed();
+    Navigation &nav = Navigation::instance();
+    User *u = nav.authenticate(nickname, password);
+
+    if (u) {
+        ui->stackedWidget->setCurrentIndex(2); // Si lo ha hecho bien, adelante
+    } else {
+        QMessageBox::critical(this, "BBDD",
+                              "LOGIN INCORRECTO o BBDD NO ENCONTRADA");
+    }
 
     if (nickname.isEmpty()|| password.isEmpty()) {
         ui->stackedWidget->setCurrentIndex(0); // Que no pueda pasar al siguiente paso si no se ha logeado bien
@@ -158,7 +159,7 @@ void MainWindow::onLogInClicked()
                              "Por favor, introduce el nickname y/o contraseña correctos.");
         return;
     }
-    ui->stackedWidget->setCurrentIndex(2); // Si lo ha hecho bien, adelante
+
 }
 
 
