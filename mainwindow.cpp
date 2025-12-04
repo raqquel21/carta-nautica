@@ -148,8 +148,8 @@ void MainWindow::onLogInClicked()
     if (u) {
         ui->stackedWidget->setCurrentIndex(2); // Si lo ha hecho bien, adelante
     } else {
-        QMessageBox::critical(this, "BBDD",
-                              "LOGIN INCORRECTO o BBDD NO ENCONTRADA");
+        QMessageBox::warning(this, "Incorrecto",
+                              "LOGIN INCORRECTO");
     }
 
     if (nickname.isEmpty()|| password.isEmpty()) {
@@ -170,7 +170,6 @@ void MainWindow::onRegisterClicked(){
     QString mail = ui->enter_mail->text().trimmed();
     QString password1 = ui->enter_password_r1->text().trimmed();
     QString password2 = ui->enter_password_r2->text().trimmed();
-
 
     if (nameReg.isEmpty()|| password1.isEmpty() || password2.isEmpty() || password1 != password2) {
         ui->stackedWidget->setCurrentIndex(1); // Que no pueda pasar al siguiente paso si no se ha logeado bien
@@ -193,6 +192,14 @@ void MainWindow::onRegisterClicked(){
                              "Introduce un email válido (ej: usuario@dominio.com).");
         return;
     }
+
+    //crear el usuario
+    QImage avatar(":/images/userIcono.png"); //foto por defecto (esto habrá que arreglarlo xd)
+
+    User u(nameReg, mail, password1, avatar, fecha);
+
+    Navigation &nav = Navigation::instance();
+    nav.addUser(u);
 
     //Ponerlo en el perfil
     ui->nombre->setText("Nickname: " + nameReg);
