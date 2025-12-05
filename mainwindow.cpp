@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "navigation.h"
 
 /*
  * Me falta por añadir:
@@ -14,10 +13,10 @@
 #include <QPixmap>
 #include <QGraphicsPixmapItem>
 
-//#include <navigation.h>
-
+#include <navigation.h>
 #include <QDebug>
 #include <QDir>
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -99,10 +98,6 @@ MainWindow::MainWindow(QWidget *parent)
     // Asegúrate de que el nombre del objeto sea correcto (el botón dentro del sidebar)
     connect(ui->sidebarButton, &QPushButton::clicked, this, &MainWindow::toggleSidebar);
 
-    //prueba bbdd
-
-
-
 }
 
 
@@ -160,7 +155,7 @@ void MainWindow::onLogInClicked()
         ui->stackedWidget->setCurrentIndex(2); // Si lo ha hecho bien, adelante
     } else {
         QMessageBox::warning(this, "Incorrecto",
-                              "LOGIN INCORRECTO");
+                             "LOGIN INCORRECTO");
     }
 
     if (nickname.isEmpty()|| password.isEmpty()) {
@@ -172,7 +167,6 @@ void MainWindow::onLogInClicked()
     }
 
 }
-
 
 void MainWindow::onRegisterClicked(){
 
@@ -237,6 +231,12 @@ void MainWindow::toggleSidebar()
         startValue = fullWidth;
         endValue = closedWidth;
         sidebarVisible = false;
+        ui->label->setVisible(false);
+        ui->pushButton_2->setVisible(false);
+        ui->pushButton_3->setVisible(false);
+        for (int i = 0; i < respbotones.size(); ++i) {
+            respbotones[i]->setVisible(false);
+        }
 
 
         ui->sidebarButton->setIcon(QIcon(":/images/flechaDer.png"));
@@ -246,6 +246,12 @@ void MainWindow::toggleSidebar()
         startValue = closedWidth;
         endValue = fullWidth;
         sidebarVisible = true;
+        ui->label->setVisible(true);
+        ui->pushButton_2->setVisible(true);
+        ui->pushButton_3->setVisible(true);
+        for (int i = 0; i < respbotones.size(); ++i) {
+            respbotones[i]->setVisible(true);
+        }
 
 
         ui->sidebarButton->setIcon(QIcon(":/images/flechaIzq.png"));
@@ -258,7 +264,6 @@ void MainWindow::toggleSidebar()
     sidebarAnimation->start();
 }
 
-//boton de siguiente pregunta
 void MainWindow::showNextQuestion()
 {
 

@@ -50,7 +50,6 @@ private:
     QVector<QRadioButton*> respbotones;
 
     Navigation &nav = Navigation::instance();
-
 private slots:
     void zoomInS();
     void zoomOutS();
