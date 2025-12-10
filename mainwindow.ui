@@ -958,6 +958,31 @@ QPushButton:pressed {
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_2">
             <item>
+             <widget class="QToolButton" name="nuevaPag">
+              <property name="styleSheet">
+               <string notr="true">QToolButton {
+    border: none;
+	background-repeat: no-repeat;
+    background-position: center;
+    background-image: url(:/images/newpag.png);
+
+    min-width: 48px;
+    min-height: 48px;
+}</string>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="cursor">
+              <property name="text">
+               <string>...</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QToolButton" name="lapiz_2">
               <property name="styleSheet">
                <string notr="true">QToolButton {
@@ -996,6 +1021,70 @@ QPushButton:pressed {
               </property>
               <property name="text">
                <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="texto">
+              <property name="text">
+               <string>...</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="marca">
+              <property name="text">
+               <string>...</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="ojo">
+              <property name="text">
+               <string>...</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="regla">
+              <property name="styleSheet">
+               <string notr="true">QToolButton {
+    border: none;
+	background-repeat: no-repeat;
+    background-position: center;
+    background-image: url(:/images/rule.png);
+
+    min-width: 48px;
+    min-height: 48px;
+}</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="transportador">
+              <property name="styleSheet">
+               <string notr="true">QToolButton {
+    border: none;
+	background-repeat: no-repeat;
+    background-position: center;
+    background-image: url(:/images/transportador.png);
+
+    min-width: 48px;
+    min-height: 48px;
+}</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="compas">
+              <property name="text">
+               <string>...</string>
               </property>
              </widget>
             </item>
