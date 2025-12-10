@@ -14,5 +14,8 @@
         <file>zoomIn.png</file>
         <file>zoomOut.png</file>
         <file>goma.png</file>
+        <file>transportador.png</file>
+        <file>rule.png</file>
+        <file>newpag.png</file>
     </qresource>
 </RCC>
