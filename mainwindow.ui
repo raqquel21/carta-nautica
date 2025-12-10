@@ -968,17 +968,50 @@ QPushButton:pressed {
 
     min-width: 48px;
     min-height: 48px;
-}</string>
+}
+
+QToolButton:hover {
+    background-image: url(:/images/newpagIlum.png);
+	background-repeat: no-repeat;
+}
+
+QToolButton:pressed {
+	background-image: url(:/images/newpagIlum.png);
+	background-repeat: no-repeat;
+}
+</string>
               </property>
               <property name="text">
-               <string>...</string>
+               <string/>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QToolButton" name="cursor">
+              <property name="styleSheet">
+               <string notr="true">QToolButton {
+    border: none;
+	background-repeat: no-repeat;
+    background-position: center;
+    background-image: url(:/images/cursor.png);
+
+    min-width: 48px;
+    min-height: 48px;
+}
+
+QToolButton:hover {
+    background-image: url(:/images/cursorIlum.png);
+	background-repeat: no-repeat;
+}
+
+QToolButton:pressed {
+	background-image: url(:/images/cursorIlum.png);
+	background-repeat: no-repeat;
+}
+</string>
+              </property>
               <property name="text">
-               <string>...</string>
+               <string/>
               </property>
              </widget>
             </item>
@@ -993,7 +1026,18 @@ QPushButton:pressed {
 
     min-width: 48px;
     min-height: 48px;
-}</string>
+}
+
+QToolButton:hover {
+    background-image: url(:/images/lapizIlum.png);
+	background-repeat: no-repeat;
+}
+
+QToolButton:pressed {
+	background-image: url(:/images/lapizIlum.png);
+	background-repeat: no-repeat;
+}
+</string>
               </property>
               <property name="text">
                <string/>
@@ -1017,7 +1061,18 @@ QPushButton:pressed {
 
     min-width: 48px;
     min-height: 48px;
-}</string>
+}
+
+QToolButton:hover {
+    background-image: url(:/images/gomaIlum.png);
+	background-repeat: no-repeat;
+}
+
+QToolButton:pressed {
+	background-image: url(:/images/gomaIlum.png);
+	background-repeat: no-repeat;
+}
+</string>
               </property>
               <property name="text">
                <string/>
@@ -1026,22 +1081,88 @@ QPushButton:pressed {
             </item>
             <item>
              <widget class="QToolButton" name="texto">
+              <property name="styleSheet">
+               <string notr="true">QToolButton {
+    border: none;
+	background-repeat: no-repeat;
+    background-position: center;
+    background-image: url(:/images/texto.png);
+
+    min-width: 48px;
+    min-height: 48px;
+}
+
+QToolButton:hover {
+    background-image: url(:/images/textoIlum.png);
+	background-repeat: no-repeat;
+}
+
+QToolButton:pressed {
+	background-image: url(:/images/textoIlum.png);
+	background-repeat: no-repeat;
+}
+</string>
+              </property>
               <property name="text">
-               <string>...</string>
+               <string/>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QToolButton" name="marca">
+              <property name="styleSheet">
+               <string notr="true">QToolButton {
+    border: none;
+	background-repeat: no-repeat;
+    background-position: center;
+    background-image: url(:/images/marca.png);
+
+    min-width: 48px;
+    min-height: 48px;
+}
+
+QToolButton:hover {
+    background-image: url(:/images/marcaIlum.png);
+	background-repeat: no-repeat;
+}
+
+QToolButton:pressed {
+	background-image: url(:/images/marcaIlum.png);
+	background-repeat: no-repeat;
+}
+</string>
+              </property>
               <property name="text">
-               <string>...</string>
+               <string/>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QToolButton" name="ojo">
+              <property name="styleSheet">
+               <string notr="true">QToolButton {
+    border: none;
+	background-repeat: no-repeat;
+    background-position: center;
+    background-image: url(:/images/ojo.png);
+
+    min-width: 48px;
+    min-height: 48px;
+}
+
+QToolButton:hover {
+    background-image: url(:/images/ojoIlum.png);
+	background-repeat: no-repeat;
+}
+
+QToolButton:pressed {
+	background-image: url(:/images/ojoIlum.png);
+	background-repeat: no-repeat;
+}
+</string>
+              </property>
               <property name="text">
-               <string>...</string>
+               <string/>
               </property>
              </widget>
             </item>
@@ -1056,7 +1177,18 @@ QPushButton:pressed {
 
     min-width: 48px;
     min-height: 48px;
-}</string>
+}
+
+QToolButton:hover {
+    background-image: url(:/images/ruleIlum.png);
+	background-repeat: no-repeat;
+}
+
+QToolButton:pressed {
+	background-image: url(:/images/ruleIlum.png);
+	background-repeat: no-repeat;
+}
+</string>
               </property>
               <property name="text">
                <string/>
@@ -1074,7 +1206,18 @@ QPushButton:pressed {
 
     min-width: 48px;
     min-height: 48px;
-}</string>
+}
+
+QToolButton:hover {
+    background-image: url(:/images/transportadorIlum.png);
+	background-repeat: no-repeat;
+}
+
+QToolButton:pressed {
+	background-image: url(:/images/transportadorilum.png);
+	background-repeat: no-repeat;
+}
+</string>
               </property>
               <property name="text">
                <string/>
@@ -1083,8 +1226,30 @@ QPushButton:pressed {
             </item>
             <item>
              <widget class="QToolButton" name="compas">
+              <property name="styleSheet">
+               <string notr="true">QToolButton {
+    border: none;
+	background-repeat: no-repeat;
+    background-position: center;
+    background-image: url(:/images/compas.png);
+
+    min-width: 48px;
+    min-height: 48px;
+}
+
+QToolButton:hover {
+    background-image: url(:/images/compasIlum.png);
+	background-repeat: no-repeat;
+}
+
+QToolButton:pressed {
+	background-image: url(:/images/compasIlum.png);
+	background-repeat: no-repeat;
+}
+</string>
+              </property>
               <property name="text">
-               <string>...</string>
+               <string/>
               </property>
              </widget>
             </item>
@@ -1099,7 +1264,17 @@ QPushButton:pressed {
 
     min-width: 48px;
     min-height: 48px;
-}</string>
+}
+QToolButton:hover {
+    background-image: url(:/images/zoomInIlum.png);
+	background-repeat: no-repeat;
+}
+
+QToolButton:pressed {
+	background-image: url(:/images/zoomInIlum.png);
+	background-repeat: no-repeat;
+}
+</string>
               </property>
               <property name="text">
                <string/>
@@ -1117,6 +1292,15 @@ QPushButton:pressed {
 
     min-width: 48px;
     min-height: 48px;
+}
+QToolButton:hover {
+    background-image: url(:/images/zoomOutIlum.png);
+	background-repeat: no-repeat;
+}
+
+QToolButton:pressed {
+	background-image: url(:/images/zoomOutIlum.png);
+	background-repeat: no-repeat;
 }</string>
               </property>
               <property name="text">

@@ -17,5 +17,22 @@
         <file>transportador.png</file>
         <file>rule.png</file>
         <file>newpag.png</file>
+        <file>gomaIlum.png</file>
+        <file>lapizIlum.png</file>
+        <file>newpagIlum.png</file>
+        <file>zoomOutIlum.png</file>
+        <file>zoomInIlum.png</file>
+        <file>ruleIlum.png</file>
+        <file>transportadorIlum.png</file>
+        <file>ojo.png</file>
+        <file>ojoIlum.png</file>
+        <file>texto.png</file>
+        <file>textoIlum.png</file>
+        <file>cursor.png</file>
+        <file>cursorIlum.png</file>
+        <file>marca.png</file>
+        <file>marcaIlum.png</file>
+        <file>compas.png</file>
+        <file>compasIlum.png</file>
     </qresource>
 </RCC>
