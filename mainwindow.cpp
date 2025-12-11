@@ -43,6 +43,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Mostrar login al inicio
     ui->stackedWidget->setCurrentIndex(0);
+    ui->toolBar->hide();
 
     // Conexiones login/register
     connect(ui->buttonLogIn, &QPushButton::clicked, this, &MainWindow::onLogInClicked);
@@ -53,18 +54,18 @@ MainWindow::MainWindow(QWidget *parent)
     ui->registrarse->setTextInteractionFlags(Qt::TextBrowserInteraction);
     ui->registrarse->setOpenExternalLinks(false);
     ui->registrarse->setText("Don't have an account? <a href=\"registrar\">Register</a>");
-    connect(ui->registrarse, &QLabel::linkActivated, this, [=](const QString &){ ui->stackedWidget->setCurrentIndex(1);});
+    connect(ui->registrarse, &QLabel::linkActivated, this, [=](const QString &){ ui->stackedWidget->setCurrentIndex(1);ui->toolBar->hide();});
 
     ui->iniciar_sesion->setTextFormat(Qt::RichText);
     ui->iniciar_sesion->setTextInteractionFlags(Qt::TextBrowserInteraction);
     ui->iniciar_sesion->setOpenExternalLinks(false);
     ui->iniciar_sesion->setText("Do you already have an account? <a href=\"registrar\"> Log in</a>");
-    connect(ui->iniciar_sesion, &QLabel::linkActivated, this, [=](const QString &){ ui->stackedWidget->setCurrentIndex(0);});
+    connect(ui->iniciar_sesion, &QLabel::linkActivated, this, [=](const QString &){ ui->stackedWidget->setCurrentIndex(0);ui->toolBar->hide();});
 
     // Conexiones botones
-    connect(ui->pushButtonVolver, &QPushButton::clicked, this, [=](){ ui->stackedWidget->setCurrentIndex(0);});
-    connect(ui->perfil, &QPushButton::clicked, this, [=](){ ui->stackedWidget->setCurrentIndex(3);});
-    connect(ui->salirPerfil, &QPushButton::clicked, this, [=](){ ui->stackedWidget->setCurrentIndex(2);});
+    connect(ui->pushButtonVolver, &QPushButton::clicked, this, [=](){ ui->stackedWidget->setCurrentIndex(0);ui->toolBar->hide();});
+    connect(ui->actionPerfil, &QAction::triggered, this, [=](){ ui->stackedWidget->setCurrentIndex(3);ui->toolBar->hide();});
+    connect(ui->salirPerfil, &QPushButton::clicked, this, [=](){ ui->stackedWidget->setCurrentIndex(4);ui->toolBar->show();});
 
     // Map button
     bool mapaListo = false;
@@ -86,8 +87,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
     scale = 0.2;
 
-    connect(ui->zoomIn_2,&QToolButton::clicked,this,&MainWindow::zoomInS);
-    connect(ui->zoomOut_2,&QToolButton::clicked,this,&MainWindow::zoomOutS);
+    connect(ui->zoomIn,&QToolButton::clicked,this,&MainWindow::zoomInS);
+    connect(ui->zoomOut,&QToolButton::clicked,this,&MainWindow::zoomOutS);
 
     sidebarVisible = true;
     ui->sidebarButton->setIcon(QIcon(":/images/flechaIzq.png"));
@@ -158,7 +159,8 @@ void MainWindow::onLogInClicked()
     User *u = nav.authenticate(nickname, password);
 
     if (u) {
-        ui->stackedWidget->setCurrentIndex(2); // Si lo ha hecho bien, adelante
+        ui->stackedWidget->setCurrentIndex(4); // Si lo ha hecho bien, adelante
+        ui->toolBar->show();
     } else {
         QMessageBox::warning(this, "Incorrecto",
                              "LOGIN INCORRECTO");
