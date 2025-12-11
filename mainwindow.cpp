@@ -91,12 +91,18 @@ MainWindow::MainWindow(QWidget *parent)
 
     sidebarVisible = true;
     ui->sidebarButton->setIcon(QIcon(":/images/flechaIzq.png"));
+    ui->sidebarButton_2->setIcon(QIcon(":/images/flechaIzq.png"));
     sidebarAnimation = new QPropertyAnimation(ui->sidebar_2, "maximumWidth", this);
     sidebarAnimation->setDuration(300);
 
     // 2. CONEXIÓN DEL BOTÓN
     // Asegúrate de que el nombre del objeto sea correcto (el botón dentro del sidebar)
     connect(ui->sidebarButton, &QPushButton::clicked, this, &MainWindow::toggleSidebar);
+    connect(ui->sidebarButton_2, &QPushButton::clicked, this, &MainWindow::toggleSidebar);
+
+    //conexion a un problema
+    connect(ui->Problema_Random, &QPushButton::clicked, this, [=](){ ui->sidebar_2->setCurrentIndex(1);});
+    connect(ui->Problema_1, &QPushButton::clicked, this, [=](){ ui->sidebar_2->setCurrentIndex(1);});
 
 }
 
@@ -240,6 +246,7 @@ void MainWindow::toggleSidebar()
 
 
         ui->sidebarButton->setIcon(QIcon(":/images/flechaDer.png"));
+        ui->sidebarButton_2->setIcon(QIcon(":/images/flechaDer.png"));
 
 
     } else {
@@ -255,6 +262,7 @@ void MainWindow::toggleSidebar()
 
 
         ui->sidebarButton->setIcon(QIcon(":/images/flechaIzq.png"));
+        ui->sidebarButton_2->setIcon(QIcon(":/images/flechaIzq.png"));
 
     }
 
