@@ -1,21 +1,22 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "navigation.h"
-#include "navtypes.h"
-#include "qradiobutton.h"
 #include <QItemSelection>
 #include <QMainWindow>
 #include <QMessageBox>
 #include <QStandardItemModel>
 #include <QString>
 #include <QStringListModel>
+#include "navigation.h"
+#include "navtypes.h"
+#include "qradiobutton.h"
 
 #include <QDate>
 #include <QRegularExpression>
 
-#include <QGraphicsView>
 #include <QGraphicsScene>
+#include <QGraphicsView>
+#include <QGraphicsPathItem>
 
 #include <QPropertyAnimation>
 
@@ -41,20 +42,25 @@ private:
 
     double scale = 1;
     void applyZoom(double factor);
+    bool drawingMode = false;
+    bool erasingMode = false;
+    QPointF lastPoint;
+
+    QGraphicsPathItem *currentPathItem = nullptr;
+    QPainterPath currentPath;
 
     QPropertyAnimation *sidebarAnimation;
     bool sidebarVisible;
 
     int preg_actual = 1;
     QVector<Problem> problemas;
-    QVector<QRadioButton*> respbotones;
+    QVector<QRadioButton *> respbotones;
 
     Navigation &nav = Navigation::instance();
 private slots:
     void zoomInS();
     void zoomOutS();
     void setupMap();
-
 
     //void completeProfile();
     //void enlace_reg();
@@ -65,5 +71,10 @@ private slots:
 
     void showNextQuestion();
 
+    void togglePencil();
+    void toggleCursor();
+    void toggleRubber();
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
 };
 #endif // MAINWINDOW_H

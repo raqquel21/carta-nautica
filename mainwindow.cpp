@@ -10,13 +10,15 @@
  *  atte: la rakitraki
  */
 
-#include <QPixmap>
 #include <QGraphicsPixmapItem>
+#include <QGraphicsPathItem>
+#include <QGraphicsSceneMouseEvent>
+#include <QGraphicsLineItem>
+#include <QPixmap>
 
-#include <navigation.h>
 #include <QDebug>
 #include <QDir>
-
+#include <navigation.h>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -69,17 +71,16 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Map button
     bool mapaListo = false;
-    connect(ui->Map, &QPushButton::clicked, this, [&](){
+    connect(ui->Map, &QPushButton::clicked, this, [&]() {
         ui->stackedWidget->setCurrentIndex(4);
         if (!mapaListo) {
             setupMap();
             mapaListo = true;
         }
-
     });
 
-
     scene = new QGraphicsScene(this);
+    scene->installEventFilter(this);
     ui->graphicsView->setScene(scene);
     QPixmap pm(":/images/carta_nautica.jpg");
     scene->addPixmap(pm);
@@ -87,70 +88,56 @@ MainWindow::MainWindow(QWidget *parent)
     ui->graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
     scale = 0.2;
 
-    connect(ui->zoomIn,&QToolButton::clicked,this,&MainWindow::zoomInS);
-    connect(ui->zoomOut,&QToolButton::clicked,this,&MainWindow::zoomOutS);
+    connect(ui->zoomIn, &QToolButton::clicked, this, &MainWindow::zoomInS);
+    connect(ui->zoomOut, &QToolButton::clicked, this, &MainWindow::zoomOutS);
+    connect(ui->lapiz, &QToolButton::clicked, this, &MainWindow::togglePencil);
+    connect(ui->cursor, &QToolButton::clicked, this, &MainWindow::toggleCursor);
+    connect(ui->goma, &QToolButton::clicked, this, &MainWindow::toggleRubber);
 
     sidebarVisible = true;
     ui->sidebarButton->setIcon(QIcon(":/images/flechaIzq.png"));
-    ui->sidebarButton_2->setIcon(QIcon(":/images/flechaIzq.png"));
     sidebarAnimation = new QPropertyAnimation(ui->sidebar_2, "maximumWidth", this);
     sidebarAnimation->setDuration(300);
 
     // 2. CONEXIÓN DEL BOTÓN
     // Asegúrate de que el nombre del objeto sea correcto (el botón dentro del sidebar)
     connect(ui->sidebarButton, &QPushButton::clicked, this, &MainWindow::toggleSidebar);
-    connect(ui->sidebarButton_2, &QPushButton::clicked, this, &MainWindow::toggleSidebar);
-
-    //conexion a un problema
-    connect(ui->Problema_Random, &QPushButton::clicked, this, [=](){ ui->sidebar_2->setCurrentIndex(1);});
-    connect(ui->Problema_1, &QPushButton::clicked, this, [=](){ ui->sidebar_2->setCurrentIndex(1);});
-
 }
-
 
 void MainWindow::setupMap() //funcion para hacer los cambios al mapa
-{
-
-}
+{}
 
 MainWindow::~MainWindow()
 {
     delete ui;
 }
-void MainWindow::zoomInS(){
-
+void MainWindow::zoomInS()
+{
     applyZoom(1.15);
 }
 
-void MainWindow::zoomOutS(){
-
-    applyZoom(1.0/1.15);
+void MainWindow::zoomOutS()
+{
+    applyZoom(1.0 / 1.15);
 }
 
-void MainWindow::applyZoom(double factor){
-
-
+void MainWindow::applyZoom(double factor)
+{
     double newScale = scale * factor;
 
     const double minScale = 0.01;
     const double maxScale = 1;
 
-    if (newScale < minScale){
-
+    if (newScale < minScale) {
         factor = minScale / scale;
         newScale = minScale;
 
-
-
-    }else if (newScale > maxScale){
-
+    } else if (newScale > maxScale) {
         factor = maxScale / scale;
         newScale = maxScale;
-
     }
-    ui->graphicsView->scale(factor,factor);
+    ui->graphicsView->scale(factor, factor);
     scale = newScale;
-
 }
 void MainWindow::onLogInClicked()
 {
@@ -162,30 +149,30 @@ void MainWindow::onLogInClicked()
         ui->stackedWidget->setCurrentIndex(4); // Si lo ha hecho bien, adelante
         ui->toolBar->show();
     } else {
-        QMessageBox::warning(this, "Incorrecto",
-                             "LOGIN INCORRECTO");
+        QMessageBox::warning(this, "Incorrecto", "LOGIN INCORRECTO");
     }
 
-    if (nickname.isEmpty()|| password.isEmpty()) {
-        ui->stackedWidget->setCurrentIndex(0); // Que no pueda pasar al siguiente paso si no se ha logeado bien
+    if (nickname.isEmpty() || password.isEmpty()) {
+        ui->stackedWidget->setCurrentIndex(
+            0); // Que no pueda pasar al siguiente paso si no se ha logeado bien
         QMessageBox::warning(this,
                              "Advertencia",
                              "Por favor, introduce el nickname y/o contraseña correctos.");
         return;
     }
-
 }
 
-void MainWindow::onRegisterClicked(){
-
+void MainWindow::onRegisterClicked()
+{
     QString nameReg = ui->enter_nickname_reg->text().trimmed();
     QString birthDate = ui->enter_birth_date->text().trimmed();
     QString mail = ui->enter_mail->text().trimmed();
     QString password1 = ui->enter_password_r1->text().trimmed();
     QString password2 = ui->enter_password_r2->text().trimmed();
 
-    if (nameReg.isEmpty()|| password1.isEmpty() || password2.isEmpty() || password1 != password2) {
-        ui->stackedWidget->setCurrentIndex(1); // Que no pueda pasar al siguiente paso si no se ha logeado bien
+    if (nameReg.isEmpty() || password1.isEmpty() || password2.isEmpty() || password1 != password2) {
+        ui->stackedWidget->setCurrentIndex(
+            1); // Que no pueda pasar al siguiente paso si no se ha logeado bien
         QMessageBox::warning(this,
                              "Advertencia",
                              "Por favor, introduce el nickname y/o contraseña correctos.");
@@ -194,14 +181,16 @@ void MainWindow::onRegisterClicked(){
 
     QDate fecha = QDate::fromString(birthDate, "dd/MM/yyyy");
     if (!fecha.isValid()) {
-        QMessageBox::warning(this, "Fecha inválida",
+        QMessageBox::warning(this,
+                             "Fecha inválida",
                              "Introduce una fecha válida en formato dd/MM/yyyy.");
         return;
     }
 
     QRegularExpression emailRegex(R"((^[^\s@]+@[^\s@]+\.[^\s@]+$))");
     if (!emailRegex.match(mail).hasMatch()) {
-        QMessageBox::warning(this, "Email inválido",
+        QMessageBox::warning(this,
+                             "Email inválido",
                              "Introduce un email válido (ej: usuario@dominio.com).");
         return;
     }
@@ -235,7 +224,6 @@ void MainWindow::toggleSidebar()
     int endValue;
 
     if (sidebarVisible) {
-
         startValue = fullWidth;
         endValue = closedWidth;
         sidebarVisible = false;
@@ -246,10 +234,7 @@ void MainWindow::toggleSidebar()
             respbotones[i]->setVisible(false);
         }
 
-
         ui->sidebarButton->setIcon(QIcon(":/images/flechaDer.png"));
-        ui->sidebarButton_2->setIcon(QIcon(":/images/flechaDer.png"));
-
 
     } else {
         startValue = closedWidth;
@@ -262,10 +247,7 @@ void MainWindow::toggleSidebar()
             respbotones[i]->setVisible(true);
         }
 
-
         ui->sidebarButton->setIcon(QIcon(":/images/flechaIzq.png"));
-        ui->sidebarButton_2->setIcon(QIcon(":/images/flechaIzq.png"));
-
     }
 
     // Iniciar Animación
@@ -276,7 +258,6 @@ void MainWindow::toggleSidebar()
 
 void MainWindow::showNextQuestion()
 {
-
     if (preg_actual >= problemas.size())
         preg_actual = 0; // reiniciar si llegamos al final
 
@@ -296,4 +277,97 @@ void MainWindow::showNextQuestion()
     }
 
     preg_actual++;
+}
+
+void MainWindow::togglePencil()
+{
+    drawingMode = true;
+    erasingMode = false;
+
+    // Desactivamos el arrastre del mapa para que no se mueva mientras pintamos
+    ui->graphicsView->setDragMode(QGraphicsView::NoDrag);
+
+    // Cambiamos el cursor visualmente para que sepa que va a pintar
+    ui->graphicsView->setCursor(Qt::CrossCursor);
+}
+
+void MainWindow::toggleRubber() // <--- NUEVA IMPLEMENTACIÓN
+{
+    drawingMode = false;
+    erasingMode = true; // Activamos modo goma
+
+    ui->graphicsView->setDragMode(QGraphicsView::NoDrag); // No queremos arrastrar mapa
+    ui->graphicsView->setCursor(Qt::ForbiddenCursor); // Icono de "prohibido" o goma
+}
+
+void MainWindow::toggleCursor()
+{
+    drawingMode = false;
+    erasingMode = false;
+
+    // Volvemos al modo de arrastrar el mapa
+    ui->graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
+
+    // Restauramos el cursor por defecto
+    ui->graphicsView->setCursor(Qt::ArrowCursor);
+}
+
+bool MainWindow::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched == scene) {
+        QGraphicsSceneMouseEvent *mouseEvent = static_cast<QGraphicsSceneMouseEvent*>(event);
+
+        // --- MODO LÁPIZ ---
+        if (drawingMode) {
+            // 1. AL PULSAR (CLIC)
+            if (event->type() == QEvent::GraphicsSceneMousePress) {
+                // Limpiamos el camino anterior y empezamos uno nuevo
+                currentPath = QPainterPath();
+                currentPath.moveTo(mouseEvent->scenePos()); // Fijamos el inicio CORRECTAMENTE
+
+                // Configuramos el estilo del lápiz (Rojo, grosor 3, bordes redondeados)
+                QPen pen(Qt::red, 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+
+                // Creamos el objeto visual usando nuestro camino
+                currentPathItem = scene->addPath(currentPath, pen);
+
+                return true;
+            }
+
+            // 2. AL ARRASTRAR (MOVE)
+            else if (event->type() == QEvent::GraphicsSceneMouseMove && (mouseEvent->buttons() & Qt::LeftButton)) {
+                if (currentPathItem) {
+                    // Añadimos la línea a NUESTRA variable (que no pierde la memoria)
+                    currentPath.lineTo(mouseEvent->scenePos());
+
+                    // Actualizamos el dibujo en pantalla
+                    currentPathItem->setPath(currentPath);
+                }
+                return true;
+            }
+
+            // 3. AL SOLTAR
+            else if (event->type() == QEvent::GraphicsSceneMouseRelease) {
+                currentPathItem = nullptr; // Soltamos la referencia del objeto visual
+                return true;
+            }
+        }
+
+        // --- MODO GOMA ---
+        else if (erasingMode) {
+            if (event->type() == QEvent::GraphicsSceneMousePress ||
+                (event->type() == QEvent::GraphicsSceneMouseMove && (mouseEvent->buttons() & Qt::LeftButton))) {
+
+                QGraphicsItem *item = scene->itemAt(mouseEvent->scenePos(), QTransform());
+
+                // Borramos solo si es un PathItem (trazo de lápiz)
+                if (item && item->type() == QGraphicsPathItem::Type) {
+                    scene->removeItem(item);
+                    delete item;
+                    return true;
+                }
+            }
+        }
+    }
+    return QMainWindow::eventFilter(watched, event);
 }
