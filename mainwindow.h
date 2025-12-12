@@ -7,6 +7,7 @@
 #include <QStandardItemModel>
 #include <QString>
 #include <QStringListModel>
+#include <QtMath>
 #include "navigation.h"
 #include "navtypes.h"
 #include "qradiobutton.h"
@@ -17,6 +18,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <QGraphicsPathItem>
+#include <QGraphicsTextItem>
 
 #include <QPropertyAnimation>
 
@@ -40,12 +42,19 @@ private:
     QGraphicsScene *scene;
     QGraphicsView *view;
 
+    QGraphicsPixmapItem *mapItem = nullptr;
+
     double scale = 1;
     void applyZoom(double factor);
     bool drawingMode = false;
     bool erasingMode = false;
-    QPointF lastPoint;
+    bool markingMode = false;
+    bool measuringMode = false;
 
+    QPointF lastPoint;
+    QPointF rulerStartPoint;
+
+    QGraphicsLineItem *currentRulerLine = nullptr;
     QGraphicsPathItem *currentPathItem = nullptr;
     QPainterPath currentPath;
 
@@ -74,6 +83,10 @@ private slots:
     void togglePencil();
     void toggleCursor();
     void toggleRubber();
+    void placeMark();
+    void toggleRuler();
+
+    void clearAllDrawings();
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
 };

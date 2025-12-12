@@ -10,6 +10,7 @@
  *  atte: la rakitraki
  */
 
+#include <QPixmap>
 #include <QGraphicsPixmapItem>
 #include <QGraphicsPathItem>
 #include <QGraphicsSceneMouseEvent>
@@ -83,7 +84,7 @@ MainWindow::MainWindow(QWidget *parent)
     scene->installEventFilter(this);
     ui->graphicsView->setScene(scene);
     QPixmap pm(":/images/carta_nautica.jpg");
-    scene->addPixmap(pm);
+    mapItem = scene->addPixmap(pm);
     ui->graphicsView->scale(0.3, 0.3);
     ui->graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
     scale = 0.2;
@@ -93,15 +94,24 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->lapiz, &QToolButton::clicked, this, &MainWindow::togglePencil);
     connect(ui->cursor, &QToolButton::clicked, this, &MainWindow::toggleCursor);
     connect(ui->goma, &QToolButton::clicked, this, &MainWindow::toggleRubber);
+    connect(ui->nuevaPag, &QToolButton::clicked, this, &MainWindow::clearAllDrawings);
+    connect(ui->marca, &QToolButton::clicked, this, &MainWindow::placeMark);
+    connect(ui->regla, &QToolButton::clicked, this, &MainWindow::toggleRuler);
 
     sidebarVisible = true;
     ui->sidebarButton->setIcon(QIcon(":/images/flechaIzq.png"));
+    ui->sidebarButton_2->setIcon(QIcon(":/images/flechaIzq.png"));
     sidebarAnimation = new QPropertyAnimation(ui->sidebar_2, "maximumWidth", this);
     sidebarAnimation->setDuration(300);
 
     // 2. CONEXIÓN DEL BOTÓN
     // Asegúrate de que el nombre del objeto sea correcto (el botón dentro del sidebar)
     connect(ui->sidebarButton, &QPushButton::clicked, this, &MainWindow::toggleSidebar);
+    connect(ui->sidebarButton_2, &QPushButton::clicked, this, &MainWindow::toggleSidebar);
+
+    //conexion a un problema
+    connect(ui->Problema_Random, &QPushButton::clicked, this, [=](){ ui->sidebar_2->setCurrentIndex(1);});
+    connect(ui->Problema_1, &QPushButton::clicked, this, [=](){ ui->sidebar_2->setCurrentIndex(1);});
 }
 
 void MainWindow::setupMap() //funcion para hacer los cambios al mapa
@@ -235,6 +245,7 @@ void MainWindow::toggleSidebar()
         }
 
         ui->sidebarButton->setIcon(QIcon(":/images/flechaDer.png"));
+        ui->sidebarButton_2->setIcon(QIcon(":/images/flechaDer.png"));
 
     } else {
         startValue = closedWidth;
@@ -248,6 +259,7 @@ void MainWindow::toggleSidebar()
         }
 
         ui->sidebarButton->setIcon(QIcon(":/images/flechaIzq.png"));
+        ui->sidebarButton_2->setIcon(QIcon(":/images/flechaIzq.png"));
     }
 
     // Iniciar Animación
@@ -283,6 +295,8 @@ void MainWindow::togglePencil()
 {
     drawingMode = true;
     erasingMode = false;
+    markingMode = false;
+    measuringMode = false;
 
     // Desactivamos el arrastre del mapa para que no se mueva mientras pintamos
     ui->graphicsView->setDragMode(QGraphicsView::NoDrag);
@@ -294,7 +308,9 @@ void MainWindow::togglePencil()
 void MainWindow::toggleRubber() // <--- NUEVA IMPLEMENTACIÓN
 {
     drawingMode = false;
-    erasingMode = true; // Activamos modo goma
+    erasingMode = true;
+    markingMode = false;
+    measuringMode = false;
 
     ui->graphicsView->setDragMode(QGraphicsView::NoDrag); // No queremos arrastrar mapa
     ui->graphicsView->setCursor(Qt::ForbiddenCursor); // Icono de "prohibido" o goma
@@ -304,6 +320,8 @@ void MainWindow::toggleCursor()
 {
     drawingMode = false;
     erasingMode = false;
+    markingMode = false;
+    measuringMode = false;
 
     // Volvemos al modo de arrastrar el mapa
     ui->graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
@@ -312,60 +330,157 @@ void MainWindow::toggleCursor()
     ui->graphicsView->setCursor(Qt::ArrowCursor);
 }
 
+void MainWindow::clearAllDrawings()
+{
+    for (QGraphicsItem *item : scene->items()) {
+        // Si el objeto NO es el mapa, lo borramos
+        if (item != mapItem && (item->type() == QGraphicsPathItem::Type ||
+                                item->type() == QGraphicsPixmapItem::Type || // Chinchetas
+                                item->type() == QGraphicsLineItem::Type ||   // Reglas
+                                item->type() == QGraphicsTextItem::Type)) {  // Textos
+            scene->removeItem(item);
+            delete item;
+        }
+    }
+}
+
+void MainWindow::placeMark()
+{
+    drawingMode = false;
+    erasingMode = false;
+    measuringMode = false;
+    markingMode = true; // Activamos modo marca
+
+    ui->graphicsView->setDragMode(QGraphicsView::NoDrag);
+    // Usamos un cursor que parezca que va a señalar algo
+    ui->graphicsView->setCursor(Qt::PointingHandCursor);
+}
+
+void MainWindow::toggleRuler()
+{
+    drawingMode = false;
+    erasingMode = false;
+    markingMode = false;
+    measuringMode = true; // Activamos modo regla
+
+    ui->graphicsView->setDragMode(QGraphicsView::NoDrag);
+    ui->graphicsView->setCursor(Qt::CrossCursor);
+}
+
 bool MainWindow::eventFilter(QObject *watched, QEvent *event)
 {
     if (watched == scene) {
         QGraphicsSceneMouseEvent *mouseEvent = static_cast<QGraphicsSceneMouseEvent*>(event);
 
-        // --- MODO LÁPIZ ---
+        // ---------------------------------------------------------
+        // MODO 1: LÁPIZ (Tu código anterior corregido)
+        // ---------------------------------------------------------
         if (drawingMode) {
-            // 1. AL PULSAR (CLIC)
             if (event->type() == QEvent::GraphicsSceneMousePress) {
-                // Limpiamos el camino anterior y empezamos uno nuevo
                 currentPath = QPainterPath();
-                currentPath.moveTo(mouseEvent->scenePos()); // Fijamos el inicio CORRECTAMENTE
-
-                // Configuramos el estilo del lápiz (Rojo, grosor 3, bordes redondeados)
+                currentPath.moveTo(mouseEvent->scenePos());
                 QPen pen(Qt::red, 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-
-                // Creamos el objeto visual usando nuestro camino
                 currentPathItem = scene->addPath(currentPath, pen);
-
                 return true;
             }
-
-            // 2. AL ARRASTRAR (MOVE)
             else if (event->type() == QEvent::GraphicsSceneMouseMove && (mouseEvent->buttons() & Qt::LeftButton)) {
                 if (currentPathItem) {
-                    // Añadimos la línea a NUESTRA variable (que no pierde la memoria)
                     currentPath.lineTo(mouseEvent->scenePos());
-
-                    // Actualizamos el dibujo en pantalla
                     currentPathItem->setPath(currentPath);
                 }
                 return true;
             }
-
-            // 3. AL SOLTAR
             else if (event->type() == QEvent::GraphicsSceneMouseRelease) {
-                currentPathItem = nullptr; // Soltamos la referencia del objeto visual
+                currentPathItem = nullptr;
                 return true;
             }
         }
 
-        // --- MODO GOMA ---
+        // ---------------------------------------------------------
+        // MODO 2: GOMA
+        // ---------------------------------------------------------
         else if (erasingMode) {
             if (event->type() == QEvent::GraphicsSceneMousePress ||
                 (event->type() == QEvent::GraphicsSceneMouseMove && (mouseEvent->buttons() & Qt::LeftButton))) {
 
                 QGraphicsItem *item = scene->itemAt(mouseEvent->scenePos(), QTransform());
 
-                // Borramos solo si es un PathItem (trazo de lápiz)
-                if (item && item->type() == QGraphicsPathItem::Type) {
+                // AÑADIMOS "item != mapItem" A LA CONDICIÓN
+                if (item && item != mapItem && (
+                        item->type() == QGraphicsPathItem::Type ||
+                        item->type() == QGraphicsPixmapItem::Type ||
+                        item->type() == QGraphicsLineItem::Type ||
+                        item->type() == QGraphicsTextItem::Type)) {
+
                     scene->removeItem(item);
                     delete item;
                     return true;
                 }
+            }
+        }
+
+        // ---------------------------------------------------------
+        // MODO 3: MARCA (NUEVO)
+        // ---------------------------------------------------------
+        else if (markingMode) {
+            if (event->type() == QEvent::GraphicsSceneMousePress) {
+                // 1. Cargamos la imagen (Asegúrate de tener un icono llamado pin.png o similar en tus recursos)
+                // Si no tienes imagen, usa ":/images/flechaIzq.png" temporalmente para probar
+                QPixmap pixmap(":/images/userIcono.png");
+
+                // Redimensionamos si es muy grande (opcional)
+                pixmap = pixmap.scaled(30, 30, Qt::KeepAspectRatio);
+
+                // 2. Añadimos el objeto al mapa
+                QGraphicsPixmapItem *marker = scene->addPixmap(pixmap);
+
+                // 3. Centramos la imagen en el clic (si no, el clic queda en la esquina superior izq de la imagen)
+                marker->setOffset(-pixmap.width()/2, -pixmap.height()/2);
+                marker->setPos(mouseEvent->scenePos());
+
+                // Opcional: Hacer que la marca se pueda mover después
+                marker->setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable);
+
+                return true;
+            }
+        }
+
+        // ---------------------------------------------------------
+        // MODO 4: REGLA (NUEVO)
+        // ---------------------------------------------------------
+        else if (measuringMode) {
+            if (event->type() == QEvent::GraphicsSceneMousePress) {
+                // Guardamos el punto de inicio
+                rulerStartPoint = mouseEvent->scenePos();
+
+                // Creamos una línea azul para diferenciar del lápiz
+                QPen rulerPen(Qt::blue, 2, Qt::DashLine);
+                currentRulerLine = scene->addLine(QLineF(rulerStartPoint, rulerStartPoint), rulerPen);
+                return true;
+            }
+            else if (event->type() == QEvent::GraphicsSceneMouseMove && (mouseEvent->buttons() & Qt::LeftButton)) {
+                if (currentRulerLine) {
+                    // Actualizamos el final de la línea mientras arrastras
+                    QLineF newLine(rulerStartPoint, mouseEvent->scenePos());
+                    currentRulerLine->setLine(newLine);
+                }
+                return true;
+            }
+            else if (event->type() == QEvent::GraphicsSceneMouseRelease) {
+                if (currentRulerLine) {
+                    // Calculamos la distancia (en píxeles)
+                    QLineF line = currentRulerLine->line();
+                    qreal distance = line.length();
+
+                    // Ponemos un texto con la distancia en el punto medio de la línea
+                    QGraphicsTextItem *text = scene->addText(QString("%1 px").arg(int(distance)));
+                    text->setDefaultTextColor(Qt::blue);
+                    text->setPos((line.p1() + line.p2()) / 2); // Punto medio
+
+                    // Ya no editamos más esta línea
+                    currentRulerLine = nullptr;
+                }
+                return true;
             }
         }
     }
