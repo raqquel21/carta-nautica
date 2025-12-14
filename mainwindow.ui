@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>683</width>
-    <height>660</height>
+    <width>823</width>
+    <height>670</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -514,104 +514,6 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="menuPrincipal">
-       <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="0">
-         <layout class="QGridLayout" name="gridLayout_7">
-          <item row="0" column="2">
-           <spacer name="horizontalSpacer_3">
-            <property name="orientation">
-             <enum>Qt::Orientation::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="0" column="4">
-           <widget class="QPushButton" name="perfil">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="layoutDirection">
-             <enum>Qt::LayoutDirection::LeftToRight</enum>
-            </property>
-            <property name="autoFillBackground">
-             <bool>false</bool>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">QPushButton {
-    border: none;
-	background-repeat: no-repeat;
-    background-position: center;
-    background-image: url(:/images/userIcono.png);
-
-    min-width: 48px;
-    min-height: 48px;
-}
-
-QPushButton:hover {
-    background-image: url(:/images/userIconoIllum.png);
-	background-repeat: no-repeat;
-}
-
-QPushButton:pressed {
-	background-image: url(:/images/userIconoIllum.png);
-	background-repeat: no-repeat;
-}
-</string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>48</width>
-              <height>48</height>
-             </size>
-            </property>
-            <property name="flat">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="4">
-           <spacer name="verticalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Orientation::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="2" column="2">
-           <widget class="QPushButton" name="pushButtonVolver">
-            <property name="text">
-             <string>Volver</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QPushButton" name="Map">
-            <property name="text">
-             <string>Mapa (Provisional)</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </widget>
       <widget class="QWidget" name="perfil_menu">
        <layout class="QGridLayout" name="gridLayout_4">
         <item row="0" column="1">
@@ -783,7 +685,7 @@ QPushButton:pressed {
            </size>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="Elegir_problema">
            <layout class="QGridLayout" name="gridLayout_13">
@@ -794,10 +696,17 @@ QPushButton:pressed {
               </property>
              </widget>
             </item>
-            <item row="2" column="0">
+            <item row="0" column="0">
              <widget class="QLabel" name="Problemas">
               <property name="text">
                <string>Problemas</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QPushButton" name="Problema_Random">
+              <property name="text">
+               <string>Problema Random</string>
               </property>
              </widget>
             </item>
@@ -819,38 +728,12 @@ QPushButton:pressed {
               </property>
              </widget>
             </item>
-            <item row="1" column="0">
-             <spacer name="verticalSpacer_17">
-              <property name="orientation">
-               <enum>Qt::Orientation::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="4" column="0">
-             <widget class="QPushButton" name="Problema_Random">
+            <item row="6" column="0">
+             <widget class="QPushButton" name="Problema_2">
               <property name="text">
-               <string>Problema Random</string>
+               <string>PushButton</string>
               </property>
              </widget>
-            </item>
-            <item row="0" column="0">
-             <spacer name="horizontalSpacer_6">
-              <property name="orientation">
-               <enum>Qt::Orientation::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
             </item>
             <item row="3" column="0">
              <spacer name="verticalSpacer_18">
@@ -864,13 +747,6 @@ QPushButton:pressed {
                </size>
               </property>
              </spacer>
-            </item>
-            <item row="6" column="0">
-             <widget class="QPushButton" name="Problema_2">
-              <property name="text">
-               <string>PushButton</string>
-              </property>
-             </widget>
             </item>
            </layout>
           </widget>
@@ -1309,7 +1185,7 @@ QToolButton:hover {
 }
 
 QToolButton:pressed {
-	background-image: url(:/images/transportadorilum.png);
+	background-image: url(:/images/transportadorIlum.png);
 	background-repeat: no-repeat;
 }
 </string>
@@ -1430,6 +1306,12 @@ QToolButton:pressed {
    </property>
    <property name="movable">
     <bool>false</bool>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>45</width>
+     <height>45</height>
+    </size>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>

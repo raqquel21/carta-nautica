@@ -21,6 +21,10 @@
 #include <QDir>
 #include <navigation.h>
 
+#include <QGraphicsSvgItem>
+#include <QGraphicsScene>
+#include <QGraphicsView>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -66,11 +70,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->iniciar_sesion, &QLabel::linkActivated, this, [=](const QString &){ ui->stackedWidget->setCurrentIndex(0);ui->toolBar->hide();});
 
     // Conexiones botones
-    connect(ui->pushButtonVolver, &QPushButton::clicked, this, [=](){ ui->stackedWidget->setCurrentIndex(0);ui->toolBar->hide();});
-    connect(ui->actionPerfil, &QAction::triggered, this, [=](){ ui->stackedWidget->setCurrentIndex(3);ui->toolBar->hide();});
-    connect(ui->salirPerfil, &QPushButton::clicked, this, [=](){ ui->stackedWidget->setCurrentIndex(4);ui->toolBar->show();});
+    connect(ui->actionPerfil, &QAction::triggered, this, [=](){ ui->stackedWidget->setCurrentIndex(2);ui->toolBar->hide();});
+    connect(ui->salirPerfil, &QPushButton::clicked, this, [=](){ ui->stackedWidget->setCurrentIndex(3);ui->toolBar->show();});
 
-    // Map button
+    /* Map button
     bool mapaListo = false;
     connect(ui->Map, &QPushButton::clicked, this, [&]() {
         ui->stackedWidget->setCurrentIndex(4);
@@ -79,6 +82,7 @@ MainWindow::MainWindow(QWidget *parent)
             mapaListo = true;
         }
     });
+    */
 
     scene = new QGraphicsScene(this);
     scene->installEventFilter(this);
@@ -96,7 +100,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->goma, &QToolButton::clicked, this, &MainWindow::toggleRubber);
     connect(ui->nuevaPag, &QToolButton::clicked, this, &MainWindow::clearAllDrawings);
     connect(ui->marca, &QToolButton::clicked, this, &MainWindow::placeMark);
-    connect(ui->regla, &QToolButton::clicked, this, &MainWindow::toggleRuler);
+    connect(ui->regla, &QToolButton::clicked, this, &MainWindow::toggleSvgRuler);
 
     sidebarVisible = true;
     ui->sidebarButton->setIcon(QIcon(":/images/flechaIzq.png"));
@@ -112,6 +116,11 @@ MainWindow::MainWindow(QWidget *parent)
     //conexion a un problema
     connect(ui->Problema_Random, &QPushButton::clicked, this, [=](){ ui->sidebar_2->setCurrentIndex(1);});
     connect(ui->Problema_1, &QPushButton::clicked, this, [=](){ ui->sidebar_2->setCurrentIndex(1);});
+
+    rulerSvgItem = new RotatableSvgItem(":/images/ruler.svg");
+    scene->addItem(rulerSvgItem);
+    // Ocultar por defecto, se mostrará al activar el modo
+    rulerSvgItem->setVisible(false);
 }
 
 void MainWindow::setupMap() //funcion para hacer los cambios al mapa
@@ -156,7 +165,7 @@ void MainWindow::onLogInClicked()
     User *u = nav.authenticate(nickname, password);
 
     if (u) {
-        ui->stackedWidget->setCurrentIndex(4); // Si lo ha hecho bien, adelante
+        ui->stackedWidget->setCurrentIndex(3); // Si lo ha hecho bien, adelante
         ui->toolBar->show();
     } else {
         QMessageBox::warning(this, "Incorrecto", "LOGIN INCORRECTO");
@@ -356,15 +365,27 @@ void MainWindow::placeMark()
     ui->graphicsView->setCursor(Qt::PointingHandCursor);
 }
 
-void MainWindow::toggleRuler()
+void MainWindow::toggleSvgRuler()
 {
+    // Desactivar todos los demás modos de dibujo
     drawingMode = false;
     erasingMode = false;
     markingMode = false;
-    measuringMode = true; // Activamos modo regla
+    measuringMode = false; // El modo regla lineal (si existe)
 
-    ui->graphicsView->setDragMode(QGraphicsView::NoDrag);
-    ui->graphicsView->setCursor(Qt::CrossCursor);
+    svgRulerActive = !svgRulerActive;
+
+    if (rulerSvgItem) {
+        rulerSvgItem->setVisible(svgRulerActive);
+        rulerSvgItem->setSelected(svgRulerActive); // Para que se resalte y se pueda mover inmediatamente
+    }
+
+    if (svgRulerActive) {
+        ui->graphicsView->setDragMode(QGraphicsView::NoDrag); // Permitimos la interacción directa con el item SVG
+        ui->graphicsView->setCursor(Qt::OpenHandCursor); // Cursor que sugiere arrastrar el objeto
+    } else {
+        toggleCursor(); // Volver al modo normal de arrastre del mapa
+    }
 }
 
 bool MainWindow::eventFilter(QObject *watched, QEvent *event)
