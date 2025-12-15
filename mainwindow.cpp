@@ -17,6 +17,7 @@
 #include <QGraphicsLineItem>
 #include <QPixmap>
 #include <QGraphicsColorizeEffect>
+#include <QTimer>
 
 #include <QDebug>
 #include <QDir>
@@ -124,6 +125,18 @@ MainWindow::MainWindow(QWidget *parent)
     scene->addItem(rulerSvgItem);
     // Ocultar por defecto, se mostrará al activar el modo
     rulerSvgItem->setVisible(false);
+
+    QTimer *updateTimer = new QTimer(this); //Se usa para actualizar las marcas del 'ojo'
+    connect(updateTimer, &QTimer::timeout, this, [=](){
+        if (eyeActive) {
+            QList<QGraphicsItem*> selected = scene->selectedItems();
+            if (!selected.isEmpty()) {
+                showPointExtremes(selected.first());
+            }
+        }
+    });
+    updateTimer->start(50); // cada 50 ms revisa la posición
+
 }
 
 void MainWindow::setupMap() //funcion para hacer los cambios al mapa
@@ -532,7 +545,14 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
 
                 // Opcional: Hacer que la marca se pueda mover después
                 marker->setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable);
-
+                return true;
+            }
+            else if (event->type() == QEvent::GraphicsSceneMouseMove && eyeActive) {
+                // Recalcular las líneas de los extremos del item seleccionado
+                QList<QGraphicsItem*> selected = scene->selectedItems();
+                if (!selected.isEmpty()) {
+                    showPointExtremes(selected.first());
+                }
                 return true;
             }
         }
