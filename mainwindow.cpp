@@ -16,6 +16,7 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsLineItem>
 #include <QPixmap>
+#include <QGraphicsColorizeEffect>
 
 #include <QDebug>
 #include <QDir>
@@ -414,7 +415,8 @@ void MainWindow::showPointExtremes(QGraphicsItem *point)
     QPointF topLeft = mapItem->mapToScene(mapRect.topLeft());
     QPointF bottomRight = mapItem->mapToScene(mapRect.bottomRight());
 
-    QPen pen(Qt::darkGreen, 1, Qt::DashLine);
+    QPen pen(Qt::darkGreen, 1, Qt::DashLine); // Se ha puesto asi para que se visualice "destacando" estas marcas
+    // De color verde porque de color rojo se podría malinterpretar con que se ha hecho "mal"
 
     // Proyección vertical
     QGraphicsLineItem *vertical =
@@ -516,7 +518,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
             if (event->type() == QEvent::GraphicsSceneMousePress) {
                 // 1. Cargamos la imagen (Asegúrate de tener un icono llamado pin.png o similar en tus recursos)
                 // Si no tienes imagen, usa ":/images/flechaIzq.png" temporalmente para probar
-                QPixmap pixmap(":/images/userIcono.png");
+                QPixmap pixmap(":/images/iconoChincheta.png");
 
                 // Redimensionamos si es muy grande (opcional)
                 pixmap = pixmap.scaled(30, 30, Qt::KeepAspectRatio);

@@ -34,5 +34,6 @@
         <file>marcaIlum.png</file>
         <file>compas.png</file>
         <file>compasIlum.png</file>
+        <file>iconoChincheta.png</file>
     </qresource>
 </RCC>
