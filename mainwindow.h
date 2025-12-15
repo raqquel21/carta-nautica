@@ -89,12 +89,19 @@ private:
     bool erasingMode = false;
     bool markingMode = false;
     bool measuringMode = false;
+    // --- 3.10 Marcar extremos del punto --- rakitraki
+    bool eyeActive = false;
+    void hidePointExtremes();
+    void showPointExtremes(QGraphicsItem *point);
 
     QPointF lastPoint;
     QPointF rulerStartPoint;
 
     QGraphicsLineItem *currentRulerLine = nullptr;
     QGraphicsPathItem *currentPathItem = nullptr;
+    // --- 3.10 Marcar extremos del punto --- rakitraki
+    QGraphicsItemGroup *eyeProjectionGroup = nullptr;
+
     QPainterPath currentPath;
 
     QPropertyAnimation *sidebarAnimation;
@@ -127,6 +134,9 @@ private slots:
     void toggleRubber();
     void placeMark();
     void toggleSvgRuler();
+
+    // rakitraki
+    void togglePointExtremes();
 
     void clearAllDrawings();
 

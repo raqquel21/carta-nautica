@@ -101,6 +101,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->nuevaPag, &QToolButton::clicked, this, &MainWindow::clearAllDrawings);
     connect(ui->marca, &QToolButton::clicked, this, &MainWindow::placeMark);
     connect(ui->regla, &QToolButton::clicked, this, &MainWindow::toggleSvgRuler);
+    connect(ui->ojo, &QToolButton::clicked, this, &MainWindow::togglePointExtremes); //rakitraki
+
 
     sidebarVisible = true;
     ui->sidebarButton->setIcon(QIcon(":/images/flechaIzq.png"));
@@ -365,8 +367,7 @@ void MainWindow::placeMark()
     ui->graphicsView->setCursor(Qt::PointingHandCursor);
 }
 
-void MainWindow::toggleSvgRuler()
-{
+void MainWindow::toggleSvgRuler(){
     // Desactivar todos los demás modos de dibujo
     drawingMode = false;
     erasingMode = false;
@@ -386,6 +387,74 @@ void MainWindow::toggleSvgRuler()
     } else {
         toggleCursor(); // Volver al modo normal de arrastre del mapa
     }
+}
+
+void MainWindow::hidePointExtremes()
+{
+    if (eyeProjectionGroup) {
+        scene->removeItem(eyeProjectionGroup);
+        delete eyeProjectionGroup;
+        eyeProjectionGroup = nullptr;
+    }
+}
+
+void MainWindow::showPointExtremes(QGraphicsItem *point)
+{
+    if (!point || !mapItem)
+        return;
+
+    // Borrar si existían
+    hidePointExtremes();
+
+    eyeProjectionGroup = new QGraphicsItemGroup();
+
+    QPointF p = point->scenePos();
+
+    QRectF mapRect = mapItem->boundingRect();
+    QPointF topLeft = mapItem->mapToScene(mapRect.topLeft());
+    QPointF bottomRight = mapItem->mapToScene(mapRect.bottomRight());
+
+    QPen pen(Qt::darkGreen, 1, Qt::DashLine);
+
+    // Proyección vertical
+    QGraphicsLineItem *vertical =
+        new QGraphicsLineItem(QLineF(p.x(), topLeft.y(), p.x(), bottomRight.y()));
+    vertical->setPen(pen);
+
+    // Proyección horizontal
+    QGraphicsLineItem *horizontal =
+        new QGraphicsLineItem(QLineF(topLeft.x(), p.y(), bottomRight.x(), p.y()));
+    horizontal->setPen(pen);
+
+    eyeProjectionGroup->addToGroup(vertical);
+    eyeProjectionGroup->addToGroup(horizontal);
+
+    scene->addItem(eyeProjectionGroup);
+}
+
+void MainWindow::togglePointExtremes(){
+    QList<QGraphicsItem*> selected = scene->selectedItems();
+
+    // Validación básica
+    if (selected.isEmpty()) {
+        QMessageBox::information(this,
+                                 "Marcar extremos",
+                                 "Selecciona primero un punto en la carta.");
+        return;
+    }
+
+    QGraphicsItem *item = selected.first();
+
+    // Si ya está activo → ocultar
+    if (eyeActive) {
+        hidePointExtremes();
+        eyeActive = false;
+        return;
+    }
+
+    // Si no está activo → mostrar
+    showPointExtremes(item);
+    eyeActive = true;
 }
 
 bool MainWindow::eventFilter(QObject *watched, QEvent *event)
