@@ -103,8 +103,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->nuevaPag, &QToolButton::clicked, this, &MainWindow::clearAllDrawings);
     connect(ui->marca, &QToolButton::clicked, this, &MainWindow::placeMark);
     connect(ui->regla, &QToolButton::clicked, this, &MainWindow::toggleSvgRuler);
-    connect(ui->ojo, &QToolButton::clicked, this, &MainWindow::togglePointExtremes); //rakitraki
-
+    connect(ui->ojo, &QToolButton::clicked, this, &MainWindow::togglePointExtremes);
+    connect(ui->texto, &QToolButton::clicked, this, &MainWindow::toggleText);
 
     sidebarVisible = true;
     ui->sidebarButton->setIcon(QIcon(":/images/flechaIzq.png"));
@@ -146,6 +146,7 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
+
 void MainWindow::zoomInS()
 {
     applyZoom(1.15);
@@ -174,6 +175,7 @@ void MainWindow::applyZoom(double factor)
     ui->graphicsView->scale(factor, factor);
     scale = newScale;
 }
+
 void MainWindow::onLogInClicked()
 {
     QString nickname = ui->enter_nickname->text().trimmed();
@@ -245,10 +247,6 @@ void MainWindow::onRegisterClicked()
 
     ui->stackedWidget->setCurrentIndex(2); // Si lo ha hecho bien, adelante
 }
-
-// ... la misma implementación ...
-
-// mainwindow.cpp
 
 void MainWindow::toggleSidebar()
 {
@@ -322,6 +320,7 @@ void MainWindow::togglePencil()
     erasingMode = false;
     markingMode = false;
     measuringMode = false;
+    textMode = false;
 
     // Desactivamos el arrastre del mapa para que no se mueva mientras pintamos
     ui->graphicsView->setDragMode(QGraphicsView::NoDrag);
@@ -336,6 +335,7 @@ void MainWindow::toggleRubber() // <--- NUEVA IMPLEMENTACIÓN
     erasingMode = true;
     markingMode = false;
     measuringMode = false;
+    textMode = false;
 
     ui->graphicsView->setDragMode(QGraphicsView::NoDrag); // No queremos arrastrar mapa
     ui->graphicsView->setCursor(Qt::ForbiddenCursor); // Icono de "prohibido" o goma
@@ -347,6 +347,7 @@ void MainWindow::toggleCursor()
     erasingMode = false;
     markingMode = false;
     measuringMode = false;
+    textMode = false;
 
     // Volvemos al modo de arrastrar el mapa
     ui->graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
@@ -362,7 +363,8 @@ void MainWindow::clearAllDrawings()
         if (item != mapItem && (item->type() == QGraphicsPathItem::Type ||
                                 item->type() == QGraphicsPixmapItem::Type || // Chinchetas
                                 item->type() == QGraphicsLineItem::Type ||   // Reglas
-                                item->type() == QGraphicsTextItem::Type)) {  // Textos
+                                item->type() == QGraphicsTextItem::Type ||
+                                item->type() == QGraphicsItemGroup::Type)) {  // Textos
             scene->removeItem(item);
             delete item;
         }
@@ -375,6 +377,7 @@ void MainWindow::placeMark()
     erasingMode = false;
     measuringMode = false;
     markingMode = true; // Activamos modo marca
+    textMode = false;
 
     ui->graphicsView->setDragMode(QGraphicsView::NoDrag);
     // Usamos un cursor que parezca que va a señalar algo
@@ -387,6 +390,7 @@ void MainWindow::toggleSvgRuler(){
     erasingMode = false;
     markingMode = false;
     measuringMode = false; // El modo regla lineal (si existe)
+    textMode = false;
 
     svgRulerActive = !svgRulerActive;
 
@@ -472,6 +476,18 @@ void MainWindow::togglePointExtremes(){
     eyeActive = true;
 }
 
+void MainWindow::toggleText()
+{
+    drawingMode = false;
+    erasingMode = false;
+    markingMode = false;
+    measuringMode = false;
+    textMode = true;
+
+    ui->graphicsView->setDragMode(QGraphicsView::NoDrag);
+    ui->graphicsView->setCursor(Qt::IBeamCursor);
+}
+
 bool MainWindow::eventFilter(QObject *watched, QEvent *event)
 {
     if (watched == scene) {
@@ -509,13 +525,16 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 (event->type() == QEvent::GraphicsSceneMouseMove && (mouseEvent->buttons() & Qt::LeftButton))) {
 
                 QGraphicsItem *item = scene->itemAt(mouseEvent->scenePos(), QTransform());
-
+                if (item && item->group()) {
+                    item = item->group();
+                }
                 // AÑADIMOS "item != mapItem" A LA CONDICIÓN
                 if (item && item != mapItem && (
                         item->type() == QGraphicsPathItem::Type ||
                         item->type() == QGraphicsPixmapItem::Type ||
                         item->type() == QGraphicsLineItem::Type ||
-                        item->type() == QGraphicsTextItem::Type)) {
+                        item->type() == QGraphicsTextItem::Type ||
+                        item->type() == QGraphicsItemGroup::Type)) {
 
                     scene->removeItem(item);
                     delete item;
@@ -547,7 +566,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 marker->setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable);
                 return true;
             }
-            else if (event->type() == QEvent::GraphicsSceneMouseMove && eyeActive) {
+            else if (event->type() == QEvent::GraphicsSceneMouseMove && eyeActive) { // actualizar las posiciones de la chincheta
                 // Recalcular las líneas de los extremos del item seleccionado
                 QList<QGraphicsItem*> selected = scene->selectedItems();
                 if (!selected.isEmpty()) {
@@ -595,6 +614,54 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 return true;
             }
         }
+        // ---------------------------------------------------------
+        // MODO 5: TEXTO (POST-IT)
+        // ---------------------------------------------------------
+        // Me falta añadir el ajuste del fondo blanco según el tamaño del texto a introducir - raq
+        else if (textMode) {
+            if (event->type() == QEvent::GraphicsSceneMousePress) {
+
+                QPointF pos = mouseEvent->scenePos();
+
+                // 1. Crear el texto
+                QGraphicsTextItem *textItem = new QGraphicsTextItem();
+                textItem->setPlainText("");
+                textItem->setTextInteractionFlags(Qt::TextEditorInteraction);
+                textItem->setDefaultTextColor(Qt::black);
+                textItem->setFlag(QGraphicsItem::ItemIsFocusable, true);
+
+                QFont font;
+                font.setPointSize(10);
+                textItem->setFont(font);
+
+                // 2. Calcular tamaño
+                QRectF textRect = textItem->boundingRect();
+
+                // 3. Fondo
+                QGraphicsRectItem *background =
+                    new QGraphicsRectItem(textRect.adjusted(-5, -5, 5, 5));
+                background->setBrush(Qt::white);
+                background->setPen(QPen(Qt::black));
+
+                // 4. Grupo
+                QGraphicsItemGroup *group = new QGraphicsItemGroup();
+                group->addToGroup(background);
+                group->addToGroup(textItem);
+                group->setHandlesChildEvents(false); // MUY IMPORTANTE
+
+                textItem->setPos(background->rect().topLeft() + QPointF(5, 5));
+                group->setPos(pos);
+
+                group->setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable);
+                scene->addItem(group);
+
+                // 5. Dar foco al texto para escribir inmediatamente
+                scene->setFocusItem(textItem);
+                textItem->setFocus();
+                return true;
+            }
+        }
+
     }
     return QMainWindow::eventFilter(watched, event);
 }

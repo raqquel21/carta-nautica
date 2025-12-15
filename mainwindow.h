@@ -89,8 +89,9 @@ private:
     bool erasingMode = false;
     bool markingMode = false;
     bool measuringMode = false;
-    // --- 3.10 Marcar extremos del punto --- rakitraki
     bool eyeActive = false;
+    bool textMode = false;
+
     void hidePointExtremes();
     void showPointExtremes(QGraphicsItem *point);
 
@@ -134,9 +135,8 @@ private slots:
     void toggleRubber();
     void placeMark();
     void toggleSvgRuler();
-
-    // rakitraki
     void togglePointExtremes();
+    void toggleText();
 
     void clearAllDrawings();
 
