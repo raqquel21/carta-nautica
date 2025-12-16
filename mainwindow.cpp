@@ -29,8 +29,115 @@
 #include <QColor>
 #include <QColorDialog>
 
-#include <QShortcut>
 #include <QMessageBox>
+#include <QShortcut>
+
+// ==========================================================================
+// 1. IMPLEMENTACIÓN DE LA REGLA (RotatableSvgItem)
+// ==========================================================================
+// Colocamos esto al principio para asegurarnos de que el compilador lo ve.
+
+// --- EL CONSTRUCTOR QUE FALTABA ---
+RotatableSvgItem::RotatableSvgItem(const QString &fileName, QGraphicsItem *parent)
+    : QGraphicsSvgItem(fileName, parent), m_mode(None)
+{
+    // Quitamos ItemIsMovable para moverlo manualmente solo desde el centro
+    // Habilitamos Hover para cambiar el cursor al pasar por encima
+    setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemSendsGeometryChanges);
+    setAcceptHoverEvents(true);
+}
+
+void RotatableSvgItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    QRectF bounds = boundingRect();
+    QPointF pos = event->pos();
+    qreal width = bounds.width();
+    qreal zoneSize = width * 0.15; // 15% para las zonas de rotación
+
+    m_lastMousePos = event->scenePos();
+
+    // Función auxiliar lambda para cambiar el pivote sin que la regla salte
+    auto setPivotSmart = [&](QPointF newPivotLocal) {
+        // 1. Guardamos dónde está ese punto visualmente AHORA MISMO en la escena
+        QPointF anchorSceneBefore = mapToScene(newPivotLocal);
+
+        // 2. Cambiamos el punto de origen de la transformación
+        setTransformOriginPoint(newPivotLocal);
+
+        // 3. Vemos dónde ha ido a parar ese punto tras el cambio (aquí ocurre el salto)
+        QPointF anchorSceneAfter = mapToScene(newPivotLocal);
+
+        // 4. Calculamos la diferencia y movemos la regla para compensar el salto
+        QPointF diff = anchorSceneBefore - anchorSceneAfter;
+        setPos(this->pos() + diff);
+
+        // 5. Guardamos este punto como el pivote fijo para la rotación
+        m_pivotPoint = anchorSceneBefore;
+    };
+
+    if (pos.x() < zoneSize) {
+        // --- Clic en IZQUIERDA -> Pivote en DERECHA ---
+        m_mode = Rotating;
+        setPivotSmart(QPointF(width, bounds.height() / 2));
+
+    } else if (pos.x() > width - zoneSize) {
+        // --- Clic en DERECHA -> Pivote en IZQUIERDA ---
+        m_mode = Rotating;
+        setPivotSmart(QPointF(0, bounds.height() / 2));
+
+    } else {
+        // --- Clic en CENTRO -> MOVER ---
+        m_mode = Moving;
+        setCursor(Qt::ClosedHandCursor);
+    }
+
+    event->accept();
+}
+
+void RotatableSvgItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    if (m_mode == Moving) {
+        // Mover manualmente sumando la diferencia
+        QPointF delta = event->scenePos() - m_lastMousePos;
+        setPos(pos() + delta);
+        m_lastMousePos = event->scenePos();
+    }
+    else if (m_mode == Rotating) {
+        // Calcular ángulo absoluto entre el pivote y el ratón
+        QLineF line(m_pivotPoint, event->scenePos());
+        double angle = -line.angle();
+
+        // Corregir orientación si estamos pivotando sobre el lado derecho
+        // (porque la regla "mira" hacia la izquierda en ese caso)
+        if (transformOriginPoint().x() > 0) {
+            angle += 180;
+        }
+
+        setRotation(angle);
+    }
+}
+
+void RotatableSvgItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    m_mode = None;
+    hoverMoveEvent(nullptr); // Restaurar el cursor correcto
+    QGraphicsSvgItem::mouseReleaseEvent(event);
+}
+
+void RotatableSvgItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
+{
+    QPointF pos = (event) ? event->pos() : mapFromScene(QCursor::pos());
+    qreal width = boundingRect().width();
+    qreal zoneSize = width * 0.15;
+
+    if (pos.x() < zoneSize || pos.x() > width - zoneSize) {
+        setCursor(Qt::SizeHorCursor);
+    } else {
+        setCursor(Qt::OpenHandCursor);
+    }
+
+    if(event) QGraphicsSvgItem::hoverMoveEvent(event);
+}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -131,33 +238,32 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->colorButton, &QToolButton::clicked, this, &MainWindow::cambiarColor);
 
-    exclusiveButtons << ui->lapiz
-                     << ui->cursor
-                     << ui->goma
-                     << ui->texto
-                     << ui->marca
-                     << ui->regla;
-
+    exclusiveButtons << ui->lapiz << ui->cursor << ui->goma << ui->texto << ui->marca << ui->regla;
 
     for (QToolButton *button : exclusiveButtons) {
         button->installEventFilter(this);
 
-        if (button == ui->lapiz) connect(button, &QToolButton::toggled, this, &MainWindow::togglePencil);
-        if (button == ui->cursor) connect(button, &QToolButton::toggled, this, &MainWindow::toggleCursor);
-        if (button == ui->goma) connect(button, &QToolButton::toggled, this, &MainWindow::toggleRubber);
-        if (button == ui->marca) connect(button, &QToolButton::toggled, this, &MainWindow::placeMark);
-        if (button == ui->regla) connect(button, &QToolButton::toggled, this, &MainWindow::toggleSvgRuler);
-        if (button == ui->texto) connect(button, &QToolButton::toggled, this, &MainWindow::toggleText);
+        if (button == ui->lapiz)
+            connect(button, &QToolButton::toggled, this, &MainWindow::togglePencil);
+        if (button == ui->cursor)
+            connect(button, &QToolButton::toggled, this, &MainWindow::toggleCursor);
+        if (button == ui->goma)
+            connect(button, &QToolButton::toggled, this, &MainWindow::toggleRubber);
+        if (button == ui->marca)
+            connect(button, &QToolButton::toggled, this, &MainWindow::placeMark);
+        if (button == ui->regla)
+            connect(button, &QToolButton::toggled, this, &MainWindow::toggleSvgRuler);
+        if (button == ui->texto)
+            connect(button, &QToolButton::toggled, this, &MainWindow::toggleText);
     }
-
 
     connect(ui->nuevaPag, &QToolButton::clicked, this, &MainWindow::clearAllDrawings);
     connect(ui->ojo, &QToolButton::clicked, this, &MainWindow::togglePointExtremes);
     ui->cursor->setChecked(true);
 
-
-    auto activateToolButton = [this](QToolButton* buttonToActivate) {
-        if (!buttonToActivate->isCheckable()) return;
+    auto activateToolButton = [this](QToolButton *buttonToActivate) {
+        if (!buttonToActivate->isCheckable())
+            return;
 
         for (QToolButton *button : exclusiveButtons) {
             if (button != buttonToActivate && button->isChecked()) {
@@ -173,39 +279,27 @@ MainWindow::MainWindow(QWidget *parent)
 
     // --- Atajo para Cursor (1) ---
     QShortcut *cursorShortcut = new QShortcut(QKeySequence(Qt::Key_1), this);
-    connect(cursorShortcut, &QShortcut::activated, this, [=]() {
-        activateToolButton(ui->cursor);
-    });
+    connect(cursorShortcut, &QShortcut::activated, this, [=]() { activateToolButton(ui->cursor); });
 
     // --- Atajo para Lápiz (2) ---
     QShortcut *pencilShortcut = new QShortcut(QKeySequence(Qt::Key_2), this);
-    connect(pencilShortcut, &QShortcut::activated, this, [=]() {
-        activateToolButton(ui->lapiz);
-    });
+    connect(pencilShortcut, &QShortcut::activated, this, [=]() { activateToolButton(ui->lapiz); });
 
     // --- Atajo para Goma (3) ---
     QShortcut *rubberShortcut = new QShortcut(QKeySequence(Qt::Key_3), this);
-    connect(rubberShortcut, &QShortcut::activated, this, [=]() {
-        activateToolButton(ui->goma);
-    });
+    connect(rubberShortcut, &QShortcut::activated, this, [=]() { activateToolButton(ui->goma); });
 
     // --- Atajo para Texto (4) ---
     QShortcut *textShortcut = new QShortcut(QKeySequence(Qt::Key_4), this);
-    connect(textShortcut, &QShortcut::activated, this, [=]() {
-        activateToolButton(ui->texto);
-    });
+    connect(textShortcut, &QShortcut::activated, this, [=]() { activateToolButton(ui->texto); });
 
     // --- Atajo para Marca (5) ---
     QShortcut *markShortcut = new QShortcut(QKeySequence(Qt::Key_5), this);
-    connect(markShortcut, &QShortcut::activated, this, [=]() {
-        activateToolButton(ui->marca);
-    });
+    connect(markShortcut, &QShortcut::activated, this, [=]() { activateToolButton(ui->marca); });
 
     // --- Atajo para Regla (6) ---
     QShortcut *rulerShortcut = new QShortcut(QKeySequence(Qt::Key_6), this);
-    connect(rulerShortcut, &QShortcut::activated, this, [=]() {
-        activateToolButton(ui->regla);
-    });
+    connect(rulerShortcut, &QShortcut::activated, this, [=]() { activateToolButton(ui->regla); });
 
     QShortcut *deleteShortcut = new QShortcut(QKeySequence(Qt::Key_Delete), this);
     connect(deleteShortcut, &QShortcut::activated, this, &MainWindow::confirmAndClearAllDrawings);
@@ -226,6 +320,7 @@ MainWindow::MainWindow(QWidget *parent)
         ui->sidebar_2->setCurrentIndex(1);
     });
 
+    // --- CREACIÓN DE LA REGLA ---
     rulerSvgItem = new RotatableSvgItem(":/images/ruler.svg");
     scene->addItem(rulerSvgItem);
     rulerSvgItem->setVisible(false);
@@ -627,9 +722,7 @@ void MainWindow::confirmAndClearAllDrawings()
 
     msgBox.exec(); // Muestra la caja de diálogo y espera la respuesta
 
-
     if (msgBox.clickedButton() == yesButton) {
-
         clearAllDrawings();
         ui->cursor->setChecked(true);
     }
@@ -654,23 +747,23 @@ void MainWindow::toggleSvgRuler()
     drawingMode = false;
     erasingMode = false;
     markingMode = false;
-    measuringMode = false; // El modo regla lineal (si existe)
+    measuringMode = false;
     textMode = false;
+
+    // Restaurar cursor normal en la vista
+    toggleCursor();
 
     svgRulerActive = !svgRulerActive;
 
     if (rulerSvgItem) {
         rulerSvgItem->setVisible(svgRulerActive);
-        rulerSvgItem->setSelected(
-            svgRulerActive); // Para que se resalte y se pueda mover inmediatamente
-    }
 
-    if (svgRulerActive) {
-        ui->graphicsView->setDragMode(
-            QGraphicsView::NoDrag); // Permitimos la interacción directa con el item SVG
-        ui->graphicsView->setCursor(Qt::OpenHandCursor); // Cursor que sugiere arrastrar el objeto
-    } else {
-        toggleCursor(); // Volver al modo normal de arrastre del mapa
+        // Si la activamos, la seleccionamos y le damos el foco
+        if (svgRulerActive) {
+            rulerSvgItem->setSelected(true);
+        } else {
+            rulerSvgItem->setSelected(false);
+        }
     }
 }
 
@@ -773,8 +866,8 @@ QPointF MainWindow::snapToRuler(QPointF scenePos)
     QPointF localPos = rulerSvgItem->mapFromScene(scenePos);
     QRectF rect = rulerSvgItem->boundingRect();
 
-    // Definimos un umbral de atracción (ej: 30 píxeles)
-    double threshold = 60.0;
+    // Definimos un umbral de atracción (ej: 100 píxeles)
+    double threshold = 100.0;
 
     // Calculamos distancias a los bordes superior e inferior (en local)
     double distTop = qAbs(localPos.y() - rect.top());
@@ -782,9 +875,6 @@ QPointF MainWindow::snapToRuler(QPointF scenePos)
 
     // 2. Comprobar si debemos activar el "imán"
     bool snapped = false;
-
-    // Opcional: Si quieres que solo pinte SI ESTÁ DENTRO del largo de la regla:
-    // if (localPos.x() >= rect.left() - threshold && localPos.x() <= rect.right() + threshold) { ... }
 
     // Lógica de imán:
     if (distTop < threshold) {
@@ -805,17 +895,13 @@ QPointF MainWindow::snapToRuler(QPointF scenePos)
 
 bool MainWindow::eventFilter(QObject *watched, QEvent *event)
 {
-    if (event->type() == QEvent::MouseButtonPress && qobject_cast<QToolButton*>(watched))
-    {
-        QToolButton *clickedButton = qobject_cast<QToolButton*>(watched);
+    if (event->type() == QEvent::MouseButtonPress && qobject_cast<QToolButton *>(watched)) {
+        QToolButton *clickedButton = qobject_cast<QToolButton *>(watched);
 
-        if (exclusiveButtons.contains(clickedButton))
-        {
+        if (exclusiveButtons.contains(clickedButton)) {
             // Desactivar todos los demás botones del grupo ANTES de que el clic active el actual.
-            for (QToolButton *button : exclusiveButtons)
-            {
-                if (button != clickedButton && button->isCheckable())
-                {
+            for (QToolButton *button : exclusiveButtons) {
+                if (button != clickedButton && button->isCheckable()) {
                     button->setChecked(false);
                 }
             }
