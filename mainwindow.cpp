@@ -26,6 +26,9 @@
 #include <QGraphicsSvgItem>
 #include <QGraphicsView>
 
+#include <QColorDialog>
+#include <QColor>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -110,8 +113,26 @@ MainWindow::MainWindow(QWidget *parent)
     ui->graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
     scale = 0.2;
 
+    // Controles de zoom mejorados (del primer código)
+    connect(ui->zoomSlider, &QSlider::valueChanged, this, &MainWindow::onZoomSliderChanged);
+    connect(ui->zoomIn, &QToolButton::clicked, this, &MainWindow::onZoomInButtonClicked);
+    connect(ui->zoomOut, &QToolButton::clicked, this, &MainWindow::onZoomOutButtonClicked);
+    ui->zoomSlider->setValue(50);
+    ui->zoomSlider->setMinimum(10);
+
+    // También mantener las funciones originales de zoom por compatibilidad
     connect(ui->zoomIn, &QToolButton::clicked, this, &MainWindow::zoomInS);
     connect(ui->zoomOut, &QToolButton::clicked, this, &MainWindow::zoomOutS);
+
+    // Controles de lápiz mejorados (del primer código)
+    grosorLapiz = 3;
+    ui->grosorSlider->setMinimum(1);
+    ui->grosorSlider->setMaximum(10);
+    ui->grosorSlider->setValue(grosorLapiz);
+    connect(ui->grosorSlider, &QSlider::valueChanged, this, &MainWindow::SliderLapiz);
+    connect(ui->colorButton, &QToolButton::clicked, this, &MainWindow::cambiarColor);
+
+    // Conexiones de herramientas (combinadas)
     connect(ui->lapiz, &QToolButton::clicked, this, &MainWindow::togglePencil);
     connect(ui->cursor, &QToolButton::clicked, this, &MainWindow::toggleCursor);
     connect(ui->goma, &QToolButton::clicked, this, &MainWindow::toggleRubber);
@@ -139,7 +160,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     rulerSvgItem = new RotatableSvgItem(":/images/ruler.svg");
     scene->addItem(rulerSvgItem);
-    // Ocultar por defecto, se mostrará al activar el modo
     rulerSvgItem->setVisible(false);
 
     QTimer *updateTimer = new QTimer(this); //Se usa para actualizar las marcas del 'ojo'
@@ -154,41 +174,47 @@ MainWindow::MainWindow(QWidget *parent)
     updateTimer->start(50); // cada 50 ms revisa la posición
 }
 
-void MainWindow::setupMap() //funcion para hacer los cambios al mapa
-{}
-
-MainWindow::~MainWindow()
+void MainWindow::onZoomInButtonClicked()
 {
-    delete ui;
+    int currentValue = ui->zoomSlider->value();
+    ui->zoomSlider->setValue(currentValue + 5);
+
 }
 
-void MainWindow::zoomInS()
+void MainWindow::onZoomOutButtonClicked()
 {
-    applyZoom(1.15);
+    int currentValue = ui->zoomSlider->value();
+    ui->zoomSlider->setValue(currentValue - 5);
+
 }
 
-void MainWindow::zoomOutS()
+void MainWindow::onZoomSliderChanged(int value)
 {
-    applyZoom(1.0 / 1.15);
+    double newScale = (double)value / 100.0;
+    applyZoom(newScale);
 }
 
-void MainWindow::applyZoom(double factor)
+void MainWindow::SliderLapiz(int value)
 {
-    double newScale = scale * factor;
 
-    const double minScale = 0.01;
-    const double maxScale = 1;
+    grosorLapiz = value;
+}
 
-    if (newScale < minScale) {
-        factor = minScale / scale;
-        newScale = minScale;
+void MainWindow::cambiarColor()
+{
+    QColor newColor = QColorDialog::getColor(
+        currentColor, // Color inicial
+        this,            // Padre
+        "Selecciona el color del lápiz"
+        );
 
-    } else if (newScale > maxScale) {
-        factor = maxScale / scale;
-        newScale = maxScale;
+
+    if (newColor.isValid()) {
+        currentColor = newColor;
+
+
+        ui->colorButton->setStyleSheet(QString("background-color: %1;").arg(newColor.name()));
     }
-    ui->graphicsView->scale(factor, factor);
-    scale = newScale;
 }
 
 void MainWindow::onLogInClicked()
@@ -679,7 +705,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
 
                 currentPath.moveTo(startPoint);
 
-                QPen pen(Qt::red, 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+                QPen pen(currentColor, grosorLapiz, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
                 currentPathItem = scene->addPath(currentPath, pen);
                 return true;
             } else if (event->type() == QEvent::GraphicsSceneMouseMove
@@ -710,6 +736,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 if (item && item->group()) {
                     item = item->group();
                 }
+                // AÑADIMOS "item != mapItem" A LA CONDICIÓN
 
                 // --- NUEVA COMPROBACIÓN ---
                 // Si el item tiene la marca "locked_helper", LO IGNORAMOS y no borramos

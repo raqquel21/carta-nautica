@@ -67,6 +67,7 @@ protected:
         }
     }
 };
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -84,6 +85,8 @@ private:
     QGraphicsPixmapItem *mapItem = nullptr;
 
     double scale = 1;
+    int grosorLapiz;
+    QColor currentColor = Qt::red;
     void applyZoom(double factor);
     bool drawingMode = false;
     bool erasingMode = false;
@@ -116,25 +119,32 @@ private:
 
     RotatableSvgItem *rulerSvgItem = nullptr; // Puntero al objeto SVG
     bool svgRulerActive = false;
+
 private slots:
+    // Funciones de zoom (combinadas)
     void zoomInS();
     void zoomOutS();
+    void onZoomInButtonClicked();
+    void onZoomOutButtonClicked();
+    void onZoomSliderChanged(int value);
+
     void setupMap();
 
-    //void completeProfile();
-    //void enlace_reg();
     void onLogInClicked();
     void onRegisterClicked();
 
     void toggleSidebar();
-
 
     void listarPreguntas();
     void showNextQuestion();
     void checkQuestion();
     void onNextClicked();
 
+    // Funciones de dibujo (combinadas)
     void togglePencil();
+    void SliderLapiz(int value);
+    void cambiarColor();
+
     void toggleCursor();
     void toggleRubber();
     void placeMark();
