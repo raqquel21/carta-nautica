@@ -12,6 +12,7 @@
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QFrame>
 #include <QtWidgets/QGraphicsView>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QHBoxLayout>
@@ -20,6 +21,7 @@
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QRadioButton>
+#include <QtWidgets/QSlider>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QStackedWidget>
 #include <QtWidgets/QToolBar>
@@ -95,12 +97,10 @@ public:
     QStackedWidget *sidebar_2;
     QWidget *Elegir_problema;
     QGridLayout *gridLayout_13;
-    QPushButton *Problema_1;
-    QLabel *Problemas;
-    QPushButton *Problema_Random;
     QPushButton *sidebarButton_2;
-    QPushButton *Problema_2;
+    QPushButton *Problema_Random;
     QSpacerItem *verticalSpacer_18;
+    QLabel *Problemas;
     QWidget *Resolver_Problema;
     QGridLayout *sidebar;
     QSpacerItem *verticalSpacer_10;
@@ -118,8 +118,12 @@ public:
     QVBoxLayout *verticalLayout_3;
     QHBoxLayout *horizontalLayout_2;
     QToolButton *nuevaPag;
+    QFrame *line;
     QToolButton *cursor;
     QToolButton *lapiz;
+    QVBoxLayout *verticalLayout;
+    QSlider *grosorSlider;
+    QPushButton *colorButton;
     QToolButton *goma;
     QToolButton *texto;
     QToolButton *marca;
@@ -127,8 +131,9 @@ public:
     QToolButton *regla;
     QToolButton *transportador;
     QToolButton *compas;
-    QToolButton *zoomIn;
     QToolButton *zoomOut;
+    QSlider *zoomSlider;
+    QToolButton *zoomIn;
     QGraphicsView *graphicsView;
     QToolBar *toolBar;
 
@@ -494,21 +499,6 @@ public:
         Elegir_problema->setObjectName("Elegir_problema");
         gridLayout_13 = new QGridLayout(Elegir_problema);
         gridLayout_13->setObjectName("gridLayout_13");
-        Problema_1 = new QPushButton(Elegir_problema);
-        Problema_1->setObjectName("Problema_1");
-
-        gridLayout_13->addWidget(Problema_1, 5, 0, 1, 1);
-
-        Problemas = new QLabel(Elegir_problema);
-        Problemas->setObjectName("Problemas");
-
-        gridLayout_13->addWidget(Problemas, 0, 0, 1, 1);
-
-        Problema_Random = new QPushButton(Elegir_problema);
-        Problema_Random->setObjectName("Problema_Random");
-
-        gridLayout_13->addWidget(Problema_Random, 4, 0, 1, 1);
-
         sidebarButton_2 = new QPushButton(Elegir_problema);
         sidebarButton_2->setObjectName("sidebarButton_2");
         sidebarButton_2->setStyleSheet(QString::fromUtf8("QPushButton {\n"
@@ -523,14 +513,19 @@ public:
 
         gridLayout_13->addWidget(sidebarButton_2, 0, 1, 1, 1);
 
-        Problema_2 = new QPushButton(Elegir_problema);
-        Problema_2->setObjectName("Problema_2");
+        Problema_Random = new QPushButton(Elegir_problema);
+        Problema_Random->setObjectName("Problema_Random");
 
-        gridLayout_13->addWidget(Problema_2, 6, 0, 1, 1);
+        gridLayout_13->addWidget(Problema_Random, 4, 0, 1, 1);
 
         verticalSpacer_18 = new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
 
         gridLayout_13->addItem(verticalSpacer_18, 3, 0, 1, 1);
+
+        Problemas = new QLabel(Elegir_problema);
+        Problemas->setObjectName("Problemas");
+
+        gridLayout_13->addWidget(Problemas, 0, 0, 1, 1);
 
         sidebar_2->addWidget(Elegir_problema);
         Resolver_Problema = new QWidget();
@@ -660,9 +655,34 @@ public:
 "	background-image: url(:/images/newpagIlum.png);\n"
 "	background-repeat: no-repeat;\n"
 "}\n"
-""));
+"QToolButton:checked {\n"
+"\n"
+"    border: 2px solid #FF8C00; \n"
+"    border-radius: 4px;\n"
+"    \n"
+" \n"
+"    background-image: url(:/images/newpagIlum.png); \n"
+"    background-repeat: no-repeat;\n"
+"}\n"
+"QToolButton:checked {\n"
+"\n"
+"    border: 2px solid #CCCCCC; \n"
+"    border-radius: 4px;\n"
+"    \n"
+" \n"
+"    background-image: url(:/images/newpagIlum.png); \n"
+"    background-repeat: no-repeat;\n"
+"}"));
+        nuevaPag->setCheckable(false);
 
         horizontalLayout_2->addWidget(nuevaPag);
+
+        line = new QFrame(page);
+        line->setObjectName("line");
+        line->setFrameShape(QFrame::Shape::VLine);
+        line->setFrameShadow(QFrame::Shadow::Sunken);
+
+        horizontalLayout_2->addWidget(line);
 
         cursor = new QToolButton(page);
         cursor->setObjectName("cursor");
@@ -685,7 +705,17 @@ public:
 "	background-image: url(:/images/cursorIlum.png);\n"
 "	background-repeat: no-repeat;\n"
 "}\n"
+"QToolButton:checked {\n"
+"\n"
+"    border: 2px solid #CCCCCC; \n"
+"    border-radius: 4px;\n"
+"    \n"
+" \n"
+"    background-image: url(:/images/cursorIlum.png); \n"
+"    background-repeat: no-repeat;\n"
+"}\n"
 ""));
+        cursor->setCheckable(true);
 
         horizontalLayout_2->addWidget(cursor);
 
@@ -710,10 +740,44 @@ public:
 "	background-image: url(:/images/lapizIlum.png);\n"
 "	background-repeat: no-repeat;\n"
 "}\n"
+"QToolButton:checked {\n"
+"\n"
+"    border: 2px solid #CCCCCC; \n"
+"    border-radius: 4px;\n"
+"    \n"
+" \n"
+"    background-image: url(:/images/lapizIlum.png); \n"
+"    background-repeat: no-repeat;\n"
+"}\n"
+"\n"
 ""));
         lapiz->setIconSize(QSize(48, 48));
+        lapiz->setCheckable(true);
+        lapiz->setChecked(false);
 
         horizontalLayout_2->addWidget(lapiz);
+
+        verticalLayout = new QVBoxLayout();
+        verticalLayout->setObjectName("verticalLayout");
+        grosorSlider = new QSlider(page);
+        grosorSlider->setObjectName("grosorSlider");
+        grosorSlider->setMinimumSize(QSize(0, 30));
+        grosorSlider->setMaximumSize(QSize(75, 16777215));
+        grosorSlider->setOrientation(Qt::Orientation::Horizontal);
+
+        verticalLayout->addWidget(grosorSlider);
+
+        colorButton = new QPushButton(page);
+        colorButton->setObjectName("colorButton");
+        colorButton->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"    background-color: #FF0000; \n"
+"  \n"
+"}"));
+
+        verticalLayout->addWidget(colorButton);
+
+
+        horizontalLayout_2->addLayout(verticalLayout);
 
         goma = new QToolButton(page);
         goma->setObjectName("goma");
@@ -736,7 +800,16 @@ public:
 "	background-image: url(:/images/gomaIlum.png);\n"
 "	background-repeat: no-repeat;\n"
 "}\n"
-""));
+"QToolButton:checked {\n"
+"\n"
+"    border: 2px solid #CCCCCC; \n"
+"    border-radius: 4px;\n"
+"    \n"
+" \n"
+"    background-image: url(:/images/gomaIlum.png); \n"
+"    background-repeat: no-repeat;\n"
+"}"));
+        goma->setCheckable(true);
 
         horizontalLayout_2->addWidget(goma);
 
@@ -761,7 +834,16 @@ public:
 "	background-image: url(:/images/textoIlum.png);\n"
 "	background-repeat: no-repeat;\n"
 "}\n"
-""));
+"QToolButton:checked {\n"
+"\n"
+"    border: 2px solid #CCCCCC; \n"
+"    border-radius: 4px;\n"
+"    \n"
+" \n"
+"    background-image: url(:/images/textoIlum.png); \n"
+"    background-repeat: no-repeat;\n"
+"}"));
+        texto->setCheckable(true);
 
         horizontalLayout_2->addWidget(texto);
 
@@ -786,7 +868,16 @@ public:
 "	background-image: url(:/images/marcaIlum.png);\n"
 "	background-repeat: no-repeat;\n"
 "}\n"
-""));
+"QToolButton:checked {\n"
+"\n"
+"    border: 2px solid #CCCCCC; \n"
+"    border-radius: 4px;\n"
+"    \n"
+" \n"
+"    background-image: url(:/images/marcaIlum.png); \n"
+"    background-repeat: no-repeat;\n"
+"}"));
+        marca->setCheckable(true);
 
         horizontalLayout_2->addWidget(marca);
 
@@ -811,7 +902,16 @@ public:
 "	background-image: url(:/images/ojoIlum.png);\n"
 "	background-repeat: no-repeat;\n"
 "}\n"
-""));
+"QToolButton:checked {\n"
+"\n"
+"    border: 2px solid #CCCCCC; \n"
+"    border-radius: 4px;\n"
+"    \n"
+" \n"
+"    background-image: url(:/images/ojoIlum.png); \n"
+"    background-repeat: no-repeat;\n"
+"}"));
+        ojo->setCheckable(true);
 
         horizontalLayout_2->addWidget(ojo);
 
@@ -836,7 +936,16 @@ public:
 "	background-image: url(:/images/ruleIlum.png);\n"
 "	background-repeat: no-repeat;\n"
 "}\n"
-""));
+"QToolButton:checked {\n"
+"\n"
+"    border: 2px solid #CCCCCC; \n"
+"    border-radius: 4px;\n"
+"    \n"
+" \n"
+"    background-image: url(:/images/ruleIlum.png); \n"
+"    background-repeat: no-repeat;\n"
+"}"));
+        regla->setCheckable(true);
 
         horizontalLayout_2->addWidget(regla);
 
@@ -861,7 +970,16 @@ public:
 "	background-image: url(:/images/transportadorIlum.png);\n"
 "	background-repeat: no-repeat;\n"
 "}\n"
-""));
+"QToolButton:checked {\n"
+"\n"
+"    border: 2px solid #CCCCCC; \n"
+"    border-radius: 4px;\n"
+"    \n"
+" \n"
+"    background-image: url(:/images/transportadorIlum.png); \n"
+"    background-repeat: no-repeat;\n"
+"}"));
+        transportador->setCheckable(true);
 
         horizontalLayout_2->addWidget(transportador);
 
@@ -887,8 +1005,41 @@ public:
 "	background-repeat: no-repeat;\n"
 "}\n"
 ""));
+        compas->setCheckable(true);
 
         horizontalLayout_2->addWidget(compas);
+
+        zoomOut = new QToolButton(page);
+        zoomOut->setObjectName("zoomOut");
+        zoomOut->setStyleSheet(QString::fromUtf8("QToolButton {\n"
+"    border: none;\n"
+"	background-repeat: no-repeat;\n"
+"    background-position: center;\n"
+"    background-image: url(:/images/zoomOut.png);\n"
+"\n"
+"    min-width: 48px;\n"
+"    min-height: 48px;\n"
+"}\n"
+"QToolButton:hover {\n"
+"    background-image: url(:/images/zoomOutIlum.png);\n"
+"	background-repeat: no-repeat;\n"
+"}\n"
+"\n"
+"QToolButton:pressed {\n"
+"	background-image: url(:/images/zoomOutIlum.png);\n"
+"	background-repeat: no-repeat;\n"
+"}"));
+        zoomOut->setCheckable(true);
+
+        horizontalLayout_2->addWidget(zoomOut);
+
+        zoomSlider = new QSlider(page);
+        zoomSlider->setObjectName("zoomSlider");
+        zoomSlider->setMinimumSize(QSize(50, 48));
+        zoomSlider->setMaximumSize(QSize(200, 48));
+        zoomSlider->setOrientation(Qt::Orientation::Horizontal);
+
+        horizontalLayout_2->addWidget(zoomSlider);
 
         zoomIn = new QToolButton(page);
         zoomIn->setObjectName("zoomIn");
@@ -911,31 +1062,9 @@ public:
 "	background-repeat: no-repeat;\n"
 "}\n"
 ""));
+        zoomIn->setCheckable(true);
 
         horizontalLayout_2->addWidget(zoomIn);
-
-        zoomOut = new QToolButton(page);
-        zoomOut->setObjectName("zoomOut");
-        zoomOut->setStyleSheet(QString::fromUtf8("QToolButton {\n"
-"    border: none;\n"
-"	background-repeat: no-repeat;\n"
-"    background-position: center;\n"
-"    background-image: url(:/images/zoomOut.png);\n"
-"\n"
-"    min-width: 48px;\n"
-"    min-height: 48px;\n"
-"}\n"
-"QToolButton:hover {\n"
-"    background-image: url(:/images/zoomOutIlum.png);\n"
-"	background-repeat: no-repeat;\n"
-"}\n"
-"\n"
-"QToolButton:pressed {\n"
-"	background-image: url(:/images/zoomOutIlum.png);\n"
-"	background-repeat: no-repeat;\n"
-"}"));
-
-        horizontalLayout_2->addWidget(zoomOut);
 
 
         verticalLayout_3->addLayout(horizontalLayout_2);
@@ -968,7 +1097,7 @@ public:
         retranslateUi(MainWindow);
 
         stackedWidget->setCurrentIndex(3);
-        sidebar_2->setCurrentIndex(1);
+        sidebar_2->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -1002,11 +1131,9 @@ public:
         pushButton->setText(QCoreApplication::translate("MainWindow", "PushButton", nullptr));
         nombre->setText(QCoreApplication::translate("MainWindow", "Nombre:", nullptr));
         cerrarSesion->setText(QCoreApplication::translate("MainWindow", "Cerrar Sesi\303\263n", nullptr));
-        Problema_1->setText(QCoreApplication::translate("MainWindow", "Problema 1", nullptr));
-        Problemas->setText(QCoreApplication::translate("MainWindow", "Problemas", nullptr));
-        Problema_Random->setText(QCoreApplication::translate("MainWindow", "Problema Random", nullptr));
         sidebarButton_2->setText(QString());
-        Problema_2->setText(QCoreApplication::translate("MainWindow", "PushButton", nullptr));
+        Problema_Random->setText(QCoreApplication::translate("MainWindow", "Problema Random", nullptr));
+        Problemas->setText(QCoreApplication::translate("MainWindow", "Problemas", nullptr));
         verificarButton->setText(QCoreApplication::translate("MainWindow", "Verificar", nullptr));
         radioButton_4->setText(QCoreApplication::translate("MainWindow", "RadioButton", nullptr));
         enunciadoLabel->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
@@ -1018,6 +1145,7 @@ public:
         nuevaPag->setText(QString());
         cursor->setText(QString());
         lapiz->setText(QString());
+        colorButton->setText(QString());
         goma->setText(QString());
         texto->setText(QString());
         marca->setText(QString());
@@ -1025,8 +1153,8 @@ public:
         regla->setText(QString());
         transportador->setText(QString());
         compas->setText(QString());
-        zoomIn->setText(QString());
         zoomOut->setText(QString());
+        zoomIn->setText(QString());
         toolBar->setWindowTitle(QCoreApplication::translate("MainWindow", "toolBar", nullptr));
     } // retranslateUi
 
