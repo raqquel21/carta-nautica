@@ -26,8 +26,11 @@
 #include <QGraphicsSvgItem>
 #include <QGraphicsView>
 
-#include <QColorDialog>
 #include <QColor>
+#include <QColorDialog>
+
+#include <QShortcut>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -120,7 +123,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->zoomSlider->setValue(50);
     ui->zoomSlider->setMinimum(10);
 
-
     grosorLapiz = 3;
     ui->grosorSlider->setMinimum(1);
     ui->grosorSlider->setMaximum(10);
@@ -129,16 +131,84 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->colorButton, &QToolButton::clicked, this, &MainWindow::cambiarColor);
 
-    connect(ui->lapiz, &QToolButton::clicked, this, &MainWindow::togglePencil);
+    exclusiveButtons << ui->lapiz
+                     << ui->cursor
+                     << ui->goma
+                     << ui->texto
+                     << ui->marca
+                     << ui->regla;
 
-    connect(ui->lapiz, &QToolButton::clicked, this, &MainWindow::togglePencil);
-    connect(ui->cursor, &QToolButton::clicked, this, &MainWindow::toggleCursor);
-    connect(ui->goma, &QToolButton::clicked, this, &MainWindow::toggleRubber);
+
+    for (QToolButton *button : exclusiveButtons) {
+        button->installEventFilter(this);
+
+        if (button == ui->lapiz) connect(button, &QToolButton::toggled, this, &MainWindow::togglePencil);
+        if (button == ui->cursor) connect(button, &QToolButton::toggled, this, &MainWindow::toggleCursor);
+        if (button == ui->goma) connect(button, &QToolButton::toggled, this, &MainWindow::toggleRubber);
+        if (button == ui->marca) connect(button, &QToolButton::toggled, this, &MainWindow::placeMark);
+        if (button == ui->regla) connect(button, &QToolButton::toggled, this, &MainWindow::toggleSvgRuler);
+        if (button == ui->texto) connect(button, &QToolButton::toggled, this, &MainWindow::toggleText);
+    }
+
+
     connect(ui->nuevaPag, &QToolButton::clicked, this, &MainWindow::clearAllDrawings);
-    connect(ui->marca, &QToolButton::clicked, this, &MainWindow::placeMark);
-    connect(ui->regla, &QToolButton::clicked, this, &MainWindow::toggleSvgRuler);
     connect(ui->ojo, &QToolButton::clicked, this, &MainWindow::togglePointExtremes);
-    connect(ui->texto, &QToolButton::clicked, this, &MainWindow::toggleText);
+    ui->cursor->setChecked(true);
+
+
+    auto activateToolButton = [this](QToolButton* buttonToActivate) {
+        if (!buttonToActivate->isCheckable()) return;
+
+        for (QToolButton *button : exclusiveButtons) {
+            if (button != buttonToActivate && button->isChecked()) {
+                button->setChecked(false); // Dispara toggled(false) en los inactivos
+            }
+        }
+
+        // 2. Activar el botón deseado
+        if (!buttonToActivate->isChecked()) {
+            buttonToActivate->setChecked(true); // Dispara toggled(true) en el botón actual
+        }
+    };
+
+    // --- Atajo para Cursor (1) ---
+    QShortcut *cursorShortcut = new QShortcut(QKeySequence(Qt::Key_1), this);
+    connect(cursorShortcut, &QShortcut::activated, this, [=]() {
+        activateToolButton(ui->cursor);
+    });
+
+    // --- Atajo para Lápiz (2) ---
+    QShortcut *pencilShortcut = new QShortcut(QKeySequence(Qt::Key_2), this);
+    connect(pencilShortcut, &QShortcut::activated, this, [=]() {
+        activateToolButton(ui->lapiz);
+    });
+
+    // --- Atajo para Goma (3) ---
+    QShortcut *rubberShortcut = new QShortcut(QKeySequence(Qt::Key_3), this);
+    connect(rubberShortcut, &QShortcut::activated, this, [=]() {
+        activateToolButton(ui->goma);
+    });
+
+    // --- Atajo para Texto (4) ---
+    QShortcut *textShortcut = new QShortcut(QKeySequence(Qt::Key_4), this);
+    connect(textShortcut, &QShortcut::activated, this, [=]() {
+        activateToolButton(ui->texto);
+    });
+
+    // --- Atajo para Marca (5) ---
+    QShortcut *markShortcut = new QShortcut(QKeySequence(Qt::Key_5), this);
+    connect(markShortcut, &QShortcut::activated, this, [=]() {
+        activateToolButton(ui->marca);
+    });
+
+    // --- Atajo para Regla (6) ---
+    QShortcut *rulerShortcut = new QShortcut(QKeySequence(Qt::Key_6), this);
+    connect(rulerShortcut, &QShortcut::activated, this, [=]() {
+        activateToolButton(ui->regla);
+    });
+
+    QShortcut *deleteShortcut = new QShortcut(QKeySequence(Qt::Key_Delete), this);
+    connect(deleteShortcut, &QShortcut::activated, this, &MainWindow::confirmAndClearAllDrawings);
 
     sidebarVisible = true;
     ui->sidebarButton->setIcon(QIcon(":/images/flechaIzq.png"));
@@ -180,20 +250,16 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-
-
 void MainWindow::applyZoom(double newScale)
 {
     const double minScale = 0.1;
     const double maxScale = 1.0;
-
 
     if (newScale < minScale) {
         newScale = minScale;
     } else if (newScale > maxScale) {
         newScale = maxScale;
     }
-
 
     double factor = newScale / scale;
 
@@ -205,40 +271,33 @@ void MainWindow::onZoomInButtonClicked()
 {
     int currentValue = ui->zoomSlider->value();
     ui->zoomSlider->setValue(currentValue + 5);
-
 }
 
 void MainWindow::onZoomOutButtonClicked()
 {
     int currentValue = ui->zoomSlider->value();
     ui->zoomSlider->setValue(currentValue - 5);
-
 }
 
 void MainWindow::onZoomSliderChanged(int value)
 {
-    double newScale = (double)value / 100.0;
+    double newScale = (double) value / 100.0;
     applyZoom(newScale);
 }
 
 void MainWindow::SliderLapiz(int value)
 {
-
     grosorLapiz = value;
 }
 
 void MainWindow::cambiarColor()
 {
-    QColor newColor = QColorDialog::getColor(
-        currentColor, // Color inicial
-        this,            // Padre
-        "Selecciona el color del lápiz"
-        );
-
+    QColor newColor = QColorDialog::getColor(currentColor, // Color inicial
+                                             this,         // Padre
+                                             "Selecciona el color del lápiz");
 
     if (newColor.isValid()) {
         currentColor = newColor;
-
 
         ui->colorButton->setStyleSheet(QString("background-color: %1;").arg(newColor.name()));
     }
@@ -360,8 +419,9 @@ void MainWindow::toggleSidebar()
     sidebarAnimation->start();
 }
 
-void MainWindow::listarPreguntas(){
-    for(int i=0; i<problemas.size(); i++){
+void MainWindow::listarPreguntas()
+{
+    for (int i = 0; i < problemas.size(); i++) {
         QPushButton *butt = new QPushButton(this);
 
         butt->setText(QString("Pregunta %1").arg(i + 1));
@@ -374,7 +434,6 @@ void MainWindow::listarPreguntas(){
         });
 
         ui->Elegir_problema->layout()->addWidget(butt);
-
     }
 }
 
@@ -502,7 +561,10 @@ void MainWindow::togglePencil()
     ui->graphicsView->setDragMode(QGraphicsView::NoDrag);
 
     // Cambiamos el cursor visualmente para que sepa que va a pintar
-    ui->graphicsView->setCursor(Qt::CrossCursor);
+    QPixmap customPixmap(":/images/lapiz.png");
+    customPixmap = customPixmap.scaled(32, 32, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QCursor Cursor(customPixmap, 1, 28);
+    ui->graphicsView->setCursor(Cursor);
 }
 
 void MainWindow::toggleRubber() // <--- NUEVA IMPLEMENTACIÓN
@@ -514,7 +576,10 @@ void MainWindow::toggleRubber() // <--- NUEVA IMPLEMENTACIÓN
     textMode = false;
 
     ui->graphicsView->setDragMode(QGraphicsView::NoDrag); // No queremos arrastrar mapa
-    ui->graphicsView->setCursor(Qt::ForbiddenCursor);     // Icono de "prohibido" o goma
+    QPixmap customPixmap(":/images/goma.png");
+    customPixmap = customPixmap.scaled(32, 32, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QCursor Cursor(customPixmap, 1, 28);
+    ui->graphicsView->setCursor(Cursor);
 }
 
 void MainWindow::toggleCursor()
@@ -546,6 +611,27 @@ void MainWindow::clearAllDrawings()
             scene->removeItem(item);
             delete item;
         }
+    }
+}
+
+void MainWindow::confirmAndClearAllDrawings()
+{
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("Confirmación de Borrado");
+    msgBox.setText("¿Estás seguro de que deseas borrar TODAS las anotaciones en la carta náutica?");
+    msgBox.setIcon(QMessageBox::Warning); // Icono de advertencia
+
+    // Configuración de los botones
+    QPushButton *yesButton = msgBox.addButton("Sí, borrar todo", QMessageBox::YesRole);
+    msgBox.addButton("No, cancelar", QMessageBox::NoRole);
+
+    msgBox.exec(); // Muestra la caja de diálogo y espera la respuesta
+
+
+    if (msgBox.clickedButton() == yesButton) {
+
+        clearAllDrawings();
+        ui->cursor->setChecked(true);
     }
 }
 
@@ -719,6 +805,23 @@ QPointF MainWindow::snapToRuler(QPointF scenePos)
 
 bool MainWindow::eventFilter(QObject *watched, QEvent *event)
 {
+    if (event->type() == QEvent::MouseButtonPress && qobject_cast<QToolButton*>(watched))
+    {
+        QToolButton *clickedButton = qobject_cast<QToolButton*>(watched);
+
+        if (exclusiveButtons.contains(clickedButton))
+        {
+            // Desactivar todos los demás botones del grupo ANTES de que el clic active el actual.
+            for (QToolButton *button : exclusiveButtons)
+            {
+                if (button != clickedButton && button->isCheckable())
+                {
+                    button->setChecked(false);
+                }
+            }
+        }
+    }
+
     if (watched == scene) {
         QGraphicsSceneMouseEvent *mouseEvent = static_cast<QGraphicsSceneMouseEvent *>(event);
 
@@ -760,7 +863,6 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
             if (event->type() == QEvent::GraphicsSceneMousePress
                 || (event->type() == QEvent::GraphicsSceneMouseMove
                     && (mouseEvent->buttons() & Qt::LeftButton))) {
-
                 QGraphicsItem *item = scene->itemAt(mouseEvent->scenePos(), QTransform());
                 if (item && item->group()) {
                     item = item->group();
@@ -781,7 +883,6 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                         || item->type() == QGraphicsLineItem::Type
                         || item->type() == QGraphicsTextItem::Type
                         || item->type() == QGraphicsItemGroup::Type)) {
-
                     scene->removeItem(item);
                     delete item;
                     return true;

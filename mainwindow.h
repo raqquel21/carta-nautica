@@ -27,6 +27,10 @@
 #include <QPointF>                  // Necesario para QPointF
 #include <QtMath>                   // Necesario para qRadiansToDegrees y atan2
 
+#include <QToolButton>
+#include <QEvent>
+#include <QList>
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -83,6 +87,8 @@ private:
 
     QGraphicsPixmapItem *mapItem = nullptr;
 
+    QList<QToolButton*> exclusiveButtons;
+
     double scale = 1;
     int grosorLapiz;
     QColor currentColor = Qt::red;
@@ -131,7 +137,6 @@ private slots:
 
     void toggleSidebar();
 
-
     void listarPreguntas();
     void showNextQuestion();
     void checkQuestion();
@@ -151,6 +156,7 @@ private slots:
     QPointF snapToRuler(QPointF originalPos);
 
     void clearAllDrawings();
+    void confirmAndClearAllDrawings();
 
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;

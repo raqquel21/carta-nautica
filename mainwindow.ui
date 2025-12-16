@@ -964,6 +964,13 @@ QToolButton:checked {
              </widget>
             </item>
             <item>
+             <widget class="Line" name="line">
+              <property name="orientation">
+               <enum>Qt::Orientation::Vertical</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QToolButton" name="cursor">
               <property name="styleSheet">
                <string notr="true">QToolButton {
@@ -1364,27 +1371,26 @@ QToolButton:pressed {
              </widget>
             </item>
             <item>
-             <widget class="QToolButton" name="zoomIn">
+             <widget class="QToolButton" name="zoomOut">
               <property name="styleSheet">
                <string notr="true">QToolButton {
     border: none;
 	background-repeat: no-repeat;
     background-position: center;
-    background-image: url(:/images/zoomIn.png);
+    background-image: url(:/images/zoomOut.png);
 
     min-width: 48px;
     min-height: 48px;
 }
 QToolButton:hover {
-    background-image: url(:/images/zoomInIlum.png);
+    background-image: url(:/images/zoomOutIlum.png);
 	background-repeat: no-repeat;
 }
 
 QToolButton:pressed {
-	background-image: url(:/images/zoomInIlum.png);
+	background-image: url(:/images/zoomOutIlum.png);
 	background-repeat: no-repeat;
-}
-</string>
+}</string>
               </property>
               <property name="text">
                <string/>
@@ -1414,26 +1420,27 @@ QToolButton:pressed {
              </widget>
             </item>
             <item>
-             <widget class="QToolButton" name="zoomOut">
+             <widget class="QToolButton" name="zoomIn">
               <property name="styleSheet">
                <string notr="true">QToolButton {
     border: none;
 	background-repeat: no-repeat;
     background-position: center;
-    background-image: url(:/images/zoomOut.png);
+    background-image: url(:/images/zoomIn.png);
 
     min-width: 48px;
     min-height: 48px;
 }
 QToolButton:hover {
-    background-image: url(:/images/zoomOutIlum.png);
+    background-image: url(:/images/zoomInIlum.png);
 	background-repeat: no-repeat;
 }
 
 QToolButton:pressed {
-	background-image: url(:/images/zoomOutIlum.png);
+	background-image: url(:/images/zoomInIlum.png);
 	background-repeat: no-repeat;
-}</string>
+}
+</string>
               </property>
               <property name="text">
                <string/>
