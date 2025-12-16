@@ -129,6 +129,8 @@ private slots:
     void toggleSidebar();
 
     void showNextQuestion();
+    void checkQuestion();
+    void onNextClicked();
 
     void togglePencil();
     void toggleCursor();

@@ -40,7 +40,7 @@ MainWindow::MainWindow(QWidget *parent)
     respbotones.append(ui->radioButton_3);
     respbotones.append(ui->radioButton_4);
 
-    connect(ui->pushButton_3, &QPushButton::clicked, this, &MainWindow::showNextQuestion);
+    connect(ui->sigButton, &QPushButton::clicked, this, &MainWindow::showNextQuestion);
 
     showNextQuestion(); //para que salga la primera xd
 
@@ -276,9 +276,9 @@ void MainWindow::toggleSidebar()
         startValue = fullWidth;
         endValue = closedWidth;
         sidebarVisible = false;
-        ui->label->setVisible(false);
-        ui->pushButton_2->setVisible(false);
-        ui->pushButton_3->setVisible(false);
+        ui->enunciadoLabel->setVisible(false);
+        ui->verificarButton->setVisible(false);
+        ui->sigButton->setVisible(false);
         for (int i = 0; i < respbotones.size(); ++i) {
             respbotones[i]->setVisible(false);
         }
@@ -290,9 +290,9 @@ void MainWindow::toggleSidebar()
         startValue = closedWidth;
         endValue = fullWidth;
         sidebarVisible = true;
-        ui->label->setVisible(true);
-        ui->pushButton_2->setVisible(true);
-        ui->pushButton_3->setVisible(true);
+        ui->enunciadoLabel->setVisible(true);
+        ui->verificarButton->setVisible(true);
+        ui->sigButton->setVisible(true);
         for (int i = 0; i < respbotones.size(); ++i) {
             respbotones[i]->setVisible(true);
         }
@@ -307,6 +307,12 @@ void MainWindow::toggleSidebar()
     sidebarAnimation->start();
 }
 
+void MainWindow::onNextClicked()
+{
+    preg_actual++;
+    showNextQuestion();
+}
+
 void MainWindow::showNextQuestion()
 {
     if (preg_actual >= problemas.size())
@@ -314,7 +320,7 @@ void MainWindow::showNextQuestion()
 
     const Problem &p = problemas[preg_actual];
 
-    ui->label->setText(p.text());
+    ui->enunciadoLabel->setText(p.text());
 
     // actualizar radiobuttons
     for (int i = 0; i < respbotones.size(); ++i) {
@@ -322,13 +328,113 @@ void MainWindow::showNextQuestion()
             respbotones[i]->setText(p.answers()[i].text());
             respbotones[i]->setVisible(true);
             respbotones[i]->setChecked(false);
+            respbotones[i]->setStyleSheet(""); // resetear color
         } else {
             respbotones[i]->setVisible(false);
         }
     }
-
-    preg_actual++;
 }
+
+void MainWindow::checkQuestion()
+{
+    Problem &p = problemas[preg_actual];
+
+    // DEPURACIÓN COMPLETA: Ver TODO lo que viene de la base de datos
+    qDebug() << "\n=== DEPURACIÓN COMPLETA DE PROBLEMA ===";
+    qDebug() << "Índice pregunta actual:" << preg_actual;
+    qDebug() << "Texto pregunta completo:";
+    qDebug() << p.text();
+    qDebug() << "--- RESPUESTAS Y SUS VALORES ---";
+
+    for (int i = 0; i < p.answers().size(); ++i) {
+        const Answer &resp = p.answers()[i];
+        qDebug() << "Respuesta" << i << ":";
+        qDebug() << "  Texto:" << resp.text();
+        qDebug() << "  Validez (bool):" << resp.validity();
+        qDebug() << "  Validez (int):" << (resp.validity() ? 1 : 0);
+    }
+
+    // También podemos imprimir TODOS los problemas al inicio
+    static bool primeraVez = true;
+    if (primeraVez) {
+        primeraVez = false;
+        qDebug() << "\n=== TODOS LOS PROBLEMAS CARGADOS ===";
+        for (int i = 0; i < problemas.size(); ++i) {
+            qDebug() << "\nProblema" << i << ":";
+            qDebug() << problemas[i].text().left(100) << "..."; // Primeros 100 chars
+
+            for (int j = 0; j < problemas[i].answers().size(); ++j) {
+                qDebug()
+                << "  Resp" << j << ":"
+                << problemas[i].answers()[j].text().left(50)
+                << "| val:" << problemas[i].answers()[j].validity();
+            }
+        }
+    }
+
+    int seleccionada = -1;
+    for (int i = 0; i < respbotones.size(); ++i) {
+        if (respbotones[i]->isChecked()) {
+            seleccionada = i;
+            break;
+        }
+    }
+
+    if (seleccionada == -1) {
+        QMessageBox::information(
+            this,
+            "Sin selección",
+            "Por favor, selecciona una respuesta."
+            );
+        return;
+    }
+
+    // TEMPORAL: Usar validity() aunque falle, para ver qué pasa
+    int respuestaCorrecta = -1;
+    for (int i = 0; i < p.answers().size(); ++i) {
+        if (p.answers()[i].validity()) {
+            respuestaCorrecta = i;
+            qDebug() << "¡ENCONTRADA RESPUESTA CORRECTA! Índice:" << i;
+            break;
+        }
+    }
+
+    if (respuestaCorrecta == -1) {
+        qDebug()
+        << "ADVERTENCIA: Ninguna respuesta marcada como válida según validity()";
+        // Temporal: asumir que la primera es correcta
+        respuestaCorrecta = 0;
+    }
+
+    qDebug()
+        << "Respuesta seleccionada:" << seleccionada
+        << "| Respuesta correcta:" << respuestaCorrecta;
+
+    // Resetear todos
+    for (int i = 0; i < p.answers().size(); ++i) {
+        respbotones[i]->setStyleSheet("");
+        respbotones[i]->setText(p.answers()[i].text());
+    }
+
+    // Marcar respuesta correcta
+    respbotones[respuestaCorrecta]->setStyleSheet(
+        "color: green; font-weight: bold;"
+        );
+    respbotones[respuestaCorrecta]->setText(
+        p.answers()[respuestaCorrecta].text() + " ✔"
+        );
+
+    // Marcar respuesta incorrecta si la seleccionada no es la correcta
+    if (seleccionada != respuestaCorrecta) {
+        respbotones[seleccionada]->setStyleSheet(
+            "color: red; font-weight: bold;"
+            );
+        respbotones[seleccionada]->setText(
+            p.answers()[seleccionada].text() + " ✘"
+            );
+    }
+}
+
 
 void MainWindow::togglePencil()
 {
