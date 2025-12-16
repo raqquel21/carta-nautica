@@ -95,12 +95,10 @@ public:
     QStackedWidget *sidebar_2;
     QWidget *Elegir_problema;
     QGridLayout *gridLayout_13;
-    QPushButton *Problema_1;
-    QLabel *Problemas;
-    QPushButton *Problema_Random;
     QPushButton *sidebarButton_2;
-    QPushButton *Problema_2;
+    QPushButton *Problema_Random;
     QSpacerItem *verticalSpacer_18;
+    QLabel *Problemas;
     QWidget *Resolver_Problema;
     QGridLayout *sidebar;
     QSpacerItem *verticalSpacer_10;
@@ -494,21 +492,6 @@ public:
         Elegir_problema->setObjectName("Elegir_problema");
         gridLayout_13 = new QGridLayout(Elegir_problema);
         gridLayout_13->setObjectName("gridLayout_13");
-        Problema_1 = new QPushButton(Elegir_problema);
-        Problema_1->setObjectName("Problema_1");
-
-        gridLayout_13->addWidget(Problema_1, 5, 0, 1, 1);
-
-        Problemas = new QLabel(Elegir_problema);
-        Problemas->setObjectName("Problemas");
-
-        gridLayout_13->addWidget(Problemas, 0, 0, 1, 1);
-
-        Problema_Random = new QPushButton(Elegir_problema);
-        Problema_Random->setObjectName("Problema_Random");
-
-        gridLayout_13->addWidget(Problema_Random, 4, 0, 1, 1);
-
         sidebarButton_2 = new QPushButton(Elegir_problema);
         sidebarButton_2->setObjectName("sidebarButton_2");
         sidebarButton_2->setStyleSheet(QString::fromUtf8("QPushButton {\n"
@@ -523,14 +506,19 @@ public:
 
         gridLayout_13->addWidget(sidebarButton_2, 0, 1, 1, 1);
 
-        Problema_2 = new QPushButton(Elegir_problema);
-        Problema_2->setObjectName("Problema_2");
+        Problema_Random = new QPushButton(Elegir_problema);
+        Problema_Random->setObjectName("Problema_Random");
 
-        gridLayout_13->addWidget(Problema_2, 6, 0, 1, 1);
+        gridLayout_13->addWidget(Problema_Random, 4, 0, 1, 1);
 
         verticalSpacer_18 = new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
 
         gridLayout_13->addItem(verticalSpacer_18, 3, 0, 1, 1);
+
+        Problemas = new QLabel(Elegir_problema);
+        Problemas->setObjectName("Problemas");
+
+        gridLayout_13->addWidget(Problemas, 0, 0, 1, 1);
 
         sidebar_2->addWidget(Elegir_problema);
         Resolver_Problema = new QWidget();
@@ -1002,11 +990,9 @@ public:
         pushButton->setText(QCoreApplication::translate("MainWindow", "PushButton", nullptr));
         nombre->setText(QCoreApplication::translate("MainWindow", "Nombre:", nullptr));
         cerrarSesion->setText(QCoreApplication::translate("MainWindow", "Cerrar Sesi\303\263n", nullptr));
-        Problema_1->setText(QCoreApplication::translate("MainWindow", "Problema 1", nullptr));
-        Problemas->setText(QCoreApplication::translate("MainWindow", "Problemas", nullptr));
-        Problema_Random->setText(QCoreApplication::translate("MainWindow", "Problema Random", nullptr));
         sidebarButton_2->setText(QString());
-        Problema_2->setText(QCoreApplication::translate("MainWindow", "PushButton", nullptr));
+        Problema_Random->setText(QCoreApplication::translate("MainWindow", "Problema Random", nullptr));
+        Problemas->setText(QCoreApplication::translate("MainWindow", "Problemas", nullptr));
         verificarButton->setText(QCoreApplication::translate("MainWindow", "Verificar", nullptr));
         radioButton_4->setText(QCoreApplication::translate("MainWindow", "RadioButton", nullptr));
         enunciadoLabel->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));

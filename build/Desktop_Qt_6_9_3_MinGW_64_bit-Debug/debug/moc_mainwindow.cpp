@@ -46,6 +46,7 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
         "onLogInClicked",
         "onRegisterClicked",
         "toggleSidebar",
+        "listarPreguntas",
         "showNextQuestion",
         "checkQuestion",
         "onNextClicked",
@@ -74,32 +75,34 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
         QtMocHelpers::SlotData<void()>(6, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'toggleSidebar'
         QtMocHelpers::SlotData<void()>(7, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'showNextQuestion'
+        // Slot 'listarPreguntas'
         QtMocHelpers::SlotData<void()>(8, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'checkQuestion'
+        // Slot 'showNextQuestion'
         QtMocHelpers::SlotData<void()>(9, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'onNextClicked'
+        // Slot 'checkQuestion'
         QtMocHelpers::SlotData<void()>(10, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'togglePencil'
+        // Slot 'onNextClicked'
         QtMocHelpers::SlotData<void()>(11, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'toggleCursor'
+        // Slot 'togglePencil'
         QtMocHelpers::SlotData<void()>(12, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'toggleRubber'
+        // Slot 'toggleCursor'
         QtMocHelpers::SlotData<void()>(13, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'placeMark'
+        // Slot 'toggleRubber'
         QtMocHelpers::SlotData<void()>(14, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'toggleSvgRuler'
+        // Slot 'placeMark'
         QtMocHelpers::SlotData<void()>(15, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'togglePointExtremes'
+        // Slot 'toggleSvgRuler'
         QtMocHelpers::SlotData<void()>(16, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'toggleText'
+        // Slot 'togglePointExtremes'
         QtMocHelpers::SlotData<void()>(17, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'toggleText'
+        QtMocHelpers::SlotData<void()>(18, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'snapToRuler'
-        QtMocHelpers::SlotData<QPointF(QPointF)>(18, 2, QMC::AccessPrivate, QMetaType::QPointF, {{
-            { QMetaType::QPointF, 19 },
+        QtMocHelpers::SlotData<QPointF(QPointF)>(19, 2, QMC::AccessPrivate, QMetaType::QPointF, {{
+            { QMetaType::QPointF, 20 },
         }}),
         // Slot 'clearAllDrawings'
-        QtMocHelpers::SlotData<void()>(20, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(21, 2, QMC::AccessPrivate, QMetaType::Void),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -129,19 +132,20 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 3: _t->onLogInClicked(); break;
         case 4: _t->onRegisterClicked(); break;
         case 5: _t->toggleSidebar(); break;
-        case 6: _t->showNextQuestion(); break;
-        case 7: _t->checkQuestion(); break;
-        case 8: _t->onNextClicked(); break;
-        case 9: _t->togglePencil(); break;
-        case 10: _t->toggleCursor(); break;
-        case 11: _t->toggleRubber(); break;
-        case 12: _t->placeMark(); break;
-        case 13: _t->toggleSvgRuler(); break;
-        case 14: _t->togglePointExtremes(); break;
-        case 15: _t->toggleText(); break;
-        case 16: { QPointF _r = _t->snapToRuler((*reinterpret_cast< std::add_pointer_t<QPointF>>(_a[1])));
+        case 6: _t->listarPreguntas(); break;
+        case 7: _t->showNextQuestion(); break;
+        case 8: _t->checkQuestion(); break;
+        case 9: _t->onNextClicked(); break;
+        case 10: _t->togglePencil(); break;
+        case 11: _t->toggleCursor(); break;
+        case 12: _t->toggleRubber(); break;
+        case 13: _t->placeMark(); break;
+        case 14: _t->toggleSvgRuler(); break;
+        case 15: _t->togglePointExtremes(); break;
+        case 16: _t->toggleText(); break;
+        case 17: { QPointF _r = _t->snapToRuler((*reinterpret_cast< std::add_pointer_t<QPointF>>(_a[1])));
             if (_a[0]) *reinterpret_cast< QPointF*>(_a[0]) = std::move(_r); }  break;
-        case 17: _t->clearAllDrawings(); break;
+        case 18: _t->clearAllDrawings(); break;
         default: ;
         }
     }
@@ -166,14 +170,14 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 18)
+        if (_id < 19)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 18;
+        _id -= 19;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 18)
+        if (_id < 19)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 18;
+        _id -= 19;
     }
     return _id;
 }

@@ -35,6 +35,8 @@ MainWindow::MainWindow(QWidget *parent)
     //cargar problemas
     problemas = nav.problems();
 
+    listarPreguntas();
+
     respbotones.append(ui->radioButton);
     respbotones.append(ui->radioButton_2);
     respbotones.append(ui->radioButton_3);
@@ -132,9 +134,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     //conexion a un problema
     connect(ui->Problema_Random, &QPushButton::clicked, this, [=]() {
-        ui->sidebar_2->setCurrentIndex(1);
-    });
-    connect(ui->Problema_1, &QPushButton::clicked, this, [=]() {
         ui->sidebar_2->setCurrentIndex(1);
     });
 
@@ -306,6 +305,24 @@ void MainWindow::toggleSidebar()
     sidebarAnimation->setStartValue(startValue);
     sidebarAnimation->setEndValue(endValue);
     sidebarAnimation->start();
+}
+
+void MainWindow::listarPreguntas(){
+    for(int i=0; i<problemas.size(); i++){
+        QPushButton *butt = new QPushButton(this);
+
+        butt->setText(QString("Pregunta %1").arg(i + 1));
+        butt->setProperty("indice", i);
+
+        connect(butt, &QPushButton::clicked, this, [=]() {
+            preg_actual = butt->property("indice").toInt();
+            ui->sidebar_2->setCurrentIndex(1);
+            showNextQuestion();
+        });
+
+        ui->Elegir_problema->layout()->addWidget(butt);
+
+    }
 }
 
 void MainWindow::onNextClicked()
