@@ -376,7 +376,7 @@ void MainWindow::listarPreguntas(){
         ui->Elegir_problema->layout()->addWidget(butt);
 
     }
-}
+} //uwu
 
 void MainWindow::onNextClicked()
 {
