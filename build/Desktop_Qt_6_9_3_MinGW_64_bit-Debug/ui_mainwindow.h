@@ -20,6 +20,7 @@
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QRadioButton>
+#include <QtWidgets/QSlider>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QStackedWidget>
 #include <QtWidgets/QToolBar>
@@ -118,6 +119,9 @@ public:
     QToolButton *nuevaPag;
     QToolButton *cursor;
     QToolButton *lapiz;
+    QVBoxLayout *verticalLayout;
+    QSlider *grosorSlider;
+    QPushButton *colorButton;
     QToolButton *goma;
     QToolButton *texto;
     QToolButton *marca;
@@ -126,6 +130,7 @@ public:
     QToolButton *transportador;
     QToolButton *compas;
     QToolButton *zoomIn;
+    QSlider *zoomSlider;
     QToolButton *zoomOut;
     QGraphicsView *graphicsView;
     QToolBar *toolBar;
@@ -648,7 +653,25 @@ public:
 "	background-image: url(:/images/newpagIlum.png);\n"
 "	background-repeat: no-repeat;\n"
 "}\n"
-""));
+"QToolButton:checked {\n"
+"\n"
+"    border: 2px solid #FF8C00; \n"
+"    border-radius: 4px;\n"
+"    \n"
+" \n"
+"    background-image: url(:/images/newpagIlum.png); \n"
+"    background-repeat: no-repeat;\n"
+"}\n"
+"QToolButton:checked {\n"
+"\n"
+"    border: 2px solid #CCCCCC; \n"
+"    border-radius: 4px;\n"
+"    \n"
+" \n"
+"    background-image: url(:/images/newpagIlum.png); \n"
+"    background-repeat: no-repeat;\n"
+"}"));
+        nuevaPag->setCheckable(false);
 
         horizontalLayout_2->addWidget(nuevaPag);
 
@@ -673,7 +696,17 @@ public:
 "	background-image: url(:/images/cursorIlum.png);\n"
 "	background-repeat: no-repeat;\n"
 "}\n"
+"QToolButton:checked {\n"
+"\n"
+"    border: 2px solid #CCCCCC; \n"
+"    border-radius: 4px;\n"
+"    \n"
+" \n"
+"    background-image: url(:/images/cursorIlum.png); \n"
+"    background-repeat: no-repeat;\n"
+"}\n"
 ""));
+        cursor->setCheckable(true);
 
         horizontalLayout_2->addWidget(cursor);
 
@@ -698,10 +731,44 @@ public:
 "	background-image: url(:/images/lapizIlum.png);\n"
 "	background-repeat: no-repeat;\n"
 "}\n"
+"QToolButton:checked {\n"
+"\n"
+"    border: 2px solid #CCCCCC; \n"
+"    border-radius: 4px;\n"
+"    \n"
+" \n"
+"    background-image: url(:/images/lapizIlum.png); \n"
+"    background-repeat: no-repeat;\n"
+"}\n"
+"\n"
 ""));
         lapiz->setIconSize(QSize(48, 48));
+        lapiz->setCheckable(true);
+        lapiz->setChecked(false);
 
         horizontalLayout_2->addWidget(lapiz);
+
+        verticalLayout = new QVBoxLayout();
+        verticalLayout->setObjectName("verticalLayout");
+        grosorSlider = new QSlider(page);
+        grosorSlider->setObjectName("grosorSlider");
+        grosorSlider->setMinimumSize(QSize(0, 30));
+        grosorSlider->setMaximumSize(QSize(75, 16777215));
+        grosorSlider->setOrientation(Qt::Orientation::Horizontal);
+
+        verticalLayout->addWidget(grosorSlider);
+
+        colorButton = new QPushButton(page);
+        colorButton->setObjectName("colorButton");
+        colorButton->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"    background-color: #FF0000; \n"
+"  \n"
+"}"));
+
+        verticalLayout->addWidget(colorButton);
+
+
+        horizontalLayout_2->addLayout(verticalLayout);
 
         goma = new QToolButton(page);
         goma->setObjectName("goma");
@@ -724,7 +791,16 @@ public:
 "	background-image: url(:/images/gomaIlum.png);\n"
 "	background-repeat: no-repeat;\n"
 "}\n"
-""));
+"QToolButton:checked {\n"
+"\n"
+"    border: 2px solid #CCCCCC; \n"
+"    border-radius: 4px;\n"
+"    \n"
+" \n"
+"    background-image: url(:/images/gomaIlum.png); \n"
+"    background-repeat: no-repeat;\n"
+"}"));
+        goma->setCheckable(true);
 
         horizontalLayout_2->addWidget(goma);
 
@@ -749,7 +825,16 @@ public:
 "	background-image: url(:/images/textoIlum.png);\n"
 "	background-repeat: no-repeat;\n"
 "}\n"
-""));
+"QToolButton:checked {\n"
+"\n"
+"    border: 2px solid #CCCCCC; \n"
+"    border-radius: 4px;\n"
+"    \n"
+" \n"
+"    background-image: url(:/images/textoIlum.png); \n"
+"    background-repeat: no-repeat;\n"
+"}"));
+        texto->setCheckable(true);
 
         horizontalLayout_2->addWidget(texto);
 
@@ -774,7 +859,16 @@ public:
 "	background-image: url(:/images/marcaIlum.png);\n"
 "	background-repeat: no-repeat;\n"
 "}\n"
-""));
+"QToolButton:checked {\n"
+"\n"
+"    border: 2px solid #CCCCCC; \n"
+"    border-radius: 4px;\n"
+"    \n"
+" \n"
+"    background-image: url(:/images/marcaIlum.png); \n"
+"    background-repeat: no-repeat;\n"
+"}"));
+        marca->setCheckable(true);
 
         horizontalLayout_2->addWidget(marca);
 
@@ -799,7 +893,16 @@ public:
 "	background-image: url(:/images/ojoIlum.png);\n"
 "	background-repeat: no-repeat;\n"
 "}\n"
-""));
+"QToolButton:checked {\n"
+"\n"
+"    border: 2px solid #CCCCCC; \n"
+"    border-radius: 4px;\n"
+"    \n"
+" \n"
+"    background-image: url(:/images/ojoIlum.png); \n"
+"    background-repeat: no-repeat;\n"
+"}"));
+        ojo->setCheckable(true);
 
         horizontalLayout_2->addWidget(ojo);
 
@@ -824,7 +927,16 @@ public:
 "	background-image: url(:/images/ruleIlum.png);\n"
 "	background-repeat: no-repeat;\n"
 "}\n"
-""));
+"QToolButton:checked {\n"
+"\n"
+"    border: 2px solid #CCCCCC; \n"
+"    border-radius: 4px;\n"
+"    \n"
+" \n"
+"    background-image: url(:/images/ruleIlum.png); \n"
+"    background-repeat: no-repeat;\n"
+"}"));
+        regla->setCheckable(true);
 
         horizontalLayout_2->addWidget(regla);
 
@@ -849,7 +961,16 @@ public:
 "	background-image: url(:/images/transportadorIlum.png);\n"
 "	background-repeat: no-repeat;\n"
 "}\n"
-""));
+"QToolButton:checked {\n"
+"\n"
+"    border: 2px solid #CCCCCC; \n"
+"    border-radius: 4px;\n"
+"    \n"
+" \n"
+"    background-image: url(:/images/transportadorIlum.png); \n"
+"    background-repeat: no-repeat;\n"
+"}"));
+        transportador->setCheckable(true);
 
         horizontalLayout_2->addWidget(transportador);
 
@@ -875,6 +996,7 @@ public:
 "	background-repeat: no-repeat;\n"
 "}\n"
 ""));
+        compas->setCheckable(true);
 
         horizontalLayout_2->addWidget(compas);
 
@@ -899,8 +1021,17 @@ public:
 "	background-repeat: no-repeat;\n"
 "}\n"
 ""));
+        zoomIn->setCheckable(true);
 
         horizontalLayout_2->addWidget(zoomIn);
+
+        zoomSlider = new QSlider(page);
+        zoomSlider->setObjectName("zoomSlider");
+        zoomSlider->setMinimumSize(QSize(50, 48));
+        zoomSlider->setMaximumSize(QSize(200, 48));
+        zoomSlider->setOrientation(Qt::Orientation::Horizontal);
+
+        horizontalLayout_2->addWidget(zoomSlider);
 
         zoomOut = new QToolButton(page);
         zoomOut->setObjectName("zoomOut");
@@ -922,6 +1053,7 @@ public:
 "	background-image: url(:/images/zoomOutIlum.png);\n"
 "	background-repeat: no-repeat;\n"
 "}"));
+        zoomOut->setCheckable(true);
 
         horizontalLayout_2->addWidget(zoomOut);
 
@@ -956,7 +1088,7 @@ public:
         retranslateUi(MainWindow);
 
         stackedWidget->setCurrentIndex(3);
-        sidebar_2->setCurrentIndex(1);
+        sidebar_2->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -1004,6 +1136,7 @@ public:
         nuevaPag->setText(QString());
         cursor->setText(QString());
         lapiz->setText(QString());
+        colorButton->setText(QString());
         goma->setText(QString());
         texto->setText(QString());
         marca->setText(QString());
