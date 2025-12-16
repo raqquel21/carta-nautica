@@ -113,26 +113,24 @@ MainWindow::MainWindow(QWidget *parent)
     ui->graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
     scale = 0.2;
 
-    // Controles de zoom mejorados (del primer código)
     connect(ui->zoomSlider, &QSlider::valueChanged, this, &MainWindow::onZoomSliderChanged);
+
     connect(ui->zoomIn, &QToolButton::clicked, this, &MainWindow::onZoomInButtonClicked);
     connect(ui->zoomOut, &QToolButton::clicked, this, &MainWindow::onZoomOutButtonClicked);
     ui->zoomSlider->setValue(50);
     ui->zoomSlider->setMinimum(10);
 
-    // También mantener las funciones originales de zoom por compatibilidad
-    connect(ui->zoomIn, &QToolButton::clicked, this, &MainWindow::zoomInS);
-    connect(ui->zoomOut, &QToolButton::clicked, this, &MainWindow::zoomOutS);
 
-    // Controles de lápiz mejorados (del primer código)
     grosorLapiz = 3;
     ui->grosorSlider->setMinimum(1);
     ui->grosorSlider->setMaximum(10);
     ui->grosorSlider->setValue(grosorLapiz);
     connect(ui->grosorSlider, &QSlider::valueChanged, this, &MainWindow::SliderLapiz);
+
     connect(ui->colorButton, &QToolButton::clicked, this, &MainWindow::cambiarColor);
 
-    // Conexiones de herramientas (combinadas)
+    connect(ui->lapiz, &QToolButton::clicked, this, &MainWindow::togglePencil);
+
     connect(ui->lapiz, &QToolButton::clicked, this, &MainWindow::togglePencil);
     connect(ui->cursor, &QToolButton::clicked, this, &MainWindow::toggleCursor);
     connect(ui->goma, &QToolButton::clicked, this, &MainWindow::toggleRubber);
@@ -172,6 +170,35 @@ MainWindow::MainWindow(QWidget *parent)
         }
     });
     updateTimer->start(50); // cada 50 ms revisa la posición
+}
+
+void MainWindow::setupMap() //funcion para hacer los cambios al mapa
+{}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+
+
+void MainWindow::applyZoom(double newScale)
+{
+    const double minScale = 0.1;
+    const double maxScale = 1.0;
+
+
+    if (newScale < minScale) {
+        newScale = minScale;
+    } else if (newScale > maxScale) {
+        newScale = maxScale;
+    }
+
+
+    double factor = newScale / scale;
+
+    ui->graphicsView->scale(factor, factor);
+    scale = newScale;
 }
 
 void MainWindow::onZoomInButtonClicked()
@@ -591,6 +618,8 @@ void MainWindow::showPointExtremes(QGraphicsItem *point)
     QPointF topLeft = mapItem->mapToScene(mapRect.topLeft());
     QPointF bottomRight = mapItem->mapToScene(mapRect.bottomRight());
 
+    // Se ha puesto asi para que se visualice "destacando" estas marcas
+    // De color verde porque de color rojo se podría malinterpretar con que se ha hecho "mal"
     QPen pen(Qt::darkGreen, 1, Qt::DashLine);
 
     // Proyección vertical

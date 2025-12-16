@@ -685,7 +685,7 @@ QPushButton:pressed {
            </size>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="Elegir_problema">
            <layout class="QGridLayout" name="gridLayout_13">
@@ -936,10 +936,30 @@ QToolButton:pressed {
 	background-image: url(:/images/newpagIlum.png);
 	background-repeat: no-repeat;
 }
-</string>
+QToolButton:checked {
+
+    border: 2px solid #FF8C00; 
+    border-radius: 4px;
+    
+ 
+    background-image: url(:/images/newpagIlum.png); 
+    background-repeat: no-repeat;
+}
+QToolButton:checked {
+
+    border: 2px solid #CCCCCC; 
+    border-radius: 4px;
+    
+ 
+    background-image: url(:/images/newpagIlum.png); 
+    background-repeat: no-repeat;
+}</string>
               </property>
               <property name="text">
                <string/>
+              </property>
+              <property name="checkable">
+               <bool>false</bool>
               </property>
              </widget>
             </item>
@@ -965,10 +985,22 @@ QToolButton:pressed {
 	background-image: url(:/images/cursorIlum.png);
 	background-repeat: no-repeat;
 }
+QToolButton:checked {
+
+    border: 2px solid #CCCCCC; 
+    border-radius: 4px;
+    
+ 
+    background-image: url(:/images/cursorIlum.png); 
+    background-repeat: no-repeat;
+}
 </string>
               </property>
               <property name="text">
                <string/>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -994,6 +1026,16 @@ QToolButton:pressed {
 	background-image: url(:/images/lapizIlum.png);
 	background-repeat: no-repeat;
 }
+QToolButton:checked {
+
+    border: 2px solid #CCCCCC; 
+    border-radius: 4px;
+    
+ 
+    background-image: url(:/images/lapizIlum.png); 
+    background-repeat: no-repeat;
+}
+
 </string>
               </property>
               <property name="text">
@@ -1005,7 +1047,49 @@ QToolButton:pressed {
                 <height>48</height>
                </size>
               </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
              </widget>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout">
+              <item>
+               <widget class="QSlider" name="grosorSlider">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>30</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>75</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="colorButton">
+                <property name="styleSheet">
+                 <string notr="true">QPushButton {
+    background-color: #FF0000; 
+  
+}</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
             <item>
              <widget class="QToolButton" name="goma">
@@ -1029,10 +1113,21 @@ QToolButton:pressed {
 	background-image: url(:/images/gomaIlum.png);
 	background-repeat: no-repeat;
 }
-</string>
+QToolButton:checked {
+
+    border: 2px solid #CCCCCC; 
+    border-radius: 4px;
+    
+ 
+    background-image: url(:/images/gomaIlum.png); 
+    background-repeat: no-repeat;
+}</string>
               </property>
               <property name="text">
                <string/>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -1058,10 +1153,21 @@ QToolButton:pressed {
 	background-image: url(:/images/textoIlum.png);
 	background-repeat: no-repeat;
 }
-</string>
+QToolButton:checked {
+
+    border: 2px solid #CCCCCC; 
+    border-radius: 4px;
+    
+ 
+    background-image: url(:/images/textoIlum.png); 
+    background-repeat: no-repeat;
+}</string>
               </property>
               <property name="text">
                <string/>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -1087,10 +1193,21 @@ QToolButton:pressed {
 	background-image: url(:/images/marcaIlum.png);
 	background-repeat: no-repeat;
 }
-</string>
+QToolButton:checked {
+
+    border: 2px solid #CCCCCC; 
+    border-radius: 4px;
+    
+ 
+    background-image: url(:/images/marcaIlum.png); 
+    background-repeat: no-repeat;
+}</string>
               </property>
               <property name="text">
                <string/>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -1116,10 +1233,21 @@ QToolButton:pressed {
 	background-image: url(:/images/ojoIlum.png);
 	background-repeat: no-repeat;
 }
-</string>
+QToolButton:checked {
+
+    border: 2px solid #CCCCCC; 
+    border-radius: 4px;
+    
+ 
+    background-image: url(:/images/ojoIlum.png); 
+    background-repeat: no-repeat;
+}</string>
               </property>
               <property name="text">
                <string/>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -1145,10 +1273,21 @@ QToolButton:pressed {
 	background-image: url(:/images/ruleIlum.png);
 	background-repeat: no-repeat;
 }
-</string>
+QToolButton:checked {
+
+    border: 2px solid #CCCCCC; 
+    border-radius: 4px;
+    
+ 
+    background-image: url(:/images/ruleIlum.png); 
+    background-repeat: no-repeat;
+}</string>
               </property>
               <property name="text">
                <string/>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -1174,10 +1313,21 @@ QToolButton:pressed {
 	background-image: url(:/images/transportadorIlum.png);
 	background-repeat: no-repeat;
 }
-</string>
+QToolButton:checked {
+
+    border: 2px solid #CCCCCC; 
+    border-radius: 4px;
+    
+ 
+    background-image: url(:/images/transportadorIlum.png); 
+    background-repeat: no-repeat;
+}</string>
               </property>
               <property name="text">
                <string/>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -1208,6 +1358,9 @@ QToolButton:pressed {
               <property name="text">
                <string/>
               </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
              </widget>
             </item>
             <item>
@@ -1236,6 +1389,28 @@ QToolButton:pressed {
               <property name="text">
                <string/>
               </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSlider" name="zoomSlider">
+              <property name="minimumSize">
+               <size>
+                <width>50</width>
+                <height>48</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>200</width>
+                <height>48</height>
+               </size>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Orientation::Horizontal</enum>
+              </property>
              </widget>
             </item>
             <item>
@@ -1262,6 +1437,9 @@ QToolButton:pressed {
               </property>
               <property name="text">
                <string/>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
