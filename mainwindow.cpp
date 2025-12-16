@@ -10,11 +10,10 @@
  *  atte: la rakitraki
  */
 
-#include <QPixmap>
-#include <QGraphicsPixmapItem>
-#include <QGraphicsPathItem>
-#include <QGraphicsSceneMouseEvent>
 #include <QGraphicsLineItem>
+#include <QGraphicsPathItem>
+#include <QGraphicsPixmapItem>
+#include <QGraphicsSceneMouseEvent>
 #include <QPixmap>
 #include <QGraphicsColorizeEffect>
 #include <QTimer>
@@ -23,8 +22,8 @@
 #include <QDir>
 #include <navigation.h>
 
-#include <QGraphicsSvgItem>
 #include <QGraphicsScene>
+#include <QGraphicsSvgItem>
 #include <QGraphicsView>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -63,17 +62,30 @@ MainWindow::MainWindow(QWidget *parent)
     ui->registrarse->setTextInteractionFlags(Qt::TextBrowserInteraction);
     ui->registrarse->setOpenExternalLinks(false);
     ui->registrarse->setText("Don't have an account? <a href=\"registrar\">Register</a>");
-    connect(ui->registrarse, &QLabel::linkActivated, this, [=](const QString &){ ui->stackedWidget->setCurrentIndex(1);ui->toolBar->hide();});
+    connect(ui->registrarse, &QLabel::linkActivated, this, [=](const QString &) {
+        ui->stackedWidget->setCurrentIndex(1);
+        ui->toolBar->hide();
+    });
 
     ui->iniciar_sesion->setTextFormat(Qt::RichText);
     ui->iniciar_sesion->setTextInteractionFlags(Qt::TextBrowserInteraction);
     ui->iniciar_sesion->setOpenExternalLinks(false);
-    ui->iniciar_sesion->setText("Do you already have an account? <a href=\"registrar\"> Log in</a>");
-    connect(ui->iniciar_sesion, &QLabel::linkActivated, this, [=](const QString &){ ui->stackedWidget->setCurrentIndex(0);ui->toolBar->hide();});
+    ui->iniciar_sesion->setText(
+        "Do you already have an account? <a href=\"registrar\"> Log in</a>");
+    connect(ui->iniciar_sesion, &QLabel::linkActivated, this, [=](const QString &) {
+        ui->stackedWidget->setCurrentIndex(0);
+        ui->toolBar->hide();
+    });
 
     // Conexiones botones
-    connect(ui->actionPerfil, &QAction::triggered, this, [=](){ ui->stackedWidget->setCurrentIndex(2);ui->toolBar->hide();});
-    connect(ui->salirPerfil, &QPushButton::clicked, this, [=](){ ui->stackedWidget->setCurrentIndex(3);ui->toolBar->show();});
+    connect(ui->actionPerfil, &QAction::triggered, this, [=]() {
+        ui->stackedWidget->setCurrentIndex(2);
+        ui->toolBar->hide();
+    });
+    connect(ui->salirPerfil, &QPushButton::clicked, this, [=]() {
+        ui->stackedWidget->setCurrentIndex(3);
+        ui->toolBar->show();
+    });
 
     /* Map button
     bool mapaListo = false;
@@ -118,8 +130,12 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->sidebarButton_2, &QPushButton::clicked, this, &MainWindow::toggleSidebar);
 
     //conexion a un problema
-    connect(ui->Problema_Random, &QPushButton::clicked, this, [=](){ ui->sidebar_2->setCurrentIndex(1);});
-    connect(ui->Problema_1, &QPushButton::clicked, this, [=](){ ui->sidebar_2->setCurrentIndex(1);});
+    connect(ui->Problema_Random, &QPushButton::clicked, this, [=]() {
+        ui->sidebar_2->setCurrentIndex(1);
+    });
+    connect(ui->Problema_1, &QPushButton::clicked, this, [=]() {
+        ui->sidebar_2->setCurrentIndex(1);
+    });
 
     rulerSvgItem = new RotatableSvgItem(":/images/ruler.svg");
     scene->addItem(rulerSvgItem);
@@ -338,7 +354,7 @@ void MainWindow::toggleRubber() // <--- NUEVA IMPLEMENTACIÓN
     textMode = false;
 
     ui->graphicsView->setDragMode(QGraphicsView::NoDrag); // No queremos arrastrar mapa
-    ui->graphicsView->setCursor(Qt::ForbiddenCursor); // Icono de "prohibido" o goma
+    ui->graphicsView->setCursor(Qt::ForbiddenCursor);     // Icono de "prohibido" o goma
 }
 
 void MainWindow::toggleCursor()
@@ -365,6 +381,7 @@ void MainWindow::clearAllDrawings()
                                 item->type() == QGraphicsLineItem::Type ||   // Reglas
                                 item->type() == QGraphicsTextItem::Type ||
                                 item->type() == QGraphicsItemGroup::Type)) {  // Textos
+
             scene->removeItem(item);
             delete item;
         }
@@ -396,11 +413,13 @@ void MainWindow::toggleSvgRuler(){
 
     if (rulerSvgItem) {
         rulerSvgItem->setVisible(svgRulerActive);
-        rulerSvgItem->setSelected(svgRulerActive); // Para que se resalte y se pueda mover inmediatamente
+        rulerSvgItem->setSelected(
+            svgRulerActive); // Para que se resalte y se pueda mover inmediatamente
     }
 
     if (svgRulerActive) {
-        ui->graphicsView->setDragMode(QGraphicsView::NoDrag); // Permitimos la interacción directa con el item SVG
+        ui->graphicsView->setDragMode(
+            QGraphicsView::NoDrag); // Permitimos la interacción directa con el item SVG
         ui->graphicsView->setCursor(Qt::OpenHandCursor); // Cursor que sugiere arrastrar el objeto
     } else {
         toggleCursor(); // Volver al modo normal de arrastre del mapa
@@ -488,25 +507,75 @@ void MainWindow::toggleText()
     ui->graphicsView->setCursor(Qt::IBeamCursor);
 }
 
+QPointF MainWindow::snapToRuler(QPointF scenePos)
+{
+    // Si la regla no existe o está oculta, devolvemos el punto normal
+    if (!rulerSvgItem || !rulerSvgItem->isVisible()) {
+        return scenePos;
+    }
+
+    // 1. Convertir la posición del ratón (Escena) a coordenadas locales de la regla
+    QPointF localPos = rulerSvgItem->mapFromScene(scenePos);
+    QRectF rect = rulerSvgItem->boundingRect();
+
+    // Definimos un umbral de atracción (ej: 30 píxeles)
+    double threshold = 60.0;
+
+    // Calculamos distancias a los bordes superior e inferior (en local)
+    double distTop = qAbs(localPos.y() - rect.top());
+    double distBottom = qAbs(localPos.y() - rect.bottom());
+
+    // 2. Comprobar si debemos activar el "imán"
+    bool snapped = false;
+
+    // Opcional: Si quieres que solo pinte SI ESTÁ DENTRO del largo de la regla:
+    // if (localPos.x() >= rect.left() - threshold && localPos.x() <= rect.right() + threshold) { ... }
+
+    // Lógica de imán:
+    if (distTop < threshold) {
+        localPos.setY(rect.top()); // Fijar al borde superior
+        snapped = true;
+    } else if (distBottom < threshold) {
+        localPos.setY(rect.bottom()); // Fijar al borde inferior
+        snapped = true;
+    }
+
+    // 3. Devolver la posición corregida (o la original)
+    if (snapped) {
+        return rulerSvgItem->mapToScene(localPos);
+    } else {
+        return scenePos;
+    }
+}
+
 bool MainWindow::eventFilter(QObject *watched, QEvent *event)
 {
     if (watched == scene) {
-        QGraphicsSceneMouseEvent *mouseEvent = static_cast<QGraphicsSceneMouseEvent*>(event);
+        QGraphicsSceneMouseEvent *mouseEvent = static_cast<QGraphicsSceneMouseEvent *>(event);
 
         // ---------------------------------------------------------
-        // MODO 1: LÁPIZ (Tu código anterior corregido)
+        // MODO 1: LÁPIZ (MODIFICADO CON REGLA)
         // ---------------------------------------------------------
         if (drawingMode) {
             if (event->type() == QEvent::GraphicsSceneMousePress) {
                 currentPath = QPainterPath();
-                currentPath.moveTo(mouseEvent->scenePos());
+
+                // CAMBIO AQUÍ: Usamos snapToRuler
+                QPointF startPoint = snapToRuler(mouseEvent->scenePos());
+
+                currentPath.moveTo(startPoint);
+
                 QPen pen(Qt::red, 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
                 currentPathItem = scene->addPath(currentPath, pen);
                 return true;
             }
-            else if (event->type() == QEvent::GraphicsSceneMouseMove && (mouseEvent->buttons() & Qt::LeftButton)) {
+            else if (event->type() == QEvent::GraphicsSceneMouseMove
+                     && (mouseEvent->buttons() & Qt::LeftButton)) {
                 if (currentPathItem) {
-                    currentPath.lineTo(mouseEvent->scenePos());
+                    // CAMBIO AQUÍ: Usamos snapToRuler
+                    QPointF nextPoint = snapToRuler(mouseEvent->scenePos());
+
+                    currentPath.lineTo(nextPoint);
                     currentPathItem->setPath(currentPath);
                 }
                 return true;
@@ -521,9 +590,9 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
         // MODO 2: GOMA
         // ---------------------------------------------------------
         else if (erasingMode) {
-            if (event->type() == QEvent::GraphicsSceneMousePress ||
-                (event->type() == QEvent::GraphicsSceneMouseMove && (mouseEvent->buttons() & Qt::LeftButton))) {
-
+            if (event->type() == QEvent::GraphicsSceneMousePress
+                || (event->type() == QEvent::GraphicsSceneMouseMove
+                    && (mouseEvent->buttons() & Qt::LeftButton))) {
                 QGraphicsItem *item = scene->itemAt(mouseEvent->scenePos(), QTransform());
                 if (item && item->group()) {
                     item = item->group();
@@ -559,7 +628,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 QGraphicsPixmapItem *marker = scene->addPixmap(pixmap);
 
                 // 3. Centramos la imagen en el clic (si no, el clic queda en la esquina superior izq de la imagen)
-                marker->setOffset(-pixmap.width()/2, -pixmap.height()/2);
+                marker->setOffset(-pixmap.width() / 2, -pixmap.height() / 2);
                 marker->setPos(mouseEvent->scenePos());
 
                 // Opcional: Hacer que la marca se pueda mover después
@@ -586,18 +655,18 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
 
                 // Creamos una línea azul para diferenciar del lápiz
                 QPen rulerPen(Qt::blue, 2, Qt::DashLine);
-                currentRulerLine = scene->addLine(QLineF(rulerStartPoint, rulerStartPoint), rulerPen);
+                currentRulerLine = scene->addLine(QLineF(rulerStartPoint, rulerStartPoint),
+                                                  rulerPen);
                 return true;
-            }
-            else if (event->type() == QEvent::GraphicsSceneMouseMove && (mouseEvent->buttons() & Qt::LeftButton)) {
+            } else if (event->type() == QEvent::GraphicsSceneMouseMove
+                       && (mouseEvent->buttons() & Qt::LeftButton)) {
                 if (currentRulerLine) {
                     // Actualizamos el final de la línea mientras arrastras
                     QLineF newLine(rulerStartPoint, mouseEvent->scenePos());
                     currentRulerLine->setLine(newLine);
                 }
                 return true;
-            }
-            else if (event->type() == QEvent::GraphicsSceneMouseRelease) {
+            } else if (event->type() == QEvent::GraphicsSceneMouseRelease) {
                 if (currentRulerLine) {
                     // Calculamos la distancia (en píxeles)
                     QLineF line = currentRulerLine->line();

@@ -15,18 +15,17 @@
 #include <QDate>
 #include <QRegularExpression>
 
-#include <QGraphicsScene>
-#include <QGraphicsView>
 #include <QGraphicsPathItem>
+#include <QGraphicsScene>
 #include <QGraphicsTextItem>
+#include <QGraphicsView>
 
 #include <QPropertyAnimation>
 
-#include <QGraphicsSvgItem> // Asegúrate de que este include esté aquí
-#include <QPointF> // Necesario para QPointF
-#include <QtMath> // Necesario para qRadiansToDegrees y atan2
 #include <QGraphicsSceneMouseEvent> // Necesario para mouse events
-
+#include <QGraphicsSvgItem>         // Asegúrate de que este include esté aquí
+#include <QPointF>                  // Necesario para QPointF
+#include <QtMath>                   // Necesario para qRadiansToDegrees y atan2
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -34,20 +33,21 @@ class MainWindow;
 }
 QT_END_NAMESPACE
 
-
-class RotatableSvgItem : public QGraphicsSvgItem {
+class RotatableSvgItem : public QGraphicsSvgItem
+{
 public:
     RotatableSvgItem(const QString &fileName, QGraphicsItem *parent = nullptr)
-        : QGraphicsSvgItem(fileName, parent) {
+        : QGraphicsSvgItem(fileName, parent)
+    {
         // Habilitar movimiento y selección por el framework
         setFlags(ItemIsMovable | ItemIsSelectable | ItemSendsGeometryChanges);
     }
 
 protected:
-    void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override {
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override
+    {
         // Solo rotamos si se presiona la tecla Control (Ctrl)
         if (event->modifiers() & Qt::ControlModifier) {
-
             QPointF currentPos = event->pos();
             QPointF center = boundingRect().center();
 
@@ -138,11 +138,12 @@ private slots:
     void togglePointExtremes();
     void toggleText();
 
+    QPointF snapToRuler(QPointF originalPos);
+
     void clearAllDrawings();
 
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
 };
-
 
 #endif // MAINWINDOW_H
