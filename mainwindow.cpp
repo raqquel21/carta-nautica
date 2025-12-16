@@ -200,6 +200,7 @@ void MainWindow::onLogInClicked()
 
     if (u) {
         ui->stackedWidget->setCurrentIndex(3); // Si lo ha hecho bien, adelante
+        ui->sidebar_2->setCurrentIndex(0);
         ui->toolBar->show();
     } else {
         QMessageBox::warning(this, "Incorrecto", "LOGIN INCORRECTO");
@@ -796,6 +797,9 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
         else if (textMode) {
             if (event->type() == QEvent::GraphicsSceneMousePress) {
 
+                QGraphicsSceneMouseEvent *mouseEvent =
+                    static_cast<QGraphicsSceneMouseEvent *>(event);
+
                 QPointF pos = mouseEvent->scenePos();
 
                 // 1. Crear el texto
@@ -809,30 +813,50 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 font.setPointSize(10);
                 textItem->setFont(font);
 
-                // 2. Calcular tamaño
-                QRectF textRect = textItem->boundingRect();
-
-                // 3. Fondo
-                QGraphicsRectItem *background =
-                    new QGraphicsRectItem(textRect.adjusted(-5, -5, 5, 5));
+                // 2. Crear fondo (rectángulo)
+                QGraphicsRectItem *background = new QGraphicsRectItem();
                 background->setBrush(Qt::white);
                 background->setPen(QPen(Qt::black));
 
-                // 4. Grupo
+                // 3. Crear grupo
                 QGraphicsItemGroup *group = new QGraphicsItemGroup();
                 group->addToGroup(background);
                 group->addToGroup(textItem);
                 group->setHandlesChildEvents(false); // MUY IMPORTANTE
 
-                textItem->setPos(background->rect().topLeft() + QPointF(5, 5));
                 group->setPos(pos);
+                group->setFlags(QGraphicsItem::ItemIsMovable |
+                                QGraphicsItem::ItemIsSelectable);
 
-                group->setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable);
                 scene->addItem(group);
+
+                // 4. Ajuste dinámico del fondo según el texto
+                const qreal margin = 2.5;
+
+                auto updateBackground = [=]() {
+                    QRectF textRect = textItem->boundingRect();
+
+                    background->setRect(
+                        textRect.adjusted(-margin, -margin, margin, margin)
+                        );
+
+                    textItem->setPos(margin, margin);
+                };
+
+                QObject::connect(
+                    textItem->document(),
+                    &QTextDocument::contentsChanged,
+                    scene,
+                    updateBackground
+                    );
+
+                // Ajuste inicial
+                updateBackground();
 
                 // 5. Dar foco al texto para escribir inmediatamente
                 scene->setFocusItem(textItem);
                 textItem->setFocus();
+
                 return true;
             }
         }

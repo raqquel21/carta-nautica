@@ -104,16 +104,16 @@ public:
     QWidget *Resolver_Problema;
     QGridLayout *sidebar;
     QSpacerItem *verticalSpacer_10;
-    QPushButton *pushButton_2;
+    QPushButton *verificarButton;
     QSpacerItem *verticalSpacer_9;
     QRadioButton *radioButton_4;
     QSpacerItem *horizontalSpacer_5;
-    QLabel *label;
+    QLabel *enunciadoLabel;
     QRadioButton *radioButton_2;
     QRadioButton *radioButton_3;
     QSpacerItem *verticalSpacer_11;
     QRadioButton *radioButton;
-    QPushButton *pushButton_3;
+    QPushButton *sigButton;
     QPushButton *sidebarButton;
     QVBoxLayout *verticalLayout_3;
     QHBoxLayout *horizontalLayout_2;
@@ -542,15 +542,15 @@ public:
 
         sidebar->addItem(verticalSpacer_10, 3, 0, 1, 1);
 
-        pushButton_2 = new QPushButton(Resolver_Problema);
-        pushButton_2->setObjectName("pushButton_2");
+        verificarButton = new QPushButton(Resolver_Problema);
+        verificarButton->setObjectName("verificarButton");
         QSizePolicy sizePolicy3(QSizePolicy::Policy::MinimumExpanding, QSizePolicy::Policy::Fixed);
         sizePolicy3.setHorizontalStretch(0);
         sizePolicy3.setVerticalStretch(0);
-        sizePolicy3.setHeightForWidth(pushButton_2->sizePolicy().hasHeightForWidth());
-        pushButton_2->setSizePolicy(sizePolicy3);
+        sizePolicy3.setHeightForWidth(verificarButton->sizePolicy().hasHeightForWidth());
+        verificarButton->setSizePolicy(sizePolicy3);
 
-        sidebar->addWidget(pushButton_2, 9, 0, 1, 1);
+        sidebar->addWidget(verificarButton, 9, 0, 1, 1);
 
         verticalSpacer_9 = new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
 
@@ -570,16 +570,16 @@ public:
 
         sidebar->addItem(horizontalSpacer_5, 0, 0, 1, 1);
 
-        label = new QLabel(Resolver_Problema);
-        label->setObjectName("label");
+        enunciadoLabel = new QLabel(Resolver_Problema);
+        enunciadoLabel->setObjectName("enunciadoLabel");
         QSizePolicy sizePolicy5(QSizePolicy::Policy::MinimumExpanding, QSizePolicy::Policy::Preferred);
         sizePolicy5.setHorizontalStretch(0);
         sizePolicy5.setVerticalStretch(0);
-        sizePolicy5.setHeightForWidth(label->sizePolicy().hasHeightForWidth());
-        label->setSizePolicy(sizePolicy5);
-        label->setWordWrap(true);
+        sizePolicy5.setHeightForWidth(enunciadoLabel->sizePolicy().hasHeightForWidth());
+        enunciadoLabel->setSizePolicy(sizePolicy5);
+        enunciadoLabel->setWordWrap(true);
 
-        sidebar->addWidget(label, 2, 0, 1, 2);
+        sidebar->addWidget(enunciadoLabel, 2, 0, 1, 2);
 
         radioButton_2 = new QRadioButton(Resolver_Problema);
         radioButton_2->setObjectName("radioButton_2");
@@ -609,12 +609,12 @@ public:
 
         sidebar->addWidget(radioButton, 4, 0, 1, 2);
 
-        pushButton_3 = new QPushButton(Resolver_Problema);
-        pushButton_3->setObjectName("pushButton_3");
-        sizePolicy4.setHeightForWidth(pushButton_3->sizePolicy().hasHeightForWidth());
-        pushButton_3->setSizePolicy(sizePolicy4);
+        sigButton = new QPushButton(Resolver_Problema);
+        sigButton->setObjectName("sigButton");
+        sizePolicy4.setHeightForWidth(sigButton->sizePolicy().hasHeightForWidth());
+        sigButton->setSizePolicy(sizePolicy4);
 
-        sidebar->addWidget(pushButton_3, 9, 1, 1, 1);
+        sidebar->addWidget(sigButton, 9, 1, 1, 1);
 
         sidebarButton = new QPushButton(Resolver_Problema);
         sidebarButton->setObjectName("sidebarButton");
@@ -1007,13 +1007,13 @@ public:
         Problema_Random->setText(QCoreApplication::translate("MainWindow", "Problema Random", nullptr));
         sidebarButton_2->setText(QString());
         Problema_2->setText(QCoreApplication::translate("MainWindow", "PushButton", nullptr));
-        pushButton_2->setText(QCoreApplication::translate("MainWindow", "Verificar", nullptr));
+        verificarButton->setText(QCoreApplication::translate("MainWindow", "Verificar", nullptr));
         radioButton_4->setText(QCoreApplication::translate("MainWindow", "RadioButton", nullptr));
-        label->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
+        enunciadoLabel->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
         radioButton_2->setText(QCoreApplication::translate("MainWindow", "RadioButton", nullptr));
         radioButton_3->setText(QCoreApplication::translate("MainWindow", "RadioButton", nullptr));
         radioButton->setText(QCoreApplication::translate("MainWindow", "RadioButton", nullptr));
-        pushButton_3->setText(QCoreApplication::translate("MainWindow", "Siguiente Pregunta", nullptr));
+        sigButton->setText(QCoreApplication::translate("MainWindow", "Siguiente Pregunta", nullptr));
         sidebarButton->setText(QString());
         nuevaPag->setText(QString());
         cursor->setText(QString());
