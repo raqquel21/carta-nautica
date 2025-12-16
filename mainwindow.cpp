@@ -193,6 +193,8 @@ void MainWindow::applyZoom(double factor)
     scale = newScale;
 }
 
+//uwu
+
 void MainWindow::onLogInClicked()
 {
     QString nickname = ui->enter_nickname->text().trimmed();
