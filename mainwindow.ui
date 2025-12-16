@@ -689,27 +689,6 @@ QPushButton:pressed {
           </property>
           <widget class="QWidget" name="Elegir_problema">
            <layout class="QGridLayout" name="gridLayout_13">
-            <item row="5" column="0">
-             <widget class="QPushButton" name="Problema_1">
-              <property name="text">
-               <string>Problema 1</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="Problemas">
-              <property name="text">
-               <string>Problemas</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="0">
-             <widget class="QPushButton" name="Problema_Random">
-              <property name="text">
-               <string>Problema Random</string>
-              </property>
-             </widget>
-            </item>
             <item row="0" column="1">
              <widget class="QPushButton" name="sidebarButton_2">
               <property name="styleSheet">
@@ -728,10 +707,10 @@ QPushButton:pressed {
               </property>
              </widget>
             </item>
-            <item row="6" column="0">
-             <widget class="QPushButton" name="Problema_2">
+            <item row="4" column="0">
+             <widget class="QPushButton" name="Problema_Random">
               <property name="text">
-               <string>PushButton</string>
+               <string>Problema Random</string>
               </property>
              </widget>
             </item>
@@ -747,6 +726,13 @@ QPushButton:pressed {
                </size>
               </property>
              </spacer>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="Problemas">
+              <property name="text">
+               <string>Problemas</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </widget>

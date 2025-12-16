@@ -108,7 +108,7 @@ private:
     QPropertyAnimation *sidebarAnimation;
     bool sidebarVisible;
 
-    int preg_actual = 1;
+    int preg_actual = 0;
     QVector<Problem> problemas;
     QVector<QRadioButton *> respbotones;
 
@@ -128,6 +128,8 @@ private slots:
 
     void toggleSidebar();
 
+
+    void listarPreguntas();
     void showNextQuestion();
     void checkQuestion();
     void onNextClicked();
