@@ -40,7 +40,8 @@ MainWindow::MainWindow(QWidget *parent)
     respbotones.append(ui->radioButton_3);
     respbotones.append(ui->radioButton_4);
 
-    connect(ui->sigButton, &QPushButton::clicked, this, &MainWindow::showNextQuestion);
+    connect(ui->sigButton, &QPushButton::clicked, this, &MainWindow::onNextClicked);
+    connect(ui->verificarButton, &QPushButton::clicked, this, &MainWindow::checkQuestion);
 
     showNextQuestion(); //para que salga la primera xd
 
