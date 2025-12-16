@@ -10,12 +10,12 @@
  *  atte: la rakitraki
  */
 
+#include <QGraphicsColorizeEffect>
 #include <QGraphicsLineItem>
 #include <QGraphicsPathItem>
 #include <QGraphicsPixmapItem>
 #include <QGraphicsSceneMouseEvent>
 #include <QPixmap>
-#include <QGraphicsColorizeEffect>
 #include <QTimer>
 
 #include <QDebug>
@@ -34,6 +34,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     //cargar problemas
     problemas = nav.problems();
+
+    listarPreguntas();
 
     respbotones.append(ui->radioButton);
     respbotones.append(ui->radioButton_2);
@@ -134,9 +136,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->Problema_Random, &QPushButton::clicked, this, [=]() {
         ui->sidebar_2->setCurrentIndex(1);
     });
-    connect(ui->Problema_1, &QPushButton::clicked, this, [=]() {
-        ui->sidebar_2->setCurrentIndex(1);
-    });
 
     rulerSvgItem = new RotatableSvgItem(":/images/ruler.svg");
     scene->addItem(rulerSvgItem);
@@ -144,16 +143,15 @@ MainWindow::MainWindow(QWidget *parent)
     rulerSvgItem->setVisible(false);
 
     QTimer *updateTimer = new QTimer(this); //Se usa para actualizar las marcas del 'ojo'
-    connect(updateTimer, &QTimer::timeout, this, [=](){
+    connect(updateTimer, &QTimer::timeout, this, [=]() {
         if (eyeActive) {
-            QList<QGraphicsItem*> selected = scene->selectedItems();
+            QList<QGraphicsItem *> selected = scene->selectedItems();
             if (!selected.isEmpty()) {
                 showPointExtremes(selected.first());
             }
         }
     });
     updateTimer->start(50); // cada 50 ms revisa la posición
-
 }
 
 void MainWindow::setupMap() //funcion para hacer los cambios al mapa
@@ -309,6 +307,24 @@ void MainWindow::toggleSidebar()
     sidebarAnimation->start();
 }
 
+void MainWindow::listarPreguntas(){
+    for(int i=0; i<problemas.size(); i++){
+        QPushButton *butt = new QPushButton(this);
+
+        butt->setText(QString("Pregunta %1").arg(i + 1));
+        butt->setProperty("indice", i);
+
+        connect(butt, &QPushButton::clicked, this, [=]() {
+            preg_actual = butt->property("indice").toInt();
+            ui->sidebar_2->setCurrentIndex(1);
+            showNextQuestion();
+        });
+
+        ui->Elegir_problema->layout()->addWidget(butt);
+
+    }
+}
+
 void MainWindow::onNextClicked()
 {
     preg_actual++;
@@ -366,10 +382,8 @@ void MainWindow::checkQuestion()
             qDebug() << problemas[i].text().left(100) << "..."; // Primeros 100 chars
 
             for (int j = 0; j < problemas[i].answers().size(); ++j) {
-                qDebug()
-                << "  Resp" << j << ":"
-                << problemas[i].answers()[j].text().left(50)
-                << "| val:" << problemas[i].answers()[j].validity();
+                qDebug() << "  Resp" << j << ":" << problemas[i].answers()[j].text().left(50)
+                         << "| val:" << problemas[i].answers()[j].validity();
             }
         }
     }
@@ -383,11 +397,7 @@ void MainWindow::checkQuestion()
     }
 
     if (seleccionada == -1) {
-        QMessageBox::information(
-            this,
-            "Sin selección",
-            "Por favor, selecciona una respuesta."
-            );
+        QMessageBox::information(this, "Sin selección", "Por favor, selecciona una respuesta.");
         return;
     }
 
@@ -402,15 +412,13 @@ void MainWindow::checkQuestion()
     }
 
     if (respuestaCorrecta == -1) {
-        qDebug()
-        << "ADVERTENCIA: Ninguna respuesta marcada como válida según validity()";
+        qDebug() << "ADVERTENCIA: Ninguna respuesta marcada como válida según validity()";
         // Temporal: asumir que la primera es correcta
         respuestaCorrecta = 0;
     }
 
-    qDebug()
-        << "Respuesta seleccionada:" << seleccionada
-        << "| Respuesta correcta:" << respuestaCorrecta;
+    qDebug() << "Respuesta seleccionada:" << seleccionada
+             << "| Respuesta correcta:" << respuestaCorrecta;
 
     // Resetear todos
     for (int i = 0; i < p.answers().size(); ++i) {
@@ -419,24 +427,15 @@ void MainWindow::checkQuestion()
     }
 
     // Marcar respuesta correcta
-    respbotones[respuestaCorrecta]->setStyleSheet(
-        "color: green; font-weight: bold;"
-        );
-    respbotones[respuestaCorrecta]->setText(
-        p.answers()[respuestaCorrecta].text() + " ✔"
-        );
+    respbotones[respuestaCorrecta]->setStyleSheet("color: green; font-weight: bold;");
+    respbotones[respuestaCorrecta]->setText(p.answers()[respuestaCorrecta].text() + " ✔");
 
     // Marcar respuesta incorrecta si la seleccionada no es la correcta
     if (seleccionada != respuestaCorrecta) {
-        respbotones[seleccionada]->setStyleSheet(
-            "color: red; font-weight: bold;"
-            );
-        respbotones[seleccionada]->setText(
-            p.answers()[seleccionada].text() + " ✘"
-            );
+        respbotones[seleccionada]->setStyleSheet("color: red; font-weight: bold;");
+        respbotones[seleccionada]->setText(p.answers()[seleccionada].text() + " ✘");
     }
 }
-
 
 void MainWindow::togglePencil()
 {
@@ -484,11 +483,12 @@ void MainWindow::clearAllDrawings()
 {
     for (QGraphicsItem *item : scene->items()) {
         // Si el objeto NO es el mapa, lo borramos
-        if (item != mapItem && (item->type() == QGraphicsPathItem::Type ||
-                                item->type() == QGraphicsPixmapItem::Type || // Chinchetas
-                                item->type() == QGraphicsLineItem::Type ||   // Reglas
-                                item->type() == QGraphicsTextItem::Type ||
-                                item->type() == QGraphicsItemGroup::Type)) {  // Textos
+        if (item != mapItem
+            && (item->type() == QGraphicsPathItem::Type || item->type() == QGraphicsPixmapItem::Type
+                ||                                         // Chinchetas
+                item->type() == QGraphicsLineItem::Type || // Reglas
+                item->type() == QGraphicsTextItem::Type
+                || item->type() == QGraphicsItemGroup::Type)) { // Textos
 
             scene->removeItem(item);
             delete item;
@@ -509,7 +509,8 @@ void MainWindow::placeMark()
     ui->graphicsView->setCursor(Qt::PointingHandCursor);
 }
 
-void MainWindow::toggleSvgRuler(){
+void MainWindow::toggleSvgRuler()
+{
     // Desactivar todos los demás modos de dibujo
     drawingMode = false;
     erasingMode = false;
@@ -553,23 +554,27 @@ void MainWindow::showPointExtremes(QGraphicsItem *point)
 
     eyeProjectionGroup = new QGraphicsItemGroup();
 
+    // --- NUEVO: MARCAMOS EL GRUPO PARA QUE NO SE PUEDA BORRAR ---
+    // Usamos Qt::UserRole con un valor específico (ej. "no_borrar")
+    eyeProjectionGroup->setData(Qt::UserRole, "locked_helper");
+    // -------------------------------------------------------------
+
     QPointF p = point->scenePos();
 
     QRectF mapRect = mapItem->boundingRect();
     QPointF topLeft = mapItem->mapToScene(mapRect.topLeft());
     QPointF bottomRight = mapItem->mapToScene(mapRect.bottomRight());
 
-    QPen pen(Qt::darkGreen, 1, Qt::DashLine); // Se ha puesto asi para que se visualice "destacando" estas marcas
-    // De color verde porque de color rojo se podría malinterpretar con que se ha hecho "mal"
+    QPen pen(Qt::darkGreen, 1, Qt::DashLine);
 
     // Proyección vertical
-    QGraphicsLineItem *vertical =
-        new QGraphicsLineItem(QLineF(p.x(), topLeft.y(), p.x(), bottomRight.y()));
+    QGraphicsLineItem *vertical = new QGraphicsLineItem(
+        QLineF(p.x(), topLeft.y(), p.x(), bottomRight.y()));
     vertical->setPen(pen);
 
     // Proyección horizontal
-    QGraphicsLineItem *horizontal =
-        new QGraphicsLineItem(QLineF(topLeft.x(), p.y(), bottomRight.x(), p.y()));
+    QGraphicsLineItem *horizontal = new QGraphicsLineItem(
+        QLineF(topLeft.x(), p.y(), bottomRight.x(), p.y()));
     horizontal->setPen(pen);
 
     eyeProjectionGroup->addToGroup(vertical);
@@ -578,8 +583,9 @@ void MainWindow::showPointExtremes(QGraphicsItem *point)
     scene->addItem(eyeProjectionGroup);
 }
 
-void MainWindow::togglePointExtremes(){
-    QList<QGraphicsItem*> selected = scene->selectedItems();
+void MainWindow::togglePointExtremes()
+{
+    QList<QGraphicsItem *> selected = scene->selectedItems();
 
     // Validación básica
     if (selected.isEmpty()) {
@@ -676,9 +682,8 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 QPen pen(Qt::red, 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
                 currentPathItem = scene->addPath(currentPath, pen);
                 return true;
-            }
-            else if (event->type() == QEvent::GraphicsSceneMouseMove
-                     && (mouseEvent->buttons() & Qt::LeftButton)) {
+            } else if (event->type() == QEvent::GraphicsSceneMouseMove
+                       && (mouseEvent->buttons() & Qt::LeftButton)) {
                 if (currentPathItem) {
                     // CAMBIO AQUÍ: Usamos snapToRuler
                     QPointF nextPoint = snapToRuler(mouseEvent->scenePos());
@@ -687,8 +692,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                     currentPathItem->setPath(currentPath);
                 }
                 return true;
-            }
-            else if (event->type() == QEvent::GraphicsSceneMouseRelease) {
+            } else if (event->type() == QEvent::GraphicsSceneMouseRelease) {
                 currentPathItem = nullptr;
                 return true;
             }
@@ -701,17 +705,26 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
             if (event->type() == QEvent::GraphicsSceneMousePress
                 || (event->type() == QEvent::GraphicsSceneMouseMove
                     && (mouseEvent->buttons() & Qt::LeftButton))) {
+
                 QGraphicsItem *item = scene->itemAt(mouseEvent->scenePos(), QTransform());
                 if (item && item->group()) {
                     item = item->group();
                 }
-                // AÑADIMOS "item != mapItem" A LA CONDICIÓN
-                if (item && item != mapItem && (
-                        item->type() == QGraphicsPathItem::Type ||
-                        item->type() == QGraphicsPixmapItem::Type ||
-                        item->type() == QGraphicsLineItem::Type ||
-                        item->type() == QGraphicsTextItem::Type ||
-                        item->type() == QGraphicsItemGroup::Type)) {
+
+                // --- NUEVA COMPROBACIÓN ---
+                // Si el item tiene la marca "locked_helper", LO IGNORAMOS y no borramos
+                if (item && item->data(Qt::UserRole).toString() == "locked_helper") {
+                    return true;
+                }
+                // --------------------------
+
+                // Condición original de borrado
+                if (item && item != mapItem
+                    && (item->type() == QGraphicsPathItem::Type
+                        || item->type() == QGraphicsPixmapItem::Type
+                        || item->type() == QGraphicsLineItem::Type
+                        || item->type() == QGraphicsTextItem::Type
+                        || item->type() == QGraphicsItemGroup::Type)) {
 
                     scene->removeItem(item);
                     delete item;
@@ -742,10 +755,10 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 // Opcional: Hacer que la marca se pueda mover después
                 marker->setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable);
                 return true;
-            }
-            else if (event->type() == QEvent::GraphicsSceneMouseMove && eyeActive) { // actualizar las posiciones de la chincheta
+            } else if (event->type() == QEvent::GraphicsSceneMouseMove
+                       && eyeActive) { // actualizar las posiciones de la chincheta
                 // Recalcular las líneas de los extremos del item seleccionado
-                QList<QGraphicsItem*> selected = scene->selectedItems();
+                QList<QGraphicsItem *> selected = scene->selectedItems();
                 if (!selected.isEmpty()) {
                     showPointExtremes(selected.first());
                 }
@@ -797,9 +810,8 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
         // Me falta añadir el ajuste del fondo blanco según el tamaño del texto a introducir - raq
         else if (textMode) {
             if (event->type() == QEvent::GraphicsSceneMousePress) {
-
-                QGraphicsSceneMouseEvent *mouseEvent =
-                    static_cast<QGraphicsSceneMouseEvent *>(event);
+                QGraphicsSceneMouseEvent *mouseEvent = static_cast<QGraphicsSceneMouseEvent *>(
+                    event);
 
                 QPointF pos = mouseEvent->scenePos();
 
@@ -826,8 +838,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 group->setHandlesChildEvents(false); // MUY IMPORTANTE
 
                 group->setPos(pos);
-                group->setFlags(QGraphicsItem::ItemIsMovable |
-                                QGraphicsItem::ItemIsSelectable);
+                group->setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable);
 
                 scene->addItem(group);
 
@@ -837,19 +848,15 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 auto updateBackground = [=]() {
                     QRectF textRect = textItem->boundingRect();
 
-                    background->setRect(
-                        textRect.adjusted(-margin, -margin, margin, margin)
-                        );
+                    background->setRect(textRect.adjusted(-margin, -margin, margin, margin));
 
                     textItem->setPos(margin, margin);
                 };
 
-                QObject::connect(
-                    textItem->document(),
-                    &QTextDocument::contentsChanged,
-                    scene,
-                    updateBackground
-                    );
+                QObject::connect(textItem->document(),
+                                 &QTextDocument::contentsChanged,
+                                 scene,
+                                 updateBackground);
 
                 // Ajuste inicial
                 updateBackground();
@@ -861,7 +868,6 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 return true;
             }
         }
-
     }
     return QMainWindow::eventFilter(watched, event);
 }
