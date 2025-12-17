@@ -88,6 +88,10 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     connect(ui->cerrarSesion, &QPushButton::clicked, this, [=]() {
+
+        Session s(sessionStart, sessionHits, sessionFaults);
+        nav.addSession(currentUser->nickName(), s);
+
         currentUser = nullptr;
 
         ui->nombre->clear();
@@ -349,6 +353,10 @@ void MainWindow::onLogInClicked()
     }
 
     // Si login correcto, mostrar perfil o la pantalla principal
+    sessionHits = 0;
+    sessionFaults = 0;
+    sessionStart = QDateTime::currentDateTime();
+
     ui->stackedWidget->setCurrentIndex(3);
     ui->sidebar_2->setCurrentIndex(0);
     ui->toolBar->show();
@@ -537,6 +545,13 @@ void MainWindow::checkQuestion()
             labels[i]->setStyleSheet("color: red; font-size: 18px; font-weight: bold;");
         }
     }
+
+    if (p.answers()[seleccionada].validity()) {
+        sessionHits++;
+    } else {
+        sessionFaults++;
+    }
+
 
     ui->verificarButton->setEnabled(false);
 }

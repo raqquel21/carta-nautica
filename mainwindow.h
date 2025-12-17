@@ -109,6 +109,10 @@ private:
 
     Navigation &nav = Navigation::instance();
     User *currentUser = nullptr;
+    int sessionHits = 0;
+    int sessionFaults = 0;
+    QDateTime sessionStart;
+
 
     UserManager userManager; // gestor de usuarios
 
