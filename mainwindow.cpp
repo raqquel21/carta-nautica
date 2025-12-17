@@ -1056,7 +1056,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 QPixmap pixmap(":/images/iconoChincheta.png");
 
                 // Redimensionamos si es muy grande (opcional)
-                pixmap = pixmap.scaled(30, 30, Qt::KeepAspectRatio);
+                pixmap = pixmap.scaled(50, 50, Qt::KeepAspectRatio);
 
                 // 2. Añadimos el objeto al mapa
                 QGraphicsPixmapItem *marker = scene->addPixmap(pixmap);
