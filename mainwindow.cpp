@@ -54,11 +54,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     showNextQuestion(); //para que salga la primera xd
 
-    ui->res1->setText("");
-    ui->res2->setText("");
-    ui->res3->setText("");
-    ui->res4->setText("");
-
     // Login passwords
     ui->lineEdit_2->setEchoMode(QLineEdit::Password);
     ui->enter_password_r1->setEchoMode(QLineEdit::Password);
@@ -93,6 +88,13 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     connect(ui->cerrarSesion, &QPushButton::clicked, this, [=]() {
+        currentUser = nullptr;
+
+        ui->nombre->clear();
+        ui->nacimiento->clear();
+        ui->email->clear();
+        ui->contrasenya->clear();
+
         ui->stackedWidget->setCurrentIndex(0); // Volvemos a la pantalla de login
         ui->toolBar->hide();                    // Ocultamos la toolbar
         ui->enter_nickname->clear();
@@ -336,7 +338,10 @@ void MainWindow::onLogInClicked()
         return;
     }
 
-    Users *u = userManager.authenticate(nickname, password);
+    //Users *u = userManager.authenticate(nickname, password);
+
+    User *u = nav.authenticate(nickname, password);
+    currentUser = u;
 
     if (!u) {
         QMessageBox::warning(this, "Login incorrecto", "Nombre o contraseña incorrectos.");
@@ -349,9 +354,9 @@ void MainWindow::onLogInClicked()
     ui->toolBar->show();
 
     // Opcional: mostrar info en perfil
-    ui->nombre->setText("Nickname: " + u->name());
-    ui->nacimiento->setText("Date birth: " + u->birthDate().toString("dd/MM/yyyy"));
-    ui->email->setText("Email: " + u->mail());
+    ui->nombre->setText("Nickname: " + u->nickName());
+    ui->nacimiento->setText("Date birth: " + u->birthdate().toString("dd/MM/yyyy"));
+    ui->email->setText("Email: " + u->email());
     ui->contrasenya->setText("Password: " + u->password());
 }
 void MainWindow::onRegisterClicked()
@@ -387,14 +392,20 @@ void MainWindow::onRegisterClicked()
 
     // Crear usuario
     QImage avatar(":/images/userIcono.png"); // avatar por defecto
-    Users newUser(nameReg, mail, password1, avatar, fecha);
-    userManager.addUser(newUser);
+
+    //usuarios raquel:
+    //Users newUser(nameReg, mail, password1, avatar, fecha);
+    //userManager.addUser(newUser);
+
+    //añadir a bbdd
+    User u(nameReg, mail, password1, avatar, fecha);
+    nav.addUser(u);
 
     // Mostrar info en perfil
-    ui->nombre->setText("Nickname: " + newUser.name());
-    ui->nacimiento->setText("Date birth: " + newUser.birthDate().toString("dd/MM/yyyy"));
-    ui->email->setText("Email: " + newUser.mail());
-    ui->contrasenya->setText("Password: " + newUser.password());
+    ui->nombre->setText("Nickname: " + u.nickName());
+    ui->nacimiento->setText("Date birth: " + u.birthdate().toString("dd/MM/yyyy"));
+    ui->email->setText("Email: " + u.email());
+    ui->contrasenya->setText("Password: " + u.password());
 
     // Cambiar a la pantalla de perfil
     ui->stackedWidget->setCurrentIndex(2);
