@@ -19,7 +19,7 @@ CXXFLAGS      = -fno-keep-inline-dllexport -g -std=gnu++1z -Wall -Wextra -Wextra
 INCPATH       = -I../../../carta-nautica -I. -I../../lib/include -IC:/Qt/6.9.2/mingw_64/include -IC:/Qt/6.9.2/mingw_64/include/QtSvgWidgets -IC:/Qt/6.9.2/mingw_64/include/QtSvg -IC:/Qt/6.9.2/mingw_64/include/QtWidgets -IC:/Qt/6.9.2/mingw_64/include/QtGui -IC:/Qt/6.9.2/mingw_64/include/QtSql -IC:/Qt/6.9.2/mingw_64/include/QtCore -Idebug -I. -I/include -IC:/Qt/6.9.2/mingw_64/mkspecs/win32-g++ 
 LINKER      =        g++
 LFLAGS        =        -Wl,-subsystem,windows -mthreads
-LIBS        =        -LC:\Users\Lenovo\Documents\carta-nautica\lib -lnavlib C:\Qt\6.9.2\mingw_64\lib\libQt6SvgWidgets.a C:\Qt\6.9.2\mingw_64\lib\libQt6Svg.a C:\Qt\6.9.2\mingw_64\lib\libQt6Widgets.a C:\Qt\6.9.2\mingw_64\lib\libQt6Gui.a C:\Qt\6.9.2\mingw_64\lib\libQt6Sql.a C:\Qt\6.9.2\mingw_64\lib\libQt6Core.a -lmingw32 C:\Qt\6.9.2\mingw_64\lib\libQt6EntryPoint.a -lshell32  
+LIBS        =        -LC:\Users\ejema\OneDrive\Documentos\IHM\carta-nautica\lib -lnavlib C:\Qt\6.9.2\mingw_64\lib\libQt6SvgWidgets.a C:\Qt\6.9.2\mingw_64\lib\libQt6Svg.a C:\Qt\6.9.2\mingw_64\lib\libQt6Widgets.a C:\Qt\6.9.2\mingw_64\lib\libQt6Gui.a C:\Qt\6.9.2\mingw_64\lib\libQt6Sql.a C:\Qt\6.9.2\mingw_64\lib\libQt6Core.a -lmingw32 C:\Qt\6.9.2\mingw_64\lib\libQt6EntryPoint.a -lshell32  
 QMAKE         = C:\Qt\6.9.2\mingw_64\bin\qmake.exe
 DEL_FILE      = del
 CHK_DIR_EXISTS= if not exist
@@ -420,9 +420,12 @@ debug/moc_mainwindow.cpp: ../../mainwindow.h \
 		C:/Qt/6.9.2/mingw_64/include/QtSvg/qtsvgglobal.h \
 		C:/Qt/6.9.2/mingw_64/include/QtSvg/qtsvgexports.h \
 		C:/Qt/6.9.2/mingw_64/include/QtCore/QPointF \
+		C:/Qt/6.9.2/mingw_64/include/QtCore/QEvent \
+		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QToolButton \
+		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qtoolbutton.h \
 		debug/moc_predefs.h \
 		C:/Qt/6.9.2/mingw_64/bin/moc.exe
-	C:\Qt\6.9.2\mingw_64\bin\moc.exe $(DEFINES) --include C:/Users/Lenovo/Documents/carta-nautica/build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/debug/moc_predefs.h -IC:/Qt/6.9.2/mingw_64/mkspecs/win32-g++ -IC:/Users/Lenovo/Documents/carta-nautica -IC:/Users/Lenovo/Documents/carta-nautica/lib/include -IC:/Qt/6.9.2/mingw_64/include -IC:/Qt/6.9.2/mingw_64/include/QtSvgWidgets -IC:/Qt/6.9.2/mingw_64/include/QtSvg -IC:/Qt/6.9.2/mingw_64/include/QtWidgets -IC:/Qt/6.9.2/mingw_64/include/QtGui -IC:/Qt/6.9.2/mingw_64/include/QtSql -IC:/Qt/6.9.2/mingw_64/include/QtCore -I. -IC:/Qt/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++ -IC:/Qt/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/x86_64-w64-mingw32 -IC:/Qt/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/backward -IC:/Qt/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include -IC:/Qt/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include-fixed -IC:/Qt/Tools/mingw1310_64/x86_64-w64-mingw32/include ..\..\mainwindow.h -o debug\moc_mainwindow.cpp
+	C:\Qt\6.9.2\mingw_64\bin\moc.exe $(DEFINES) --include C:/Users/ejema/OneDrive/Documentos/IHM/carta-nautica/build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/debug/moc_predefs.h -IC:/Qt/6.9.2/mingw_64/mkspecs/win32-g++ -IC:/Users/ejema/OneDrive/Documentos/IHM/carta-nautica -IC:/Users/ejema/OneDrive/Documentos/IHM/carta-nautica/lib/include -IC:/Qt/6.9.2/mingw_64/include -IC:/Qt/6.9.2/mingw_64/include/QtSvgWidgets -IC:/Qt/6.9.2/mingw_64/include/QtSvg -IC:/Qt/6.9.2/mingw_64/include/QtWidgets -IC:/Qt/6.9.2/mingw_64/include/QtGui -IC:/Qt/6.9.2/mingw_64/include/QtSql -IC:/Qt/6.9.2/mingw_64/include/QtCore -I. -IC:/Qt/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++ -IC:/Qt/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/x86_64-w64-mingw32 -IC:/Qt/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/backward -IC:/Qt/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include -IC:/Qt/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include-fixed -IC:/Qt/Tools/mingw1310_64/x86_64-w64-mingw32/include ..\..\mainwindow.h -o debug\moc_mainwindow.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
@@ -717,6 +720,9 @@ debug/main.o: ../../main.cpp ../../mainwindow.h \
 		C:/Qt/6.9.2/mingw_64/include/QtSvg/qtsvgglobal.h \
 		C:/Qt/6.9.2/mingw_64/include/QtSvg/qtsvgexports.h \
 		C:/Qt/6.9.2/mingw_64/include/QtCore/QPointF \
+		C:/Qt/6.9.2/mingw_64/include/QtCore/QEvent \
+		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QToolButton \
+		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qtoolbutton.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QApplication \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qapplication.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\main.o ..\..\main.cpp
@@ -991,11 +997,15 @@ debug/mainwindow.o: ../../mainwindow.cpp ../../mainwindow.h \
 		C:/Qt/6.9.2/mingw_64/include/QtSvg/qtsvgglobal.h \
 		C:/Qt/6.9.2/mingw_64/include/QtSvg/qtsvgexports.h \
 		C:/Qt/6.9.2/mingw_64/include/QtCore/QPointF \
+		C:/Qt/6.9.2/mingw_64/include/QtCore/QEvent \
+		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QToolButton \
+		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qtoolbutton.h \
 		ui_mainwindow.h \
 		C:/Qt/6.9.2/mingw_64/include/QtCore/QVariant \
 		C:/Qt/6.9.2/mingw_64/include/QtGui/QAction \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QApplication \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qapplication.h \
+		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QFrame \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QGridLayout \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qgridlayout.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qlayout.h \
@@ -1013,13 +1023,14 @@ debug/mainwindow.o: ../../mainwindow.cpp ../../mainwindow.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QPushButton \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qpushbutton.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QRadioButton \
+		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QSlider \
+		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qslider.h \
+		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qabstractslider.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QSpacerItem \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QStackedWidget \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qstackedwidget.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QToolBar \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qtoolbar.h \
-		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QToolButton \
-		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qtoolbutton.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QVBoxLayout \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QWidget \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QGraphicsColorizeEffect \
@@ -1039,7 +1050,9 @@ debug/mainwindow.o: ../../mainwindow.cpp ../../mainwindow.h \
 		C:/Qt/6.9.2/mingw_64/include/QtCore/qtimezone.h \
 		C:/Qt/6.9.2/mingw_64/include/QtGui/QColor \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QColorDialog \
-		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qcolordialog.h
+		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qcolordialog.h \
+		C:/Qt/6.9.2/mingw_64/include/QtGui/QShortcut \
+		C:/Qt/6.9.2/mingw_64/include/QtGui/qshortcut.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\mainwindow.o ..\..\mainwindow.cpp
 
 debug/qrc_resources.o: debug/qrc_resources.cpp 
