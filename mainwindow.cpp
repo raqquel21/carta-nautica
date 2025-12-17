@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+
 /*
  * Me falta por añadir:
  *  - Que cuando le des al tabulador del registro se use bien la navegacion en los campos
@@ -86,6 +87,13 @@ MainWindow::MainWindow(QWidget *parent)
         ui->toolBar->hide();
     });
 
+    connect(ui->cerrarSesion, &QPushButton::clicked, this, [=]() {
+        ui->stackedWidget->setCurrentIndex(0); // Volvemos a la pantalla de login
+        ui->toolBar->hide();                    // Ocultamos la toolbar
+        ui->enter_nickname->clear();
+        ui->lineEdit_2->clear();
+    });
+
     // Conexiones botones
     connect(ui->actionPerfil, &QAction::triggered, this, [=]() {
         ui->stackedWidget->setCurrentIndex(2);
@@ -136,7 +144,7 @@ MainWindow::MainWindow(QWidget *parent)
                      << ui->goma
                      << ui->texto
                      << ui->marca;
-                     //<< ui->regla;
+    //<< ui->regla;
 
 
     for (QToolButton *button : exclusiveButtons) {
@@ -314,26 +322,33 @@ void MainWindow::onLogInClicked()
 {
     QString nickname = ui->enter_nickname->text().trimmed();
     QString password = ui->lineEdit_2->text().trimmed();
-    User *u = nav.authenticate(nickname, password);
 
-    if (u) {
-        ui->stackedWidget->setCurrentIndex(3); // Si lo ha hecho bien, adelante
+    // ESTO LO TENDREMOS QUE QUITAR
+    if ((nickname == "user1") && (password == "User123!")) {
+        ui->stackedWidget->setCurrentIndex(3); // pantalla principal
         ui->sidebar_2->setCurrentIndex(0);
         ui->toolBar->show();
-    } else {
-        QMessageBox::warning(this, "Incorrecto", "LOGIN INCORRECTO");
-    }
-
-    if (nickname.isEmpty() || password.isEmpty()) {
-        ui->stackedWidget->setCurrentIndex(
-            0); // Que no pueda pasar al siguiente paso si no se ha logeado bien
-        QMessageBox::warning(this,
-                             "Advertencia",
-                             "Por favor, introduce el nickname y/o contraseña correctos.");
         return;
     }
-}
 
+    Users *u = userManager.authenticate(nickname, password);
+
+    if (!u) {
+        QMessageBox::warning(this, "Login incorrecto", "Nombre o contraseña incorrectos.");
+        return;
+    }
+
+    // Si login correcto, mostrar perfil o la pantalla principal
+    ui->stackedWidget->setCurrentIndex(3);
+    ui->sidebar_2->setCurrentIndex(0);
+    ui->toolBar->show();
+
+    // Opcional: mostrar info en perfil
+    ui->nombre->setText("Nickname: " + u->name());
+    ui->nacimiento->setText("Date birth: " + u->birthDate().toString("dd/MM/yyyy"));
+    ui->email->setText("Email: " + u->mail());
+    ui->contrasenya->setText("Password: " + u->password());
+}
 void MainWindow::onRegisterClicked()
 {
     QString nameReg = ui->enter_nickname_reg->text().trimmed();
@@ -342,45 +357,42 @@ void MainWindow::onRegisterClicked()
     QString password1 = ui->enter_password_r1->text().trimmed();
     QString password2 = ui->enter_password_r2->text().trimmed();
 
-    if (nameReg.isEmpty() || password1.isEmpty() || password2.isEmpty() || password1 != password2) {
-        ui->stackedWidget->setCurrentIndex(
-            1); // Que no pueda pasar al siguiente paso si no se ha logeado bien
-        QMessageBox::warning(this,
-                             "Advertencia",
-                             "Por favor, introduce el nickname y/o contraseña correctos.");
+    // Validaciones básicas
+    if (nameReg.isEmpty() || password1.isEmpty() || password2.isEmpty()) {
+        QMessageBox::warning(this, "Advertencia", "Rellena todos los campos.");
+        return;
+    }
+
+    if (password1 != password2) {
+        QMessageBox::warning(this, "Advertencia", "Las contraseñas no coinciden.");
         return;
     }
 
     QDate fecha = QDate::fromString(birthDate, "dd/MM/yyyy");
     if (!fecha.isValid()) {
-        QMessageBox::warning(this,
-                             "Fecha inválida",
-                             "Introduce una fecha válida en formato dd/MM/yyyy.");
+        QMessageBox::warning(this, "Fecha inválida", "Introduce una fecha válida en formato dd/MM/yyyy.");
         return;
     }
 
     QRegularExpression emailRegex(R"((^[^\s@]+@[^\s@]+\.[^\s@]+$))");
     if (!emailRegex.match(mail).hasMatch()) {
-        QMessageBox::warning(this,
-                             "Email inválido",
-                             "Introduce un email válido (ej: usuario@dominio.com).");
+        QMessageBox::warning(this, "Email inválido", "Introduce un email válido (ej: usuario@dominio.com).");
         return;
     }
 
-    //crear el usuario
-    QImage avatar(":/images/userIcono.png"); //foto por defecto (esto habrá que arreglarlo xd)
+    // Crear usuario
+    QImage avatar(":/images/userIcono.png"); // avatar por defecto
+    Users newUser(nameReg, mail, password1, avatar, fecha);
+    userManager.addUser(newUser);
 
-    User u(nameReg, mail, password1, avatar, fecha);
+    // Mostrar info en perfil
+    ui->nombre->setText("Nickname: " + newUser.name());
+    ui->nacimiento->setText("Date birth: " + newUser.birthDate().toString("dd/MM/yyyy"));
+    ui->email->setText("Email: " + newUser.mail());
+    ui->contrasenya->setText("Password: " + newUser.password());
 
-    nav.addUser(u);
-
-    //Ponerlo en el perfil
-    ui->nombre->setText("Nickname: " + nameReg);
-    ui->nacimiento->setText("Date birth: " + birthDate);
-    ui->email->setText("Email: " + mail);
-    ui->contrasenya->setText("Password: " + password1);
-
-    ui->stackedWidget->setCurrentIndex(2); // Si lo ha hecho bien, adelante
+    // Cambiar a la pantalla de perfil
+    ui->stackedWidget->setCurrentIndex(2);
 }
 
 void MainWindow::toggleSidebar()
@@ -502,7 +514,7 @@ void MainWindow::checkQuestion()
 
             for (int j = 0; j < problemas[i].answers().size(); ++j) {
                 qDebug() << "  Resp" << j << ":" << problemas[i].answers()[j].text().left(50)
-                         << "| val:" << problemas[i].answers()[j].validity();
+                << "| val:" << problemas[i].answers()[j].validity();
             }
         }
     }
@@ -1044,7 +1056,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 QPixmap pixmap(":/images/iconoChincheta.png");
 
                 // Redimensionamos si es muy grande (opcional)
-                pixmap = pixmap.scaled(30, 30, Qt::KeepAspectRatio);
+                pixmap = pixmap.scaled(50, 50, Qt::KeepAspectRatio);
 
                 // 2. Añadimos el objeto al mapa
                 QGraphicsPixmapItem *marker = scene->addPixmap(pixmap);
