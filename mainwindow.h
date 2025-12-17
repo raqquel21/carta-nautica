@@ -31,6 +31,9 @@
 #include <QEvent>
 #include <QList>
 
+#include "users/users.h"
+#include "usermanager/usermanager.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -106,6 +109,7 @@ private:
     QVector<QRadioButton *> respbotones;
 
     Navigation &nav = Navigation::instance();
+    UserManager userManager; // gestor de usuarios
 
     RotatableSvgItem *rulerSvgItem = nullptr; // Puntero al objeto SVG
     bool svgRulerActive = false;
