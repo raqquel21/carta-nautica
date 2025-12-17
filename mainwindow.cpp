@@ -54,6 +54,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     showNextQuestion(); //para que salga la primera xd
 
+    ui->res1->setText("");
+    ui->res2->setText("");
+    ui->res3->setText("");
+    ui->res4->setText("");
+
     // Login passwords
     ui->lineEdit_2->setEchoMode(QLineEdit::Password);
     ui->enter_password_r1->setEchoMode(QLineEdit::Password);
@@ -464,6 +469,13 @@ void MainWindow::onNextClicked()
 
 void MainWindow::showNextQuestion()
 {
+
+    ui->res1->setText("");
+    ui->res2->setText("");
+    ui->res3->setText("");
+    ui->res4->setText("");
+    ui->verificarButton->setEnabled(true);
+
     if (preg_actual >= problemas.size())
         preg_actual = 0; // reiniciar si llegamos al final
 
@@ -488,37 +500,6 @@ void MainWindow::checkQuestion()
 {
     Problem &p = problemas[preg_actual];
 
-    // DEPURACIÓN COMPLETA: Ver TODO lo que viene de la base de datos
-    qDebug() << "\n=== DEPURACIÓN COMPLETA DE PROBLEMA ===";
-    qDebug() << "Índice pregunta actual:" << preg_actual;
-    qDebug() << "Texto pregunta completo:";
-    qDebug() << p.text();
-    qDebug() << "--- RESPUESTAS Y SUS VALORES ---";
-
-    for (int i = 0; i < p.answers().size(); ++i) {
-        const Answer &resp = p.answers()[i];
-        qDebug() << "Respuesta" << i << ":";
-        qDebug() << "  Texto:" << resp.text();
-        qDebug() << "  Validez (bool):" << resp.validity();
-        qDebug() << "  Validez (int):" << (resp.validity() ? 1 : 0);
-    }
-
-    // También podemos imprimir TODOS los problemas al inicio
-    static bool primeraVez = true;
-    if (primeraVez) {
-        primeraVez = false;
-        qDebug() << "\n=== TODOS LOS PROBLEMAS CARGADOS ===";
-        for (int i = 0; i < problemas.size(); ++i) {
-            qDebug() << "\nProblema" << i << ":";
-            qDebug() << problemas[i].text().left(100) << "..."; // Primeros 100 chars
-
-            for (int j = 0; j < problemas[i].answers().size(); ++j) {
-                qDebug() << "  Resp" << j << ":" << problemas[i].answers()[j].text().left(50)
-                << "| val:" << problemas[i].answers()[j].validity();
-            }
-        }
-    }
-
     int seleccionada = -1;
     for (int i = 0; i < respbotones.size(); ++i) {
         if (respbotones[i]->isChecked()) {
@@ -527,46 +508,28 @@ void MainWindow::checkQuestion()
         }
     }
 
-    if (seleccionada == -1) {
-        QMessageBox::information(this, "Sin selección", "Por favor, selecciona una respuesta.");
+    if (seleccionada == -1)
         return;
-    }
 
-    // TEMPORAL: Usar validity() aunque falle, para ver qué pasa
-    int respuestaCorrecta = -1;
+    QLabel* labels[] = {ui->res1, ui->res2, ui->res3, ui->res4};
+
     for (int i = 0; i < p.answers().size(); ++i) {
+
         if (p.answers()[i].validity()) {
-            respuestaCorrecta = i;
-            qDebug() << "¡ENCONTRADA RESPUESTA CORRECTA! Índice:" << i;
-            break;
+            respbotones[i]->setStyleSheet("color: green; font-weight: bold;");
+            labels[i]->setText("✓");
+            labels[i]->setStyleSheet("color: green; font-size: 18px; font-weight: bold;");
+        }
+        else if (i == seleccionada) {
+            respbotones[i]->setStyleSheet("color: red; font-weight: bold;");
+            labels[i]->setText("✗");
+            labels[i]->setStyleSheet("color: red; font-size: 18px; font-weight: bold;");
         }
     }
 
-    if (respuestaCorrecta == -1) {
-        qDebug() << "ADVERTENCIA: Ninguna respuesta marcada como válida según validity()";
-        // Temporal: asumir que la primera es correcta
-        respuestaCorrecta = 0;
-    }
-
-    qDebug() << "Respuesta seleccionada:" << seleccionada
-             << "| Respuesta correcta:" << respuestaCorrecta;
-
-    // Resetear todos
-    for (int i = 0; i < p.answers().size(); ++i) {
-        respbotones[i]->setStyleSheet("");
-        respbotones[i]->setText(p.answers()[i].text());
-    }
-
-    // Marcar respuesta correcta
-    respbotones[respuestaCorrecta]->setStyleSheet("color: green; font-weight: bold;");
-    respbotones[respuestaCorrecta]->setText(p.answers()[respuestaCorrecta].text() + " ✔");
-
-    // Marcar respuesta incorrecta si la seleccionada no es la correcta
-    if (seleccionada != respuestaCorrecta) {
-        respbotones[seleccionada]->setStyleSheet("color: red; font-weight: bold;");
-        respbotones[seleccionada]->setText(p.answers()[seleccionada].text() + " ✘");
-    }
+    ui->verificarButton->setEnabled(false);
 }
+
 
 void MainWindow::togglePencil()
 {

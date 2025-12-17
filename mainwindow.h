@@ -31,7 +31,6 @@
 #include <QEvent>
 #include <QList>
 
-#include "users/users.h"
 #include "usermanager/usermanager.h"
 
 QT_BEGIN_NAMESPACE
