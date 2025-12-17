@@ -39,17 +39,22 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
     namespace QMC = QtMocConstants;
     QtMocHelpers::StringRefStorage qt_stringData {
         "MainWindow",
-        "zoomInS",
+        "onZoomInButtonClicked",
         "",
-        "zoomOutS",
+        "onZoomOutButtonClicked",
+        "onZoomSliderChanged",
+        "value",
         "setupMap",
         "onLogInClicked",
         "onRegisterClicked",
         "toggleSidebar",
+        "listarPreguntas",
         "showNextQuestion",
         "checkQuestion",
         "onNextClicked",
         "togglePencil",
+        "SliderLapiz",
+        "cambiarColor",
         "toggleCursor",
         "toggleRubber",
         "placeMark",
@@ -58,48 +63,63 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
         "toggleText",
         "snapToRuler",
         "originalPos",
-        "clearAllDrawings"
+        "clearAllDrawings",
+        "confirmAndClearAllDrawings"
     };
 
     QtMocHelpers::UintData qt_methods {
-        // Slot 'zoomInS'
+        // Slot 'onZoomInButtonClicked'
         QtMocHelpers::SlotData<void()>(1, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'zoomOutS'
+        // Slot 'onZoomOutButtonClicked'
         QtMocHelpers::SlotData<void()>(3, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onZoomSliderChanged'
+        QtMocHelpers::SlotData<void(int)>(4, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 5 },
+        }}),
         // Slot 'setupMap'
-        QtMocHelpers::SlotData<void()>(4, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'onLogInClicked'
-        QtMocHelpers::SlotData<void()>(5, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'onRegisterClicked'
         QtMocHelpers::SlotData<void()>(6, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'toggleSidebar'
+        // Slot 'onLogInClicked'
         QtMocHelpers::SlotData<void()>(7, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'showNextQuestion'
+        // Slot 'onRegisterClicked'
         QtMocHelpers::SlotData<void()>(8, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'checkQuestion'
+        // Slot 'toggleSidebar'
         QtMocHelpers::SlotData<void()>(9, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'onNextClicked'
+        // Slot 'listarPreguntas'
         QtMocHelpers::SlotData<void()>(10, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'togglePencil'
+        // Slot 'showNextQuestion'
         QtMocHelpers::SlotData<void()>(11, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'toggleCursor'
+        // Slot 'checkQuestion'
         QtMocHelpers::SlotData<void()>(12, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'toggleRubber'
+        // Slot 'onNextClicked'
         QtMocHelpers::SlotData<void()>(13, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'placeMark'
+        // Slot 'togglePencil'
         QtMocHelpers::SlotData<void()>(14, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'toggleSvgRuler'
-        QtMocHelpers::SlotData<void()>(15, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'togglePointExtremes'
+        // Slot 'SliderLapiz'
+        QtMocHelpers::SlotData<void(int)>(15, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 5 },
+        }}),
+        // Slot 'cambiarColor'
         QtMocHelpers::SlotData<void()>(16, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'toggleText'
+        // Slot 'toggleCursor'
         QtMocHelpers::SlotData<void()>(17, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'toggleRubber'
+        QtMocHelpers::SlotData<void()>(18, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'placeMark'
+        QtMocHelpers::SlotData<void()>(19, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'toggleSvgRuler'
+        QtMocHelpers::SlotData<void()>(20, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'togglePointExtremes'
+        QtMocHelpers::SlotData<void()>(21, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'toggleText'
+        QtMocHelpers::SlotData<void()>(22, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'snapToRuler'
-        QtMocHelpers::SlotData<QPointF(QPointF)>(18, 2, QMC::AccessPrivate, QMetaType::QPointF, {{
-            { QMetaType::QPointF, 19 },
+        QtMocHelpers::SlotData<QPointF(QPointF)>(23, 2, QMC::AccessPrivate, QMetaType::QPointF, {{
+            { QMetaType::QPointF, 24 },
         }}),
         // Slot 'clearAllDrawings'
-        QtMocHelpers::SlotData<void()>(20, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(25, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'confirmAndClearAllDrawings'
+        QtMocHelpers::SlotData<void()>(26, 2, QMC::AccessPrivate, QMetaType::Void),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -123,25 +143,30 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
     auto *_t = static_cast<MainWindow *>(_o);
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
-        case 0: _t->zoomInS(); break;
-        case 1: _t->zoomOutS(); break;
-        case 2: _t->setupMap(); break;
-        case 3: _t->onLogInClicked(); break;
-        case 4: _t->onRegisterClicked(); break;
-        case 5: _t->toggleSidebar(); break;
-        case 6: _t->showNextQuestion(); break;
-        case 7: _t->checkQuestion(); break;
-        case 8: _t->onNextClicked(); break;
-        case 9: _t->togglePencil(); break;
-        case 10: _t->toggleCursor(); break;
-        case 11: _t->toggleRubber(); break;
-        case 12: _t->placeMark(); break;
-        case 13: _t->toggleSvgRuler(); break;
-        case 14: _t->togglePointExtremes(); break;
-        case 15: _t->toggleText(); break;
-        case 16: { QPointF _r = _t->snapToRuler((*reinterpret_cast< std::add_pointer_t<QPointF>>(_a[1])));
+        case 0: _t->onZoomInButtonClicked(); break;
+        case 1: _t->onZoomOutButtonClicked(); break;
+        case 2: _t->onZoomSliderChanged((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
+        case 3: _t->setupMap(); break;
+        case 4: _t->onLogInClicked(); break;
+        case 5: _t->onRegisterClicked(); break;
+        case 6: _t->toggleSidebar(); break;
+        case 7: _t->listarPreguntas(); break;
+        case 8: _t->showNextQuestion(); break;
+        case 9: _t->checkQuestion(); break;
+        case 10: _t->onNextClicked(); break;
+        case 11: _t->togglePencil(); break;
+        case 12: _t->SliderLapiz((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
+        case 13: _t->cambiarColor(); break;
+        case 14: _t->toggleCursor(); break;
+        case 15: _t->toggleRubber(); break;
+        case 16: _t->placeMark(); break;
+        case 17: _t->toggleSvgRuler(); break;
+        case 18: _t->togglePointExtremes(); break;
+        case 19: _t->toggleText(); break;
+        case 20: { QPointF _r = _t->snapToRuler((*reinterpret_cast< std::add_pointer_t<QPointF>>(_a[1])));
             if (_a[0]) *reinterpret_cast< QPointF*>(_a[0]) = std::move(_r); }  break;
-        case 17: _t->clearAllDrawings(); break;
+        case 21: _t->clearAllDrawings(); break;
+        case 22: _t->confirmAndClearAllDrawings(); break;
         default: ;
         }
     }
@@ -166,14 +191,14 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 18)
+        if (_id < 23)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 18;
+        _id -= 23;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 18)
+        if (_id < 23)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 18;
+        _id -= 23;
     }
     return _id;
 }

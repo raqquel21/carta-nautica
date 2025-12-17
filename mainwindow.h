@@ -27,6 +27,10 @@
 #include <QPointF>                  // Necesario para QPointF
 #include <QtMath>                   // Necesario para qRadiansToDegrees y atan2
 
+#include <QEvent>
+#include <QList>
+#include <QToolButton>
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -36,37 +40,23 @@ QT_END_NAMESPACE
 class RotatableSvgItem : public QGraphicsSvgItem
 {
 public:
-    RotatableSvgItem(const QString &fileName, QGraphicsItem *parent = nullptr)
-        : QGraphicsSvgItem(fileName, parent)
-    {
-        // Habilitar movimiento y selección por el framework
-        setFlags(ItemIsMovable | ItemIsSelectable | ItemSendsGeometryChanges);
-    }
+    explicit RotatableSvgItem(const QString &fileName, QGraphicsItem *parent = nullptr);
 
 protected:
-    void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override
-    {
-        // Solo rotamos si se presiona la tecla Control (Ctrl)
-        if (event->modifiers() & Qt::ControlModifier) {
-            QPointF currentPos = event->pos();
-            QPointF center = boundingRect().center();
+    // Declaramos las funciones que hemos implementado en el .cpp
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
+    void hoverMoveEvent(QGraphicsSceneHoverEvent *event) override;
 
-            // Calcular el ángulo usando atan2
-            qreal angle = atan2(currentPos.y() - center.y(), currentPos.x() - center.x());
-            qreal newAngle = qRadiansToDegrees(angle);
-
-            // Establecer el centro de rotación y aplicar la rotación
-            setTransformOriginPoint(center);
-            // El desplazamiento de 90 grados es común si el SVG de la regla es horizontal por defecto
-            setRotation(newAngle + 90);
-
-            event->accept();
-        } else {
-            // Si no hay tecla modificadora, permite el movimiento normal
-            QGraphicsSvgItem::mouseMoveEvent(event);
-        }
-    }
+private:
+    // Variables internas para controlar el movimiento y rotación
+    enum Mode { None, Moving, Rotating };
+    Mode m_mode;
+    QPointF m_lastMousePos;
+    QPointF m_pivotPoint;
 };
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -82,6 +72,8 @@ private:
     QGraphicsView *view;
 
     QGraphicsPixmapItem *mapItem = nullptr;
+
+    QList<QToolButton *> exclusiveButtons;
 
     double scale = 1;
     int grosorLapiz;
@@ -131,7 +123,6 @@ private slots:
 
     void toggleSidebar();
 
-
     void listarPreguntas();
     void showNextQuestion();
     void checkQuestion();
@@ -151,6 +142,7 @@ private slots:
     QPointF snapToRuler(QPointF originalPos);
 
     void clearAllDrawings();
+    void confirmAndClearAllDrawings();
 
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
