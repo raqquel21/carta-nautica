@@ -31,6 +31,9 @@
 #include <QEvent>
 #include <QList>
 
+#include "users/users.h"
+#include "usermanager/usermanager.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -40,36 +43,21 @@ QT_END_NAMESPACE
 class RotatableSvgItem : public QGraphicsSvgItem
 {
 public:
-    RotatableSvgItem(const QString &fileName, QGraphicsItem *parent = nullptr)
-        : QGraphicsSvgItem(fileName, parent)
-    {
-        // Habilitar movimiento y selección por el framework
-        setFlags(ItemIsMovable | ItemIsSelectable | ItemSendsGeometryChanges);
-    }
+    explicit RotatableSvgItem(const QString &fileName, QGraphicsItem *parent = nullptr);
 
 protected:
-    void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override
-    {
-        // Solo rotamos si se presiona la tecla Control (Ctrl)
-        if (event->modifiers() & Qt::ControlModifier) {
-            QPointF currentPos = event->pos();
-            QPointF center = boundingRect().center();
+    // Declaramos las funciones que hemos implementado en el .cpp
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
+    void hoverMoveEvent(QGraphicsSceneHoverEvent *event) override;
 
-            // Calcular el ángulo usando atan2
-            qreal angle = atan2(currentPos.y() - center.y(), currentPos.x() - center.x());
-            qreal newAngle = qRadiansToDegrees(angle);
-
-            // Establecer el centro de rotación y aplicar la rotación
-            setTransformOriginPoint(center);
-            // El desplazamiento de 90 grados es común si el SVG de la regla es horizontal por defecto
-            setRotation(newAngle + 90);
-
-            event->accept();
-        } else {
-            // Si no hay tecla modificadora, permite el movimiento normal
-            QGraphicsSvgItem::mouseMoveEvent(event);
-        }
-    }
+private:
+    // Variables internas para controlar el movimiento y rotación
+    enum Mode { None, Moving, Rotating };
+    Mode m_mode;
+    QPointF m_lastMousePos;
+    QPointF m_pivotPoint;
 };
 class MainWindow : public QMainWindow
 {
@@ -121,6 +109,7 @@ private:
     QVector<QRadioButton *> respbotones;
 
     Navigation &nav = Navigation::instance();
+    UserManager userManager; // gestor de usuarios
 
     RotatableSvgItem *rulerSvgItem = nullptr; // Puntero al objeto SVG
     bool svgRulerActive = false;
@@ -149,7 +138,7 @@ private slots:
     void toggleCursor();
     void toggleRubber();
     void placeMark();
-    void toggleSvgRuler();
+    void toggleSvgRuler(bool checked);
     void togglePointExtremes();
     void toggleText();
 
