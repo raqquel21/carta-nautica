@@ -27,9 +27,9 @@
 #include <QPointF>                  // Necesario para QPointF
 #include <QtMath>                   // Necesario para qRadiansToDegrees y atan2
 
+#include <QToolButton>
 #include <QEvent>
 #include <QList>
-#include <QToolButton>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -56,7 +56,6 @@ private:
     QPointF m_lastMousePos;
     QPointF m_pivotPoint;
 };
-
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -73,7 +72,7 @@ private:
 
     QGraphicsPixmapItem *mapItem = nullptr;
 
-    QList<QToolButton *> exclusiveButtons;
+    QList<QToolButton*> exclusiveButtons;
 
     double scale = 1;
     int grosorLapiz;
@@ -135,7 +134,7 @@ private slots:
     void toggleCursor();
     void toggleRubber();
     void placeMark();
-    void toggleSvgRuler();
+    void toggleSvgRuler(bool checked);
     void togglePointExtremes();
     void toggleText();
 
