@@ -24,7 +24,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="login">
        <property name="minimumSize">
@@ -68,12 +68,11 @@
         </item>
         <item row="1" column="1">
          <layout class="QGridLayout" name="gridLayout_5">
-          <item row="2" column="1">
-           <widget class="QLabel" name="label_logIn">
+          <item row="11" column="1" colspan="2">
+           <widget class="QPushButton" name="buttonLogIn">
             <property name="font">
              <font>
-              <family>Century</family>
-              <pointsize>14</pointsize>
+              <bold>true</bold>
              </font>
             </property>
             <property name="text">
@@ -81,47 +80,28 @@
             </property>
            </widget>
           </item>
-          <item row="7" column="1">
-           <widget class="QLabel" name="label_password">
-            <property name="font">
-             <font>
-              <pointsize>10</pointsize>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>Password</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLabel" name="label_nickname">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>10</pointsize>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>Nickname</string>
-            </property>
-           </widget>
-          </item>
-          <item row="11" column="1">
-           <spacer name="verticalSpacer_3">
+          <item row="1" column="1" colspan="2">
+           <spacer name="verticalSpacer_4">
             <property name="orientation">
              <enum>Qt::Orientation::Vertical</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
               <width>20</width>
-              <height>350</height>
+              <height>250</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="5" column="1">
+           <spacer name="verticalSpacer_6">
+            <property name="orientation">
+             <enum>Qt::Orientation::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>100</height>
              </size>
             </property>
            </spacer>
@@ -139,11 +119,12 @@
             </property>
            </widget>
           </item>
-          <item row="10" column="1">
-           <widget class="QPushButton" name="buttonLogIn">
+          <item row="2" column="1" colspan="2">
+           <widget class="QLabel" name="label_logIn">
             <property name="font">
              <font>
-              <bold>true</bold>
+              <family>Century</family>
+              <pointsize>14</pointsize>
              </font>
             </property>
             <property name="text">
@@ -151,7 +132,20 @@
             </property>
            </widget>
           </item>
-          <item row="9" column="1">
+          <item row="12" column="1" colspan="2">
+           <spacer name="verticalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Orientation::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>350</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="10" column="1" colspan="2">
            <spacer name="verticalSpacer">
             <property name="orientation">
              <enum>Qt::Orientation::Vertical</enum>
@@ -164,20 +158,20 @@
             </property>
            </spacer>
           </item>
-          <item row="1" column="1">
-           <spacer name="verticalSpacer_4">
+          <item row="6" column="1">
+           <spacer name="verticalSpacer_12">
             <property name="orientation">
              <enum>Qt::Orientation::Vertical</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
               <width>20</width>
-              <height>250</height>
+              <height>100</height>
              </size>
             </property>
            </spacer>
           </item>
-          <item row="4" column="1">
+          <item row="4" column="1" colspan="2">
            <widget class="QLineEdit" name="enter_nickname">
             <property name="sizePolicy">
              <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
@@ -196,31 +190,47 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="1">
-           <spacer name="verticalSpacer_6">
-            <property name="orientation">
-             <enum>Qt::Orientation::Vertical</enum>
+          <item row="3" column="1" colspan="2">
+           <widget class="QLabel" name="label_nickname">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
             </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>100</height>
-             </size>
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <bold>true</bold>
+             </font>
             </property>
-           </spacer>
+            <property name="text">
+             <string>Nickname</string>
+            </property>
+           </widget>
           </item>
-          <item row="6" column="1">
-           <spacer name="verticalSpacer_12">
-            <property name="orientation">
-             <enum>Qt::Orientation::Vertical</enum>
+          <item row="7" column="1" colspan="2">
+           <widget class="QLabel" name="label_password">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <bold>true</bold>
+             </font>
             </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>100</height>
-             </size>
+            <property name="text">
+             <string>Password</string>
             </property>
-           </spacer>
+           </widget>
+          </item>
+          <item row="8" column="2">
+           <widget class="QToolButton" name="pas1">
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="autoRaise">
+             <bool>true</bool>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -275,33 +285,59 @@
         </item>
         <item row="1" column="0">
          <layout class="QGridLayout" name="gridLayout_10">
+          <item row="9" column="1" colspan="2">
+           <widget class="QLineEdit" name="enter_mail">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>40</height>
+             </size>
+            </property>
+           </widget>
+          </item>
           <item row="13" column="1">
-           <spacer name="verticalSpacer_13">
+           <widget class="QLineEdit" name="enter_password_r1">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>40</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <spacer name="verticalSpacer_16">
             <property name="orientation">
              <enum>Qt::Orientation::Vertical</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
               <width>20</width>
-              <height>200</height>
+              <height>250</height>
              </size>
             </property>
            </spacer>
           </item>
-          <item row="17" column="1">
-           <spacer name="verticalSpacer_15">
+          <item row="10" column="1">
+           <spacer name="verticalSpacer_14">
             <property name="orientation">
              <enum>Qt::Orientation::Vertical</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
               <width>20</width>
-              <height>350</height>
+              <height>100</height>
              </size>
             </property>
            </spacer>
           </item>
-          <item row="5" column="1">
+          <item row="5" column="1" colspan="2">
            <widget class="QLabel" name="label_enter_nickname_2">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
@@ -320,17 +356,45 @@
             </property>
            </widget>
           </item>
-          <item row="15" column="1">
-           <widget class="QLineEdit" name="enter_password_r2">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>40</height>
-             </size>
+          <item row="15" column="1" colspan="2">
+           <widget class="QLabel" name="label_password_4">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Repeat the password</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
+          <item row="14" column="1">
+           <spacer name="verticalSpacer_13">
+            <property name="orientation">
+             <enum>Qt::Orientation::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>200</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="17" column="1" colspan="2">
+           <widget class="QPushButton" name="buttonRegister">
+            <property name="font">
+             <font>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Register</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" colspan="2">
            <widget class="QLabel" name="label_enter_nickname">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
@@ -349,69 +413,7 @@
             </property>
            </widget>
           </item>
-          <item row="12" column="1">
-           <widget class="QLineEdit" name="enter_password_r1">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>40</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLabel" name="label_Register">
-            <property name="font">
-             <font>
-              <family>Century</family>
-              <pointsize>14</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>Register</string>
-            </property>
-           </widget>
-          </item>
-          <item row="10" column="1">
-           <spacer name="verticalSpacer_14">
-            <property name="orientation">
-             <enum>Qt::Orientation::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>100</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="1" column="1">
-           <spacer name="verticalSpacer_16">
-            <property name="orientation">
-             <enum>Qt::Orientation::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>250</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="11" column="1">
-           <widget class="QLabel" name="label_password_3">
-            <property name="font">
-             <font>
-              <pointsize>10</pointsize>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>Enter the password</string>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="1">
+          <item row="6" column="1" colspan="2">
            <widget class="QLineEdit" name="enter_birth_date">
             <property name="sizePolicy">
              <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
@@ -427,39 +429,21 @@
             </property>
            </widget>
           </item>
-          <item row="14" column="1">
-           <widget class="QLabel" name="label_password_4">
-            <property name="font">
-             <font>
-              <pointsize>10</pointsize>
-              <bold>true</bold>
-             </font>
+          <item row="18" column="1" colspan="2">
+           <spacer name="verticalSpacer_15">
+            <property name="orientation">
+             <enum>Qt::Orientation::Vertical</enum>
             </property>
-            <property name="text">
-             <string>Repeat the password</string>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>350</height>
+             </size>
             </property>
-           </widget>
+           </spacer>
           </item>
           <item row="16" column="1">
-           <widget class="QPushButton" name="buttonRegister">
-            <property name="font">
-             <font>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>Register</string>
-            </property>
-           </widget>
-          </item>
-          <item row="9" column="1">
-           <widget class="QLineEdit" name="enter_mail">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
+           <widget class="QLineEdit" name="enter_password_r2">
             <property name="minimumSize">
              <size>
               <width>0</width>
@@ -468,7 +452,20 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
+          <item row="2" column="1" colspan="2">
+           <widget class="QLabel" name="label_Register">
+            <property name="font">
+             <font>
+              <family>Century</family>
+              <pointsize>14</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Register</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1" colspan="2">
            <widget class="QLineEdit" name="enter_nickname_reg">
             <property name="sizePolicy">
              <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
@@ -484,7 +481,20 @@
             </property>
            </widget>
           </item>
-          <item row="8" column="1">
+          <item row="11" column="1" colspan="2">
+           <widget class="QLabel" name="label_password_3">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Enter the password</string>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="1" colspan="2">
            <widget class="QLabel" name="label_enter_nickname_3">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
@@ -500,6 +510,29 @@
             </property>
             <property name="text">
              <string>Enter your mail</string>
+            </property>
+           </widget>
+          </item>
+          <item row="13" column="2">
+           <widget class="QToolButton" name="pas2">
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="autoRaise">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="16" column="2">
+           <widget class="QToolButton" name="pas3">
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="autoRaise">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -587,27 +620,7 @@ QPushButton:pressed {
           </item>
           <item row="1" column="0">
            <layout class="QGridLayout" name="gridLayout_8">
-            <item row="4" column="0">
-             <widget class="QLabel" name="contrasenya">
-              <property name="text">
-               <string>Contraseña:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="0">
-             <spacer name="verticalSpacer_7">
-              <property name="orientation">
-               <enum>Qt::Orientation::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="1" column="0">
+            <item row="1" column="0" colspan="2">
              <spacer name="verticalSpacer_8">
               <property name="orientation">
                <enum>Qt::Orientation::Vertical</enum>
@@ -620,35 +633,35 @@ QPushButton:pressed {
               </property>
              </spacer>
             </item>
-            <item row="5" column="0">
-             <widget class="QLabel" name="nacimiento">
-              <property name="text">
-               <string>Fecha de Nacimiento:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="email">
-              <property name="text">
-               <string>Email:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0">
+            <item row="0" column="0" colspan="2">
              <widget class="QPushButton" name="pushButton">
               <property name="text">
                <string>PushButton</string>
               </property>
              </widget>
             </item>
-            <item row="2" column="0">
+            <item row="2" column="0" colspan="2">
              <widget class="QLabel" name="nombre">
               <property name="text">
                <string>Nombre:</string>
               </property>
              </widget>
             </item>
-            <item row="7" column="0">
+            <item row="5" column="0" colspan="2">
+             <widget class="QLabel" name="nacimiento">
+              <property name="text">
+               <string>Fecha de Nacimiento:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0" colspan="2">
+             <widget class="QLabel" name="email">
+              <property name="text">
+               <string>Email:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="10" column="0" colspan="2">
              <widget class="QPushButton" name="cerrarSesion">
               <property name="font">
                <font>
@@ -665,6 +678,26 @@ QPushButton:pressed {
               </property>
               <property name="text">
                <string>Cerrar Sesión</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="0" colspan="2">
+             <spacer name="verticalSpacer_7">
+              <property name="orientation">
+               <enum>Qt::Orientation::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="4" column="0" colspan="2">
+             <widget class="QLabel" name="contrasenya">
+              <property name="text">
+               <string>Contraseña:</string>
               </property>
              </widget>
             </item>
@@ -1557,6 +1590,48 @@ QToolButton:pressed {
    </property>
   </action>
  </widget>
+ <tabstops>
+  <tabstop>enter_nickname</tabstop>
+  <tabstop>lineEdit_2</tabstop>
+  <tabstop>buttonLogIn</tabstop>
+  <tabstop>pas1</tabstop>
+  <tabstop>enter_nickname_reg</tabstop>
+  <tabstop>enter_birth_date</tabstop>
+  <tabstop>enter_mail</tabstop>
+  <tabstop>enter_password_r1</tabstop>
+  <tabstop>enter_password_r2</tabstop>
+  <tabstop>buttonRegister</tabstop>
+  <tabstop>pas2</tabstop>
+  <tabstop>pas3</tabstop>
+  <tabstop>radioButton</tabstop>
+  <tabstop>verificarButton</tabstop>
+  <tabstop>radioButton_4</tabstop>
+  <tabstop>radioButton_2</tabstop>
+  <tabstop>sidebarButton</tabstop>
+  <tabstop>radioButton_3</tabstop>
+  <tabstop>sigButton</tabstop>
+  <tabstop>nuevaPag</tabstop>
+  <tabstop>cursor</tabstop>
+  <tabstop>lapiz</tabstop>
+  <tabstop>grosorSlider</tabstop>
+  <tabstop>colorButton</tabstop>
+  <tabstop>goma</tabstop>
+  <tabstop>texto</tabstop>
+  <tabstop>marca</tabstop>
+  <tabstop>ojo</tabstop>
+  <tabstop>regla</tabstop>
+  <tabstop>transportador</tabstop>
+  <tabstop>compas</tabstop>
+  <tabstop>zoomOut</tabstop>
+  <tabstop>zoomSlider</tabstop>
+  <tabstop>zoomIn</tabstop>
+  <tabstop>graphicsView</tabstop>
+  <tabstop>cerrarSesion</tabstop>
+  <tabstop>pushButton</tabstop>
+  <tabstop>sidebarButton_2</tabstop>
+  <tabstop>Problema_Random</tabstop>
+  <tabstop>salirPerfil</tabstop>
+ </tabstops>
  <resources>
   <include location="resources.qrc"/>
  </resources>

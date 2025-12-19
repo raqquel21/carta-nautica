@@ -88,6 +88,10 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     connect(ui->cerrarSesion, &QPushButton::clicked, this, [=]() {
+
+        Session s(sessionStart, sessionHits, sessionFaults);
+        nav.addSession(currentUser->nickName(), s);
+
         currentUser = nullptr;
 
         ui->nombre->clear();
@@ -101,6 +105,28 @@ MainWindow::MainWindow(QWidget *parent)
         ui->lineEdit_2->clear();
     });
 
+    // Botones ojo (mostrar/ocultar contraseña)
+    ui->pas1->setIcon(QIcon(":/images/ojoIlum.png"));
+    ui->pas2->setIcon(QIcon(":/images/ojoIlum.png"));
+    ui->pas3->setIcon(QIcon(":/images/ojoIlum.png"));
+
+    connect(ui->pas1, &QToolButton::clicked, this, [=]() {
+        togglePassword(ui->lineEdit_2, ui->pas1); // login
+    });
+
+    connect(ui->pas2, &QToolButton::clicked, this, [=]() {
+        togglePassword(ui->enter_password_r1, ui->pas2); // registro pass 1
+    });
+
+    connect(ui->pas3, &QToolButton::clicked, this, [=]() {
+        togglePassword(ui->enter_password_r2, ui->pas3); // registro pass 2
+    });
+
+    //login y registro con teclado
+    connect(ui->lineEdit_2, &QLineEdit::returnPressed, ui->buttonLogIn, &QPushButton::click);
+
+    connect(ui->enter_password_r2, &QLineEdit::returnPressed, ui->buttonRegister, &QPushButton::click);
+
     // Conexiones botones
     connect(ui->actionPerfil, &QAction::triggered, this, [=]() {
         ui->stackedWidget->setCurrentIndex(2);
@@ -110,6 +136,7 @@ MainWindow::MainWindow(QWidget *parent)
         ui->stackedWidget->setCurrentIndex(3);
         ui->toolBar->show();
     });
+
 
     /* Map button
     bool mapaListo = false;
@@ -349,6 +376,10 @@ void MainWindow::onLogInClicked()
     }
 
     // Si login correcto, mostrar perfil o la pantalla principal
+    sessionHits = 0;
+    sessionFaults = 0;
+    sessionStart = QDateTime::currentDateTime();
+
     ui->stackedWidget->setCurrentIndex(3);
     ui->sidebar_2->setCurrentIndex(0);
     ui->toolBar->show();
@@ -507,6 +538,16 @@ void MainWindow::showNextQuestion()
     }
 }
 
+void MainWindow::togglePassword(QLineEdit *text, QToolButton *button){
+    if (text->echoMode() == QLineEdit::Password) {
+        text->setEchoMode(QLineEdit::Normal);
+        button->setIcon(QIcon(":/images/ojoIlum.png"));
+    } else {
+        text->setEchoMode(QLineEdit::Password);
+        button->setIcon(QIcon(":/images/ojo.png"));
+    }
+}
+
 void MainWindow::checkQuestion()
 {
     Problem &p = problemas[preg_actual];
@@ -537,6 +578,13 @@ void MainWindow::checkQuestion()
             labels[i]->setStyleSheet("color: red; font-size: 18px; font-weight: bold;");
         }
     }
+
+    if (p.answers()[seleccionada].validity()) {
+        sessionHits++;
+    } else {
+        sessionFaults++;
+    }
+
 
     ui->verificarButton->setEnabled(false);
 }

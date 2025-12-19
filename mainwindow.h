@@ -31,6 +31,8 @@
 #include <QEvent>
 #include <QList>
 
+#include <QLineEdit>
+
 #include "usermanager/usermanager.h"
 
 QT_BEGIN_NAMESPACE
@@ -109,6 +111,10 @@ private:
 
     Navigation &nav = Navigation::instance();
     User *currentUser = nullptr;
+    int sessionHits = 0;
+    int sessionFaults = 0;
+    QDateTime sessionStart;
+
 
     UserManager userManager; // gestor de usuarios
 
@@ -127,10 +133,13 @@ private slots:
 
     void toggleSidebar();
 
+    void togglePassword(QLineEdit *text, QToolButton *button);
+
     void listarPreguntas();
     void showNextQuestion();
     void checkQuestion();
     void onNextClicked();
+    //void listarHistorial();
 
     void togglePencil();
     void SliderLapiz(int value);
