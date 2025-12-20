@@ -1,1 +1,61 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="200" height="20" viewBox="0 0 200 20"><rect x="0" y="4" width="180" height="12" rx="6" ry="6" fill="#ddd" stroke="#333" stroke-width="1"/><polygon points="180,10 200,4 200,16" fill="#bbb" stroke="#333" stroke-width="1"/><circle cx="0" cy="10" r="4" fill="#fff" stroke="#333" stroke-width="1"/></svg>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="205"
+   height="13.34403"
+   viewBox="0 0 205 13.34403"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="compass_leg.svg"
+   inkscape:version="1.4.2 (f4327f4, 2025-05-13)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="7.035"
+     inkscape:cx="94.527363"
+     inkscape:cy="3.4825871"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1" />
+  <rect
+     x="4.5"
+     y="0.67201531"
+     width="180"
+     height="12"
+     rx="6"
+     ry="6"
+     fill="#dddddd"
+     stroke="#333333"
+     stroke-width="1"
+     id="rect1" />
+  <polygon
+     points="200,4 200,16 180,10 "
+     fill="#bbbbbb"
+     stroke="#333333"
+     stroke-width="1"
+     id="polygon1"
+     transform="translate(4.5,-3.3279847)" />
+  <circle
+     cx="4.5"
+     cy="6.6720152"
+     r="4"
+     fill="#ffffff"
+     stroke="#333333"
+     stroke-width="1"
+     id="circle1" />
+</svg>

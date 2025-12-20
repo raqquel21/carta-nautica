@@ -58,6 +58,54 @@ private:
     QPointF m_lastMousePos;
     QPointF m_pivotPoint;
 };
+
+// Clase distinta para el compás porque usa dos svgs pero se usan como uno
+class CompassItem : public QGraphicsItemGroup
+{
+public:
+    explicit CompassItem(QGraphicsItem *parent = nullptr);
+
+protected:
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
+
+private:
+    QGraphicsSvgItem *legLeft;
+    QGraphicsSvgItem *legRight;
+
+    enum Mode { None, Moving, Rotating };
+    Mode m_mode = None;
+    bool rotatingLeft = false;
+
+    QPointF lastMousePos;
+    QPointF pivotScenePoint;
+
+    qreal legLeftInitialAngle;
+    qreal legRightInitialAngle;
+    qreal mouseInitialAngle;
+
+    bool rotatingRight;
+    QGraphicsPathItem *currentArc;
+    QPointF pivotScene;       // Centro del arco
+    qreal startAngle = 0;         // Ángulo inicial en grados
+    qreal radius = 0;             // Radio del arco
+    QGraphicsPathItem *arcItem;
+    QPointF tipStart;
+    QPointF dragOffset;
+    QPointF calculateOptimalPivot(QPointF fixedPivot, QPointF movingPoint);
+
+    qreal lastAngle = 0.0;
+    qreal totalAngle = 0.0;
+    bool arcStarted = false;
+    QPainterPath arcPath;
+
+    static qreal normalizeAngleDelta(qreal delta);
+
+
+};
+
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -114,6 +162,9 @@ private:
 
     RotatableSvgItem *rulerSvgItem = nullptr; // Puntero al objeto SVG
     bool svgRulerActive = false;
+
+    CompassItem *compassItem = nullptr;
+
 private slots:
     void onZoomInButtonClicked();
     void onZoomOutButtonClicked();
@@ -140,6 +191,7 @@ private slots:
     void toggleRubber();
     void placeMark();
     void toggleSvgRuler(bool checked);
+    void toggleCompass(bool checked);
     void togglePointExtremes();
     void toggleText();
 

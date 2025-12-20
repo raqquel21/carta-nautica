@@ -1,16 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-
-/*
- * Me falta por añadir:
- *  - Que cuando le des al tabulador del registro se use bien la navegacion en los campos
- *  - Poner el logo del ojo al lado de la barra de password para tener la opcion de ver la contraseña (importante) !
- *  - Poner la bbdd para comprobar el usuario
- *
- *  atte: la rakitraki
- */
-
 #include <QGraphicsColorizeEffect>
 #include <QGraphicsLineItem>
 #include <QGraphicsPathItem>
@@ -170,6 +160,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->ojo, &QToolButton::clicked, this, &MainWindow::togglePointExtremes);
     ui->cursor->setChecked(true);
 
+    connect(ui->compas, &QToolButton::toggled, this, &MainWindow::toggleCompass);
+
 
     auto activateToolButton = [this](QToolButton* buttonToActivate) {
         if (!buttonToActivate->isCheckable()) return;
@@ -250,6 +242,10 @@ MainWindow::MainWindow(QWidget *parent)
     rulerSvgItem = new RotatableSvgItem(":/images/ruler.svg");
     scene->addItem(rulerSvgItem);
     rulerSvgItem->setVisible(false);
+
+    compassItem = new CompassItem();
+    scene->addItem(compassItem);
+    compassItem->setVisible(false);
 
     QTimer *updateTimer = new QTimer(this); //Se usa para actualizar las marcas del 'ojo'
     connect(updateTimer, &QTimer::timeout, this, [=]() {
@@ -597,19 +593,19 @@ void MainWindow::toggleCursor()
 void MainWindow::clearAllDrawings()
 {
     for (QGraphicsItem *item : scene->items()) {
-        // Si el objeto NO es el mapa, lo borramos
         if (item != mapItem
-            && (item->type() == QGraphicsPathItem::Type || item->type() == QGraphicsPixmapItem::Type
-                ||                                         // Chinchetas
-                item->type() == QGraphicsLineItem::Type || // Reglas
-                item->type() == QGraphicsTextItem::Type
-                || item->type() == QGraphicsItemGroup::Type)) { // Textos
+            && (item->type() == QGraphicsPathItem::Type
+                || item->type() == QGraphicsPixmapItem::Type
+                || item->type() == QGraphicsLineItem::Type
+                || item->type() == QGraphicsTextItem::Type
+                || item->type() == QGraphicsItemGroup::Type)) {
 
             scene->removeItem(item);
             delete item;
         }
     }
 }
+
 
 void MainWindow::confirmAndClearAllDrawings()
 {
@@ -795,6 +791,179 @@ void RotatableSvgItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 
     if(event) QGraphicsSvgItem::hoverMoveEvent(event);
 }
+
+// Toda la parte del compas: -----
+void MainWindow::toggleCompass(bool checked)
+{
+    if (checked) {
+        // Apagar modos de dibujo
+        drawingMode = false;
+        erasingMode = false;
+        markingMode = false;
+        measuringMode = false;
+        textMode = false;
+
+        // Ocultar regla si estaba activa
+        if (rulerSvgItem) {
+            rulerSvgItem->setVisible(false);
+            svgRulerActive = false;
+        }
+
+        compassItem->setVisible(true);
+        ui->graphicsView->setDragMode(QGraphicsView::NoDrag);
+        ui->graphicsView->setCursor(Qt::OpenHandCursor);
+    }
+    else {
+        compassItem->setVisible(false);
+        toggleCursor();
+    }
+}
+
+
+CompassItem::CompassItem(QGraphicsItem *parent)
+    : QGraphicsItemGroup(parent)
+{
+    legLeft  = new QGraphicsSvgItem(":/images/compass_leg.svg");
+    legRight = new QGraphicsSvgItem(":/images/compass_leg.svg");
+
+    addToGroup(legLeft);
+    addToGroup(legRight);
+
+    legLeft->setPos(0, 0);
+    legRight->setPos(0, 0);
+
+    QRectF r = legLeft->boundingRect();
+    qDebug() << "BoundingRect:" << r;
+
+    QPointF pivot(0, r.height() / 2.0);
+
+    legLeft->setTransformOriginPoint(pivot);
+    legRight->setTransformOriginPoint(pivot);
+
+    legLeft->setRotation(90 -15);
+    legRight->setRotation(90 +15);
+
+    legLeft->setAcceptHoverEvents(true);
+    legRight->setAcceptHoverEvents(true);
+
+    setHandlesChildEvents(true);
+    setFlags(QGraphicsItem::ItemIsSelectable);
+
+    arcItem = new QGraphicsPathItem(this);
+    QPen pen(Qt::blue);
+    pen.setWidth(2);
+    arcItem->setPen(pen);
+
+    double scaleFactor = 1.75;
+    setScale(scaleFactor);
+
+    setData(Qt::UserRole, "tool_compass");
+}
+
+QPointF CompassItem::calculateOptimalPivot(QPointF fixedPivot, QPointF movingPoint)
+{
+    // Vector desde pivote fijo a la punta móvil
+    QPointF vec = movingPoint - fixedPivot;
+
+    // Queremos que la punta móvil esté "arriba" (y negativo en Y es hacia arriba en Qt)
+    if (vec.y() > 0) {
+        // Invertimos la apertura para mantener la punta arriba
+        vec.setY(-vec.y());
+    }
+
+    return fixedPivot + vec;
+}
+
+
+void CompassItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    QPointF pos = event->scenePos();
+    lastMousePos = pos;
+
+    QGraphicsItem* clicked = scene()->itemAt(pos, QTransform());
+    if (!clicked) return;
+    QPointF local = mapFromScene(pos);
+    if (clicked == legLeft) {
+        m_mode = Rotating;
+        rotatingLeft = true;
+
+        // Guardamos ángulo inicial de la pata
+        legLeftInitialAngle = legLeft->rotation();
+
+        // Pivote fijo: pata derecha
+        pivotScene = legRight->mapToScene(legRight->transformOriginPoint());
+
+        // Ángulo inicial del ratón respecto al pivote
+        QLineF line(pivotScene, pos);
+        mouseInitialAngle = line.angle();
+        startAngle = line.angle();
+
+        // Guardamos posición inicial de la punta que dibuja
+        QRectF legRect = legLeft->boundingRect();
+        tipStart = legLeft->mapToScene(legRect.topRight());
+
+        // Preparamos QGraphicsPathItem para dibujar el arco
+        currentArc = new QGraphicsPathItem();
+        currentArc->setPen(QPen(Qt::blue, 2));
+        scene()->addItem(currentArc);
+    }
+    else {
+        // Cualquier otra zona → mover todo el compás
+        m_mode = Moving;
+        dragOffset = local;
+    }
+
+    event->accept();
+}
+
+void CompassItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    QPointF pos = event->scenePos();
+
+    if (m_mode == Moving) {
+        // Colocamos el compás manteniendo el punto de agarre bajo el ratón
+        setPos(pos - dragOffset);
+    }
+    else if (m_mode == Rotating && rotatingLeft) {
+        QLineF line(pivotScene, pos);
+        qreal currentAngle = line.angle();
+        qreal deltaAngle = currentAngle - mouseInitialAngle;
+
+        legLeft->setRotation(legLeftInitialAngle - deltaAngle);
+
+        QRectF legRect = legLeft->boundingRect();
+        QPointF tipCurrent = legLeft->mapToScene(legRect.topRight());
+
+        qreal radius = QLineF(pivotScene, tipCurrent).length();
+
+        QRectF arcRect(pivotScene.x() - radius,
+                       pivotScene.y() - radius,
+                       2 * radius,
+                       2 * radius);
+
+        qreal start = QLineF(pivotScene, tipStart).angle();
+        qreal span  = QLineF(pivotScene, tipCurrent).angle() - start;
+
+        QPainterPath path;
+        path.arcMoveTo(arcRect, start);
+        path.arcTo(arcRect, start, span);
+
+        currentArc->setPath(path);
+    }
+
+    event->accept();
+}
+
+void CompassItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    // Resetear todo al soltar el ratón
+    m_mode = None;
+    rotatingLeft = false;
+    currentArc = nullptr;
+    event->accept();
+}
+
+// -------
 
 void MainWindow::hidePointExtremes()
 {
@@ -1005,6 +1174,9 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                     return true;
                 }
                 // --------------------------
+                if (item && item->data(Qt::UserRole).toString() == "tool_compass") {
+                    return true;
+                }
 
                 // Condición original de borrado
                 if (item && item != mapItem
