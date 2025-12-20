@@ -33,6 +33,8 @@
 #include <QShortcut>
 #include <QMessageBox>
 
+#include <QFileDialog>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -299,6 +301,27 @@ MainWindow::MainWindow(QWidget *parent)
         ui->stackedWidget->setCurrentIndex(4);
         ui->toolBar->hide();
     });
+
+
+    //PERFIL IMAGE
+
+    // Dentro de MainWindow::MainWindow, después de configurar el PerfilImage->setStyleSheet(...)
+    connect(ui->PerfilImage, &QPushButton::clicked, this, &MainWindow::SeleccionarImagenPerfil);
+    // Forzamos el tamaño para que el círculo (radius 60) sea perfecto
+    ui->PerfilImage->setFixedSize(120, 120);
+
+    // Aplicamos el estilo inicial con la imagen "default"
+    ui->PerfilImage->setStyleSheet(
+        "QPushButton {"
+        "   border: 2px solid #555;"
+        "   border-radius: 60px;"
+        "   background-color: white;"
+        "   border-image: url(:/images/userIcono.png) 0 0 0 0 stretched stretched;"
+        "}"
+        "QPushButton:hover {"
+        "   border-color: #3498db;"
+        "}"
+        );
 }
 
 
@@ -451,6 +474,67 @@ void MainWindow::onRegisterClicked()
 
     // Cambiar a la pantalla de perfil
     ui->stackedWidget->setCurrentIndex(2);
+}
+
+
+
+void MainWindow::SeleccionarImagenPerfil() {
+    QString filePath = QFileDialog::getOpenFileName(this,
+                                                    tr("Seleccionar Imagen de Perfil"), "",
+                                                    tr("Imágenes (*.png *.jpg *.jpeg *.bmp)"));
+
+    if (!filePath.isEmpty()) {
+        // 1. Convertimos la ruta para evitar errores en Windows
+        QString safePath = QDir::fromNativeSeparators(filePath);
+
+        // 2. Aplicamos el estilo inyectando la variable %1
+        ui->PerfilImage->setStyleSheet(QString(
+                                           "QPushButton {"
+                                           "   border: 2px solid #555;"
+                                           "   border-radius: 60px;"
+                                           "   background-color: white;"
+                                           "   border-image: url(%1) 0 0 0 0 stretched stretched;" // <--- %1 es la clave
+                                           "}"
+                                           "QPushButton:hover {"
+                                           "   border-color: #3498db;"
+                                           "}"
+                                           ).arg(safePath)); // .arg() rellena el %1 con safePath
+
+        // 3. Guardar en el objeto y en la Base de Datos
+        if (currentUser) {
+            currentUser->setAvatar(QImage(filePath)); //
+            nav.updateUser(*currentUser);             //
+            qDebug() << "Imagen guardada para el usuario:" << currentUser->nickName();
+        }
+    }
+}
+void MainWindow::actualizarFotoPerfil(const QString &path) {
+    // 1. Convertir ruta para que CSS no falle en Windows (\ -> /)
+    QString safePath = QDir::fromNativeSeparators(path);
+
+    // 2. Aplicar el Estilo (Esto quita el default y pone la nueva foto redonda)
+    ui->PerfilImage->setStyleSheet(QString(
+                                       "QPushButton {"
+                                       "   border: 2px solid #555;"
+                                       "   border-radius: 60px;" /* Mitad de 120px */
+                                       "   background-color: white;"
+                                       "   border-image: url(%1) 0 0 0 0 stretched stretched;"
+                                       "}"
+                                       "QPushButton:hover {"
+                                       "   border-color: #3498db;"
+                                       "}"
+                                       ).arg(safePath));
+
+    // 3. Guardar en el objeto y en la Base de Datos
+    if (currentUser) {
+        // Guardamos la imagen en el objeto User (en memoria)
+        currentUser->setAvatar(QImage(path));
+
+        // Sincronizamos con la BBDD (Persistencia real)
+        nav.updateUser(*currentUser);
+
+        qDebug() << "Imagen actualizada y guardada para:" << currentUser->nickName();
+    }
 }
 
 void MainWindow::toggleSidebar()
