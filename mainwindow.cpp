@@ -39,6 +39,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    showMaximized();
+
     //cargar problemas
     problemas = nav.problems();
 
@@ -288,6 +290,15 @@ MainWindow::MainWindow(QWidget *parent)
         }
     });
     updateTimer->start(50); // cada 50 ms revisa la posición
+
+
+    //HISTORIAL
+    connect(ui->actionHistorial, &QAction::triggered, this, [=]{
+        mostrarHistorial();
+
+        ui->stackedWidget->setCurrentIndex(4);
+        ui->toolBar->hide();
+    });
 }
 
 
@@ -587,6 +598,50 @@ void MainWindow::checkQuestion()
 
 
     ui->verificarButton->setEnabled(false);
+}
+
+void MainWindow::mostrarHistorial(){
+    ui->tableHistorial->clearContents();
+    ui->tableHistorial->setRowCount(0);
+
+    ui->tableHistorial->setColumnCount(3);
+    ui->tableHistorial->setHorizontalHeaderLabels(
+        {"FECHA", "ACIERTOS", "FALLOS"}
+        );
+
+    if (!currentUser)
+        return;
+
+    const QVector<Session> &sessions = currentUser->sessions();
+
+    ui->tableHistorial->setRowCount(sessions.size());
+
+    for (int i = 0; i < sessions.size(); ++i) {
+        const Session &s = sessions[i];
+
+        QTableWidgetItem *fecha =
+            new QTableWidgetItem(s.timeStamp().toString("dd/MM/yyyy hh:mm"));
+
+        QTableWidgetItem *aciertos =
+            new QTableWidgetItem(QString::number(s.hits()));
+
+        QTableWidgetItem *fallos =
+            new QTableWidgetItem(QString::number(s.faults()));
+
+        fecha->setTextAlignment(Qt::AlignCenter);
+        aciertos->setTextAlignment(Qt::AlignCenter);
+        fallos->setTextAlignment(Qt::AlignCenter);
+
+        ui->tableHistorial->setItem(i, 0, fecha);
+        ui->tableHistorial->setItem(i, 1, aciertos);
+        ui->tableHistorial->setItem(i, 2, fallos);
+    }
+
+    // Ajustes visuales bonitos
+    ui->tableHistorial->horizontalHeader()->setStretchLastSection(true);
+    ui->tableHistorial->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->tableHistorial->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->tableHistorial->setSelectionMode(QAbstractItemView::NoSelection);
 }
 
 
