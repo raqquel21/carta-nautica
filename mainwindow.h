@@ -78,6 +78,9 @@ private:
 
     QList<QToolButton *> exclusiveButtons;
 
+    void actualizarFotoBoton(QPushButton *boton, const QImage &img);
+    QString rutaImagenRegistro;
+
     double scale = 1;
     int grosorLapiz;
     QColor currentColor = Qt::red;
@@ -139,6 +142,8 @@ private slots:
     void checkQuestion();
     void onNextClicked();
     void mostrarHistorial();
+
+    void SeleccionarImagenPerfil();
 
     void togglePencil();
     void SliderLapiz(int value);
