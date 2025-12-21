@@ -23,12 +23,8 @@
 #include <QMessageBox>
 #include <QShortcut>
 
-<<<<<<< HEAD
 #include <QFileDialog>
-=======
 #define DBG qDebug().noquote() << "[COMPASS]"
-
->>>>>>> rama-raquel
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
