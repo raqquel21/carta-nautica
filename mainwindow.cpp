@@ -538,16 +538,29 @@ void MainWindow::onNextClicked()
 
 void MainWindow::showNextQuestion()
 {
+
+    const Problem &p = problemas[preg_actual];
+
     ui->res1->setText("");
     ui->res2->setText("");
     ui->res3->setText("");
     ui->res4->setText("");
     ui->verificarButton->setEnabled(true);
 
+    QLabel *labels[] = {ui->res1, ui->res2, ui->res3, ui->res4};
+
+    for (int i = 0; i < p.answers().size(); ++i) {
+        respbotones[i]->setProperty("class", "");
+        labels[i]->setProperty("class", "");
+        respbotones[i]->style()->unpolish(respbotones[i]);
+        respbotones[i]->style()->polish(respbotones[i]);
+        labels[i]->style()->unpolish(labels[i]);
+        labels[i]->style()->polish(labels[i]);
+    }
+
     if (preg_actual >= problemas.size())
         preg_actual = 0; // reiniciar si llegamos al final
 
-    const Problem &p = problemas[preg_actual];
 
     ui->enunciadoLabel->setText(p.text());
 
@@ -594,15 +607,24 @@ void MainWindow::checkQuestion()
 
     for (int i = 0; i < p.answers().size(); ++i) {
         if (p.answers()[i].validity()) {
-            respbotones[i]->setStyleSheet("color: green; font-weight: bold;");
             labels[i]->setText("✓");
-            labels[i]->setStyleSheet("color: green; font-size: 18px; font-weight: bold;");
+            respbotones[i]->setProperty("class", "correct-answer");
+            labels[i]->setProperty("class", "correct-answer");
         } else if (i == seleccionada) {
-            respbotones[i]->setStyleSheet("color: red; font-weight: bold;");
             labels[i]->setText("✗");
-            labels[i]->setStyleSheet("color: red; font-size: 18px; font-weight: bold;");
+            respbotones[i]->setProperty("class", "incorrect-answer");
+            labels[i]->setProperty("class", "incorrect-answer");
         }
+        // Forzar actualización del estilo después de cambiar la propiedad
+        respbotones[i]->style()->unpolish(respbotones[i]);
+        respbotones[i]->style()->polish(respbotones[i]);
+        respbotones[i]->update();
+
+        labels[i]->style()->unpolish(labels[i]);
+        labels[i]->style()->polish(labels[i]);
+        labels[i]->update();
     }
+
 
     if (p.answers()[seleccionada].validity()) {
         sessionHits++;
