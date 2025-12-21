@@ -79,6 +79,9 @@ private:
     QList<QToolButton*> exclusiveButtons;
 
     void actualizarFotoPerfil(const QString &path);
+    void actualizarInterfazUsuario();
+    void setBotonCircular(QPushButton *boton, const QImage &img);
+    QString rutaImagenRegistro;
 
     double scale = 1;
     int grosorLapiz;

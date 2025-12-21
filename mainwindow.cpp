@@ -92,21 +92,31 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     connect(ui->cerrarSesion, &QPushButton::clicked, this, [=]() {
+        // 1. Guardar la sesión en la base de datos si hay un usuario activo
+        if (currentUser) {
+            // Creamos el objeto sesión con los datos acumulados
+            Session s(sessionStart, sessionHits, sessionFaults);
+            // Lo añadimos a través de la clase Navigation para que persista en el DAO
+            nav.addSession(currentUser->nickName(), s);
+        }
 
-        Session s(sessionStart, sessionHits, sessionFaults);
-        nav.addSession(currentUser->nickName(), s);
-
+        // 2. Limpiar el estado del programa
         currentUser = nullptr;
+        rutaImagenRegistro.clear(); // Limpiamos la ruta temporal del registro
 
+        // 3. Limpiar los campos de la interfaz para que no se vean al volver a entrar
         ui->nombre->clear();
         ui->nacimiento->clear();
         ui->email->clear();
         ui->contrasenya->clear();
-
-        ui->stackedWidget->setCurrentIndex(0); // Volvemos a la pantalla de login
-        ui->toolBar->hide();                    // Ocultamos la toolbar
         ui->enter_nickname->clear();
         ui->lineEdit_2->clear();
+
+        // 4. Cambiar a la página de Registro (Índice 1 según tu .ui)
+        ui->stackedWidget->setCurrentIndex(0);
+
+        // 5. Ocultar la barra de herramientas en la pantalla de bienvenida/registro
+        ui->toolBar->hide();
     });
 
     // Botones ojo (mostrar/ocultar contraseña)
@@ -307,13 +317,28 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Dentro de MainWindow::MainWindow, después de configurar el PerfilImage->setStyleSheet(...)
     connect(ui->PerfilImage, &QPushButton::clicked, this, &MainWindow::SeleccionarImagenPerfil);
+    connect(ui->PerfilImageRegister, &QPushButton::clicked, this, &MainWindow::SeleccionarImagenPerfil);
     // Forzamos el tamaño para que el círculo (radius 60) sea perfecto
     ui->PerfilImage->setFixedSize(120, 120);
+    ui->PerfilImageRegister->setFixedSize(120, 120);
+    ui->gridLayout_8->setAlignment(ui->PerfilImage, Qt::AlignCenter);
 
     // Aplicamos el estilo inicial con la imagen "default"
     ui->PerfilImage->setStyleSheet(
         "QPushButton {"
-        "   border: 2px solid #555;"
+        "   border: 10px solid #555;"
+        "   border-radius: 60px;"
+        "   background-color: white;"
+        "   border-image: url(:/images/userIcono.png) 0 0 0 0 stretched stretched;"
+        "}"
+        "QPushButton:hover {"
+        "   border-color: #3498db;"
+        "}"
+    );
+
+    ui->PerfilImageRegister->setStyleSheet(
+        "QPushButton {"
+        "   border: 10px solid #555;"
         "   border-radius: 60px;"
         "   background-color: white;"
         "   border-image: url(:/images/userIcono.png) 0 0 0 0 stretched stretched;"
@@ -322,6 +347,8 @@ MainWindow::MainWindow(QWidget *parent)
         "   border-color: #3498db;"
         "}"
         );
+
+    rutaImagenRegistro = "";
 }
 
 
@@ -402,11 +429,24 @@ void MainWindow::onLogInClicked()
     //Users *u = userManager.authenticate(nickname, password);
 
     User *u = nav.authenticate(nickname, password);
-    currentUser = u;
 
-    if (!u) {
+    if (u) {
+        currentUser = u;
+
+            // 1. Cargamos la foto correctamente usando la maestra
+            setBotonCircular(ui->PerfilImage, u->avatar());
+
+            // 2. Actualizamos los textos de la interfaz
+            ui->nombre->setText("Nickname: " + u->nickName());
+            ui->nacimiento->setText("Date birth: " + u->birthdate().toString("dd/MM/yyyy"));
+            ui->email->setText("Email: " + u->email());
+            ui->contrasenya->setText("Password: " + u->password());
+
+            ui->stackedWidget->setCurrentIndex(3);
+            ui->sidebar_2->setCurrentIndex(0);
+            ui->toolBar->show();
+    } else {
         QMessageBox::warning(this, "Login incorrecto", "Nombre o contraseña incorrectos.");
-        return;
     }
 
     // Si login correcto, mostrar perfil o la pantalla principal
@@ -455,16 +495,18 @@ void MainWindow::onRegisterClicked()
         return;
     }
 
-    // Crear usuario
-    QImage avatar(":/images/userIcono.png"); // avatar por defecto
-
-    //usuarios raquel:
-    //Users newUser(nameReg, mail, password1, avatar, fecha);
-    //userManager.addUser(newUser);
+    QImage avatarFinal;
+    if (!rutaImagenRegistro.isEmpty()) {
+        avatarFinal.load(rutaImagenRegistro);
+    } else {
+        avatarFinal.load(":/images/userIcono.png"); // Imagen por defecto
+    }
 
     //añadir a bbdd
-    User u(nameReg, mail, password1, avatar, fecha);
+    User u(nameReg, mail, password1, avatarFinal, fecha);
     nav.addUser(u);
+
+    rutaImagenRegistro.clear();
 
     // Mostrar info en perfil
     ui->nombre->setText("Nickname: " + u.nickName());
@@ -474,37 +516,47 @@ void MainWindow::onRegisterClicked()
 
     // Cambiar a la pantalla de perfil
     ui->stackedWidget->setCurrentIndex(2);
+
+    // Establece el usuario
+    currentUser = nav.findUser(nameReg);
 }
 
+void MainWindow::setBotonCircular(QPushButton *boton, const QImage &img) {
+    if (img.isNull()) return;
 
+    // Convertimos la imagen a Base64 (así funciona igual para DB que para archivo)
+    QByteArray ba;
+    QBuffer bu(&ba);
+    bu.open(QIODevice::WriteOnly);
+    img.save(&bu, "PNG");
+    QString base64 = ba.toBase64();
+
+    boton->setIcon(QIcon()); // Limpiamos icono siempre
+    boton->setStyleSheet(QString(
+                             "QPushButton {"
+                             "   border: 2px solid #555;"
+                             "   border-radius: 60px;" // Ajusta a la mitad de tu botón
+                             "   background-color: white;"
+                             "   border-image: url(data:image/png;base64,%1) 0 0 0 0 stretched stretched;"
+                             "}"
+                             ).arg(base64));
+}
 
 void MainWindow::SeleccionarImagenPerfil() {
-    QString filePath = QFileDialog::getOpenFileName(this,
-                                                    tr("Seleccionar Imagen de Perfil"), "",
-                                                    tr("Imágenes (*.png *.jpg *.jpeg *.bmp)"));
+    QPushButton *botonEmisor = qobject_cast<QPushButton*>(sender());
+    QString filePath = QFileDialog::getOpenFileName(this, tr("Seleccionar Imagen"), "", tr("Imágenes (*.png *.jpg *.jpeg)"));
 
     if (!filePath.isEmpty()) {
-        // 1. Convertimos la ruta para evitar errores en Windows
-        QString safePath = QDir::fromNativeSeparators(filePath);
+        QImage nuevaImg(filePath);
 
-        // 2. Aplicamos el estilo inyectando la variable %1
-        ui->PerfilImage->setStyleSheet(QString(
-                                           "QPushButton {"
-                                           "   border: 2px solid #555;"
-                                           "   border-radius: 60px;"
-                                           "   background-color: white;"
-                                           "   border-image: url(%1) 0 0 0 0 stretched stretched;" // <--- %1 es la clave
-                                           "}"
-                                           "QPushButton:hover {"
-                                           "   border-color: #3498db;"
-                                           "}"
-                                           ).arg(safePath)); // .arg() rellena el %1 con safePath
+        // Aplicamos el círculo correctamente
+        setBotonCircular(botonEmisor, nuevaImg);
 
-        // 3. Guardar en el objeto y en la Base de Datos
-        if (currentUser) {
-            currentUser->setAvatar(QImage(filePath)); //
-            nav.updateUser(*currentUser);             //
-            qDebug() << "Imagen guardada para el usuario:" << currentUser->nickName();
+        if (currentUser && botonEmisor == ui->PerfilImage) {
+            currentUser->setAvatar(nuevaImg);
+            nav.updateUser(*currentUser);
+        } else if (botonEmisor == ui->PerfilImageRegister) {
+            rutaImagenRegistro = filePath;
         }
     }
 }
@@ -515,7 +567,7 @@ void MainWindow::actualizarFotoPerfil(const QString &path) {
     // 2. Aplicar el Estilo (Esto quita el default y pone la nueva foto redonda)
     ui->PerfilImage->setStyleSheet(QString(
                                        "QPushButton {"
-                                       "   border: 2px solid #555;"
+                                       "   border: 10px solid #555;"
                                        "   border-radius: 60px;" /* Mitad de 120px */
                                        "   background-color: white;"
                                        "   border-image: url(%1) 0 0 0 0 stretched stretched;"
@@ -535,6 +587,12 @@ void MainWindow::actualizarFotoPerfil(const QString &path) {
 
         qDebug() << "Imagen actualizada y guardada para:" << currentUser->nickName();
     }
+}
+void MainWindow::actualizarInterfazUsuario() {
+    if (!currentUser) return; //
+
+    // Llamamos a la función maestra con la imagen almacenada en el objeto User
+    setBotonCircular(ui->PerfilImage, currentUser->avatar()); //
 }
 
 void MainWindow::toggleSidebar()
