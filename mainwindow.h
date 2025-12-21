@@ -27,9 +27,9 @@
 #include <QPointF>                  // Necesario para QPointF
 #include <QtMath>                   // Necesario para qRadiansToDegrees y atan2
 
-#include <QToolButton>
 #include <QEvent>
 #include <QList>
+#include <QToolButton>
 
 #include <QLineEdit>
 
@@ -124,7 +124,7 @@ private:
 
     QGraphicsPixmapItem *mapItem = nullptr;
 
-    QList<QToolButton*> exclusiveButtons;
+    QList<QToolButton *> exclusiveButtons;
 
     double scale = 1;
     int grosorLapiz;
@@ -162,7 +162,6 @@ private:
     int sessionHits = 0;
     int sessionFaults = 0;
     QDateTime sessionStart;
-
 
     UserManager userManager; // gestor de usuarios
 

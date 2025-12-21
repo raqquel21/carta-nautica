@@ -20,8 +20,11 @@
 #include <QColor>
 #include <QColorDialog>
 
-#include <QShortcut>
 #include <QMessageBox>
+#include <QShortcut>
+
+#define DBG qDebug().noquote() << "[COMPASS]"
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -80,7 +83,6 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     connect(ui->cerrarSesion, &QPushButton::clicked, this, [=]() {
-
         Session s(sessionStart, sessionHits, sessionFaults);
         nav.addSession(currentUser->nickName(), s);
 
@@ -92,7 +94,7 @@ MainWindow::MainWindow(QWidget *parent)
         ui->contrasenya->clear();
 
         ui->stackedWidget->setCurrentIndex(0); // Volvemos a la pantalla de login
-        ui->toolBar->hide();                    // Ocultamos la toolbar
+        ui->toolBar->hide();                   // Ocultamos la toolbar
         ui->enter_nickname->clear();
         ui->lineEdit_2->clear();
     });
@@ -117,7 +119,10 @@ MainWindow::MainWindow(QWidget *parent)
     //login y registro con teclado
     connect(ui->lineEdit_2, &QLineEdit::returnPressed, ui->buttonLogIn, &QPushButton::click);
 
-    connect(ui->enter_password_r2, &QLineEdit::returnPressed, ui->buttonRegister, &QPushButton::click);
+    connect(ui->enter_password_r2,
+            &QLineEdit::returnPressed,
+            ui->buttonRegister,
+            &QPushButton::click);
 
     // Conexiones botones
     connect(ui->actionPerfil, &QAction::triggered, this, [=]() {
@@ -128,7 +133,6 @@ MainWindow::MainWindow(QWidget *parent)
         ui->stackedWidget->setCurrentIndex(3);
         ui->toolBar->show();
     });
-
 
     /* Map button
     bool mapaListo = false;
@@ -165,23 +169,23 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->colorButton, &QToolButton::clicked, this, &MainWindow::cambiarColor);
 
-    exclusiveButtons << ui->lapiz
-                     << ui->cursor
-                     << ui->goma
-                     << ui->texto
-                     << ui->marca;
+    exclusiveButtons << ui->lapiz << ui->cursor << ui->goma << ui->texto << ui->marca;
     //<< ui->regla;
-
 
     for (QToolButton *button : exclusiveButtons) {
         button->installEventFilter(this);
 
-        if (button == ui->lapiz) connect(button, &QToolButton::toggled, this, &MainWindow::togglePencil);
-        if (button == ui->cursor) connect(button, &QToolButton::toggled, this, &MainWindow::toggleCursor);
-        if (button == ui->goma) connect(button, &QToolButton::toggled, this, &MainWindow::toggleRubber);
-        if (button == ui->marca) connect(button, &QToolButton::toggled, this, &MainWindow::placeMark);
+        if (button == ui->lapiz)
+            connect(button, &QToolButton::toggled, this, &MainWindow::togglePencil);
+        if (button == ui->cursor)
+            connect(button, &QToolButton::toggled, this, &MainWindow::toggleCursor);
+        if (button == ui->goma)
+            connect(button, &QToolButton::toggled, this, &MainWindow::toggleRubber);
+        if (button == ui->marca)
+            connect(button, &QToolButton::toggled, this, &MainWindow::placeMark);
         //if (button == ui->regla) connect(button, &QToolButton::toggled, this, &MainWindow::toggleSvgRuler);
-        if (button == ui->texto) connect(button, &QToolButton::toggled, this, &MainWindow::toggleText);
+        if (button == ui->texto)
+            connect(button, &QToolButton::toggled, this, &MainWindow::toggleText);
     }
 
     connect(ui->regla, &QToolButton::toggled, this, &MainWindow::toggleSvgRuler);
@@ -190,11 +194,12 @@ MainWindow::MainWindow(QWidget *parent)
     ui->cursor->setChecked(true);
 
     connect(ui->compas, &QToolButton::toggled, this, &MainWindow::toggleCompass);
+    connect(ui->transportador, &QToolButton::toggled, this, &MainWindow::toggleSvgProtractor);
 
 
-    auto activateToolButton = [this](QToolButton* buttonToActivate) {
-        if (!buttonToActivate->isCheckable()) return;
-
+    auto activateToolButton = [this](QToolButton *buttonToActivate) {
+        if (!buttonToActivate->isCheckable())
+            return;
         if (buttonToActivate->isChecked()) {
             buttonToActivate->setChecked(false);
             ui->cursor->setChecked(true); // Activa el cursor
@@ -215,39 +220,27 @@ MainWindow::MainWindow(QWidget *parent)
 
     // --- Atajo para Cursor (1) ---
     QShortcut *cursorShortcut = new QShortcut(QKeySequence(Qt::Key_1), this);
-    connect(cursorShortcut, &QShortcut::activated, this, [=]() {
-        activateToolButton(ui->cursor);
-    });
+    connect(cursorShortcut, &QShortcut::activated, this, [=]() { activateToolButton(ui->cursor); });
 
     // --- Atajo para Lápiz (2) ---
     QShortcut *pencilShortcut = new QShortcut(QKeySequence(Qt::Key_2), this);
-    connect(pencilShortcut, &QShortcut::activated, this, [=]() {
-        activateToolButton(ui->lapiz);
-    });
+    connect(pencilShortcut, &QShortcut::activated, this, [=]() { activateToolButton(ui->lapiz); });
 
     // --- Atajo para Goma (3) ---
     QShortcut *rubberShortcut = new QShortcut(QKeySequence(Qt::Key_3), this);
-    connect(rubberShortcut, &QShortcut::activated, this, [=]() {
-        activateToolButton(ui->goma);
-    });
+    connect(rubberShortcut, &QShortcut::activated, this, [=]() { activateToolButton(ui->goma); });
 
     // --- Atajo para Texto (4) ---
     QShortcut *textShortcut = new QShortcut(QKeySequence(Qt::Key_4), this);
-    connect(textShortcut, &QShortcut::activated, this, [=]() {
-        activateToolButton(ui->texto);
-    });
+    connect(textShortcut, &QShortcut::activated, this, [=]() { activateToolButton(ui->texto); });
 
     // --- Atajo para Marca (5) ---
     QShortcut *markShortcut = new QShortcut(QKeySequence(Qt::Key_5), this);
-    connect(markShortcut, &QShortcut::activated, this, [=]() {
-        activateToolButton(ui->marca);
-    });
+    connect(markShortcut, &QShortcut::activated, this, [=]() { activateToolButton(ui->marca); });
 
     // --- Atajo para Regla (6) ---
     QShortcut *rulerShortcut = new QShortcut(QKeySequence(Qt::Key_6), this);
-    connect(rulerShortcut, &QShortcut::activated, this, [=]() {
-        activateToolButton(ui->regla);
-    });
+    connect(rulerShortcut, &QShortcut::activated, this, [=]() { activateToolButton(ui->regla); });
 
     QShortcut *deleteShortcut = new QShortcut(QKeySequence(Qt::Key_Delete), this);
     connect(deleteShortcut, &QShortcut::activated, this, &MainWindow::confirmAndClearAllDrawings);
@@ -276,6 +269,9 @@ MainWindow::MainWindow(QWidget *parent)
     scene->addItem(compassItem);
     compassItem->setVisible(false);
 
+
+
+
     QTimer *updateTimer = new QTimer(this); //Se usa para actualizar las marcas del 'ojo'
     connect(updateTimer, &QTimer::timeout, this, [=]() {
         if (eyeActive) {
@@ -287,9 +283,8 @@ MainWindow::MainWindow(QWidget *parent)
     });
     updateTimer->start(50); // cada 50 ms revisa la posición
 
-
     //HISTORIAL
-    connect(ui->actionHistorial, &QAction::triggered, this, [=]{
+    connect(ui->actionHistorial, &QAction::triggered, this, [=] {
         mostrarHistorial();
 
         ui->stackedWidget->setCurrentIndex(4);
@@ -297,9 +292,8 @@ MainWindow::MainWindow(QWidget *parent)
     });
 }
 
-
-void MainWindow::setupMap() //funcion para hacer los cambios al mapa
-{}
+// void MainWindow::setupMap() //funcion para hacer los cambios al mapa
+// {}
 
 MainWindow::~MainWindow()
 {
@@ -418,13 +412,17 @@ void MainWindow::onRegisterClicked()
 
     QDate fecha = QDate::fromString(birthDate, "dd/MM/yyyy");
     if (!fecha.isValid()) {
-        QMessageBox::warning(this, "Fecha inválida", "Introduce una fecha válida en formato dd/MM/yyyy.");
+        QMessageBox::warning(this,
+                             "Fecha inválida",
+                             "Introduce una fecha válida en formato dd/MM/yyyy.");
         return;
     }
 
     QRegularExpression emailRegex(R"((^[^\s@]+@[^\s@]+\.[^\s@]+$))");
     if (!emailRegex.match(mail).hasMatch()) {
-        QMessageBox::warning(this, "Email inválido", "Introduce un email válido (ej: usuario@dominio.com).");
+        QMessageBox::warning(this,
+                             "Email inválido",
+                             "Introduce un email válido (ej: usuario@dominio.com).");
         return;
     }
 
@@ -494,19 +492,23 @@ void MainWindow::toggleSidebar()
 
 void MainWindow::listarPreguntas()
 {
-    for (int i = 0; i < problemas.size(); i++) {
-        QPushButton *butt = new QPushButton(this);
+    ui->listWidgetPreguntas->clear();
 
-        butt->setText(QString("Pregunta %1").arg(i + 1));
-        butt->setProperty("indice", i);
+    for (int i = 0; i < problemas.size(); ++i) {
+        QListWidgetItem *item = new QListWidgetItem();
+        ui->listWidgetPreguntas->addItem(item);
 
-        connect(butt, &QPushButton::clicked, this, [=]() {
-            preg_actual = butt->property("indice").toInt();
+        QPushButton *button = new QPushButton(QString("Pregunta %1").arg(i + 1));
+        button->setProperty("indice", i);
+
+        item->setSizeHint(QSize(0, 40)); // altura del item
+        ui->listWidgetPreguntas->setItemWidget(item, button);
+
+        connect(button, &QPushButton::clicked, this, [=]() {
+            preg_actual = button->property("indice").toInt();
             ui->sidebar_2->setCurrentIndex(1);
             showNextQuestion();
         });
-
-        ui->Elegir_problema->layout()->addWidget(butt);
     }
 }
 
@@ -518,7 +520,6 @@ void MainWindow::onNextClicked()
 
 void MainWindow::showNextQuestion()
 {
-
     ui->res1->setText("");
     ui->res2->setText("");
     ui->res3->setText("");
@@ -545,7 +546,8 @@ void MainWindow::showNextQuestion()
     }
 }
 
-void MainWindow::togglePassword(QLineEdit *text, QToolButton *button){
+void MainWindow::togglePassword(QLineEdit *text, QToolButton *button)
+{
     if (text->echoMode() == QLineEdit::Password) {
         text->setEchoMode(QLineEdit::Normal);
         button->setIcon(QIcon(":/images/ojoIlum.png"));
@@ -570,16 +572,14 @@ void MainWindow::checkQuestion()
     if (seleccionada == -1)
         return;
 
-    QLabel* labels[] = {ui->res1, ui->res2, ui->res3, ui->res4};
+    QLabel *labels[] = {ui->res1, ui->res2, ui->res3, ui->res4};
 
     for (int i = 0; i < p.answers().size(); ++i) {
-
         if (p.answers()[i].validity()) {
             respbotones[i]->setStyleSheet("color: green; font-weight: bold;");
             labels[i]->setText("✓");
             labels[i]->setStyleSheet("color: green; font-size: 18px; font-weight: bold;");
-        }
-        else if (i == seleccionada) {
+        } else if (i == seleccionada) {
             respbotones[i]->setStyleSheet("color: red; font-weight: bold;");
             labels[i]->setText("✗");
             labels[i]->setStyleSheet("color: red; font-size: 18px; font-weight: bold;");
@@ -592,18 +592,16 @@ void MainWindow::checkQuestion()
         sessionFaults++;
     }
 
-
     ui->verificarButton->setEnabled(false);
 }
 
-void MainWindow::mostrarHistorial(){
+void MainWindow::mostrarHistorial()
+{
     ui->tableHistorial->clearContents();
     ui->tableHistorial->setRowCount(0);
 
     ui->tableHistorial->setColumnCount(3);
-    ui->tableHistorial->setHorizontalHeaderLabels(
-        {"FECHA", "ACIERTOS", "FALLOS"}
-        );
+    ui->tableHistorial->setHorizontalHeaderLabels({"FECHA", "ACIERTOS", "FALLOS"});
 
     if (!currentUser)
         return;
@@ -615,14 +613,11 @@ void MainWindow::mostrarHistorial(){
     for (int i = 0; i < sessions.size(); ++i) {
         const Session &s = sessions[i];
 
-        QTableWidgetItem *fecha =
-            new QTableWidgetItem(s.timeStamp().toString("dd/MM/yyyy hh:mm"));
+        QTableWidgetItem *fecha = new QTableWidgetItem(s.timeStamp().toString("dd/MM/yyyy hh:mm"));
 
-        QTableWidgetItem *aciertos =
-            new QTableWidgetItem(QString::number(s.hits()));
+        QTableWidgetItem *aciertos = new QTableWidgetItem(QString::number(s.hits()));
 
-        QTableWidgetItem *fallos =
-            new QTableWidgetItem(QString::number(s.faults()));
+        QTableWidgetItem *fallos = new QTableWidgetItem(QString::number(s.faults()));
 
         fecha->setTextAlignment(Qt::AlignCenter);
         aciertos->setTextAlignment(Qt::AlignCenter);
@@ -639,7 +634,6 @@ void MainWindow::mostrarHistorial(){
     ui->tableHistorial->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableHistorial->setSelectionMode(QAbstractItemView::NoSelection);
 }
-
 
 void MainWindow::togglePencil()
 {
@@ -723,9 +717,7 @@ void MainWindow::confirmAndClearAllDrawings()
 
     msgBox.exec(); // Muestra la caja de diálogo y espera la respuesta
 
-
     if (msgBox.clickedButton() == yesButton) {
-
         clearAllDrawings();
         ui->cursor->setChecked(true);
     }
@@ -744,7 +736,8 @@ void MainWindow::placeMark()
     ui->graphicsView->setCursor(Qt::PointingHandCursor);
 }
 
-void MainWindow::toggleSvgRuler(bool checked){
+void MainWindow::toggleSvgRuler(bool checked)
+{
     // 1. Controlar la visibilidad y seleccionabilidad del ítem SVG
     if (rulerSvgItem) {
         rulerSvgItem->setVisible(checked);
@@ -755,7 +748,8 @@ void MainWindow::toggleSvgRuler(bool checked){
     svgRulerActive = checked;
 
     // 2. Comprobar si el Lápiz o un modo de dibujo está activo
-    bool drawingModeIsActive = drawingMode || erasingMode || markingMode || textMode || measuringMode;
+    bool drawingModeIsActive = drawingMode || erasingMode || markingMode || textMode
+                               || measuringMode;
 
     if (checked) {
         // --- REGLA ACTIVADA ---
@@ -765,7 +759,6 @@ void MainWindow::toggleSvgRuler(bool checked){
 
         // Permitimos mover la Regla SVG
         ui->graphicsView->setDragMode(QGraphicsView::NoDrag);
-
 
         // Si no hay modo de dibujo activo, ponemos cursor de arrastre de objeto (Regla SVG)
         if (!drawingModeIsActive) {
@@ -782,12 +775,15 @@ void MainWindow::toggleSvgRuler(bool checked){
         } else if (drawingModeIsActive) {
             // Si cualquier otro modo de dibujo estaba activo, lo restauramos
             // (esto incluye Goma, Marca, etc.)
-            if (erasingMode) toggleRubber();
-            else if (markingMode) placeMark();
-            else if (textMode) toggleText();
-            else toggleCursor(); // Si no era modo de dibujo, vamos al cursor normal.
-        }
-        else {
+            if (erasingMode)
+                toggleRubber();
+            else if (markingMode)
+                placeMark();
+            else if (textMode)
+                toggleText();
+            else
+                toggleCursor(); // Si no era modo de dibujo, vamos al cursor normal.
+        } else {
             // Si no había NINGÚN modo de dibujo activo, volvemos al modo cursor normal.
             toggleCursor();
         }
@@ -795,7 +791,8 @@ void MainWindow::toggleSvgRuler(bool checked){
 }
 
 RotatableSvgItem::RotatableSvgItem(const QString &fileName, QGraphicsItem *parent)
-    : QGraphicsSvgItem(fileName, parent), m_mode(None)
+    : QGraphicsSvgItem(fileName, parent)
+    , m_mode(None)
 {
     // Quitamos ItemIsMovable para moverlo manualmente solo desde el centro
     // Habilitamos Hover para cambiar el cursor al pasar por encima
@@ -857,8 +854,7 @@ void RotatableSvgItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
         QPointF delta = event->scenePos() - m_lastMousePos;
         setPos(pos() + delta);
         m_lastMousePos = event->scenePos();
-    }
-    else if (m_mode == Rotating) {
+    } else if (m_mode == Rotating) {
         // Calcular ángulo absoluto entre el pivote y el ratón
         QLineF line(m_pivotPoint, event->scenePos());
         double angle = -line.angle();
@@ -892,8 +888,77 @@ void RotatableSvgItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
         setCursor(Qt::OpenHandCursor);
     }
 
-    if(event) QGraphicsSvgItem::hoverMoveEvent(event);
+    if (event)
+        QGraphicsSvgItem::hoverMoveEvent(event);
 }
+
+// TODA LA PARTE DEL TRANSPORTADOR:
+QPointF MainWindow::protractorCenter()
+{
+    if (!protractorSvgItem)
+        return QPointF();
+
+    // Centro en coordenadas de escena
+    return protractorSvgItem->mapToScene(protractorSvgItem->boundingRect().center());
+}
+
+
+void MainWindow::toggleSvgProtractor(bool checked)
+{
+    if (checked) {
+        if (!protractorSvgItem) {
+            protractorSvgItem = new MovableSvgItem(":/images/transportador.svg");
+            protractorSvgItem->setPos(0, 0);   // esquina superior izquierda
+            protractorSvgItem->setScale(0.45);  // mitad de tamaño
+            scene->addItem(protractorSvgItem);
+        }
+        protractorSvgItem->setVisible(true);
+        svgProtractorActive = true;
+    } else {
+        if (protractorSvgItem)
+            protractorSvgItem->setVisible(false);
+        svgProtractorActive = false;
+    }
+}
+
+MovableSvgItem::MovableSvgItem(const QString &fileName, QGraphicsItem *parent)
+    : QGraphicsSvgItem(fileName, parent)
+{
+    setAcceptHoverEvents(true); // Habilita hover para cambiar cursor
+}
+
+void MovableSvgItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton) {
+        m_lastMousePos = event->scenePos();
+        setCursor(Qt::ClosedHandCursor);
+        event->accept();
+    } else {
+        event->ignore();
+    }
+}
+
+void MovableSvgItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    QPointF delta = event->scenePos() - m_lastMousePos;
+    moveBy(delta.x(), delta.y());
+    m_lastMousePos = event->scenePos();
+    event->accept();
+}
+
+void MovableSvgItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    setCursor(Qt::OpenHandCursor);
+    event->accept();
+}
+
+void MovableSvgItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
+{
+    setCursor(Qt::OpenHandCursor);
+    event->accept();
+}
+
+// ------
 
 // Toda la parte del compas: -----
 void MainWindow::toggleCompass(bool checked)
@@ -977,43 +1042,68 @@ QPointF CompassItem::calculateOptimalPivot(QPointF fixedPivot, QPointF movingPoi
     return fixedPivot + vec;
 }
 
-
 void CompassItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    QPointF pos = event->scenePos();
-    lastMousePos = pos;
+    if (event->button() != Qt::LeftButton) {
+        event->ignore();
+        return;
+    }
 
-    QGraphicsItem* clicked = scene()->itemAt(pos, QTransform());
-    if (!clicked) return;
-    QPointF local = mapFromScene(pos);
-    if (clicked == legLeft) {
-        m_mode = Rotating;
-        rotatingLeft = true;
+    QPointF scenePos = event->scenePos();
 
-        // Guardamos ángulo inicial de la pata
-        legLeftInitialAngle = legLeft->rotation();
+    // --- BoundingRect y extremos ---
+    QRectF rectLeft  = legLeft->boundingRect();
+    QRectF rectRight = legRight->boundingRect();
 
-        // Pivote fijo: pata derecha
+    QPointF tipLeft  = legLeft->mapToScene(rectLeft.bottomCenter());
+    QPointF tipRight = legRight->mapToScene(rectRight.bottomCenter());
+
+    // --- Distancia al extremo (en píxeles) ---
+    qreal tipThreshold = 10.0; // ajustar según escala
+
+    qreal distLeft  = QLineF(scenePos, tipLeft).length();
+    qreal distRight = QLineF(scenePos, tipRight).length();
+
+    bool clickedLeft  = legLeft->contains(legLeft->mapFromScene(scenePos));
+    bool clickedRight = legRight->contains(legRight->mapFromScene(scenePos));
+
+    DBG << "[COMPASS] CLICK scene:" << scenePos;
+    DBG << "[COMPASS]  LEFT:  contains=" << clickedLeft << "distTip=" << distLeft;
+    DBG << "[COMPASS]  RIGHT: contains=" << clickedRight << "distTip=" << distRight;
+
+    // --------------------------------------------------
+    // Lógica final basada en distancia a la punta
+    // --------------------------------------------------
+    m_mode = None;
+    currentArc = nullptr;
+
+    if (clickedLeft && distLeft <= tipThreshold) {
+        DBG << "[COMPASS] ? ACTION: ROTATE LEFT + DRAW";
+
+        m_mode = RotatingLeft;
         pivotScene = legRight->mapToScene(legRight->transformOriginPoint());
+        mouseInitialAngle   = QLineF(pivotScene, scenePos).angle();
+        legLeftInitialAngle = legLeft->rotation();
+        startAngle          = mouseInitialAngle;
 
-        // Ángulo inicial del ratón respecto al pivote
-        QLineF line(pivotScene, pos);
-        mouseInitialAngle = line.angle();
-        startAngle = line.angle();
-
-        // Guardamos posición inicial de la punta que dibuja
-        QRectF legRect = legLeft->boundingRect();
-        tipStart = legLeft->mapToScene(legRect.topRight());
-
-        // Preparamos QGraphicsPathItem para dibujar el arco
         currentArc = new QGraphicsPathItem();
         currentArc->setPen(QPen(Qt::blue, 2));
         scene()->addItem(currentArc);
     }
+    else if (clickedRight && distRight <= tipThreshold) {
+        DBG << "[COMPASS] ? ACTION: ROTATE RIGHT";
+
+        m_mode = RotatingRight;
+        pivotScene = legLeft->mapToScene(legLeft->transformOriginPoint());
+        mouseInitialAngle    = QLineF(pivotScene, scenePos).angle();
+        legRightInitialAngle = legRight->rotation();
+    }
     else {
-        // Cualquier otra zona → mover todo el compás
+        DBG << "[COMPASS] ? ACTION: MOVE";
+
         m_mode = Moving;
-        dragOffset = local;
+        dragStartScene = scenePos;
+        dragOffset = scenePos - pos();
     }
 
     event->accept();
@@ -1024,34 +1114,33 @@ void CompassItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     QPointF pos = event->scenePos();
 
     if (m_mode == Moving) {
-        // Colocamos el compás manteniendo el punto de agarre bajo el ratón
         setPos(pos - dragOffset);
     }
-    else if (m_mode == Rotating && rotatingLeft) {
+    else if (m_mode == RotatingLeft) {
         QLineF line(pivotScene, pos);
-        qreal currentAngle = line.angle();
-        qreal deltaAngle = currentAngle - mouseInitialAngle;
-
+        qreal deltaAngle = line.angle() - mouseInitialAngle;
         legLeft->setRotation(legLeftInitialAngle - deltaAngle);
 
-        QRectF legRect = legLeft->boundingRect();
-        QPointF tipCurrent = legLeft->mapToScene(legRect.topRight());
+        if (currentArc) {
+            QPointF tipCurrent = legLeft->mapToScene(legLeft->boundingRect().bottomRight());
+            qreal radius = QLineF(pivotScene, tipCurrent).length();
+            QRectF arcRect(pivotScene.x() - radius, pivotScene.y() - radius, 2 * radius, 2 * radius);
 
-        qreal radius = QLineF(pivotScene, tipCurrent).length();
+            qreal start = startAngle;
+            qreal span  = QLineF(pivotScene, tipCurrent).angle() - start;
 
-        QRectF arcRect(pivotScene.x() - radius,
-                       pivotScene.y() - radius,
-                       2 * radius,
-                       2 * radius);
+            QPainterPath path;
+            path.arcMoveTo(arcRect, start);
+            path.arcTo(arcRect, start, span);
+            currentArc->setPath(path);
+        }
+    }
+    else if (m_mode == RotatingRight) {
+        QLineF line(pivotScene, pos);
+        qreal deltaAngle = line.angle() - mouseInitialAngle;
+        legRight->setRotation(legRightInitialAngle - deltaAngle);
 
-        qreal start = QLineF(pivotScene, tipStart).angle();
-        qreal span  = QLineF(pivotScene, tipCurrent).angle() - start;
-
-        QPainterPath path;
-        path.arcMoveTo(arcRect, start);
-        path.arcTo(arcRect, start, span);
-
-        currentArc->setPath(path);
+        // No dibuja arco
     }
 
     event->accept();
@@ -1059,9 +1148,7 @@ void CompassItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
 void CompassItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-    // Resetear todo al soltar el ratón
     m_mode = None;
-    rotatingLeft = false;
     currentArc = nullptr;
     event->accept();
 }
@@ -1199,25 +1286,19 @@ QPointF MainWindow::snapToRuler(QPointF scenePos)
 
 bool MainWindow::eventFilter(QObject *watched, QEvent *event)
 {
-    if (event->type() == QEvent::MouseButtonPress && qobject_cast<QToolButton*>(watched))
-    {
-        QToolButton *clickedButton = qobject_cast<QToolButton*>(watched);
+    if (event->type() == QEvent::MouseButtonPress && qobject_cast<QToolButton *>(watched)) {
+        QToolButton *clickedButton = qobject_cast<QToolButton *>(watched);
 
-        if (exclusiveButtons.contains(clickedButton))
-        {
-
+        if (exclusiveButtons.contains(clickedButton)) {
             if (clickedButton->isChecked()) {
-
                 clickedButton->setChecked(false);
                 ui->cursor->setChecked(true);
 
                 return true;
             }
             // Desactivar todos los demás botones del grupo ANTES de que el clic active el actual.
-            for (QToolButton *button : exclusiveButtons)
-            {
-                if (button != clickedButton && button->isCheckable())
-                {
+            for (QToolButton *button : exclusiveButtons) {
+                if (button != clickedButton && button->isCheckable()) {
                     button->setChecked(false);
                 }
             }
@@ -1310,12 +1391,27 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 // 2. Añadimos el objeto al mapa
                 QGraphicsPixmapItem *marker = scene->addPixmap(pixmap);
 
+
+
                 // 3. Centramos la imagen en el clic (si no, el clic queda en la esquina superior izq de la imagen)
                 marker->setOffset(-pixmap.width() / 2, -pixmap.height() / 2);
                 marker->setPos(mouseEvent->scenePos());
 
-                // Opcional: Hacer que la marca se pueda mover después
+                // Hacer que la marca se pueda mover después
                 marker->setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable);
+
+                if (protractorSvgItem && protractorSvgItem->isVisible()) {
+                    QPointF center = protractorSvgItem->mapToScene(protractorSvgItem->boundingRect().center());
+
+                    QPen pen(Qt::magenta);
+                    pen.setWidth(2);
+
+                    QGraphicsLineItem *line = scene->addLine(QLineF(center, marker->pos()), pen);
+                    line->setZValue(marker->zValue() + 1); // encima del mapa
+                    line->setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable);
+                }
+
+
                 return true;
             } else if (event->type() == QEvent::GraphicsSceneMouseMove
                        && eyeActive) { // actualizar las posiciones de la chincheta
@@ -1324,6 +1420,8 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 if (!selected.isEmpty()) {
                     showPointExtremes(selected.first());
                 }
+
+
                 return true;
             }
         }
