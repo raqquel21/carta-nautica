@@ -54,6 +54,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->sigButton, &QPushButton::clicked, this, &MainWindow::onNextClicked);
     connect(ui->verificarButton, &QPushButton::clicked, this, &MainWindow::checkQuestion);
+    connect(ui->ReturnToProblemsButton, &QPushButton::clicked, this, &MainWindow::returnToProblems);
 
     showNextQuestion(); //para que salga la primera xd
 
@@ -108,16 +109,23 @@ MainWindow::MainWindow(QWidget *parent)
         ui->stackedWidget->blockSignals(true);
 
         // 4. Limpieza segura de campos (verificando que no sean nulos)
-        if(ui->nombre) ui->nombre->clear();
-        if(ui->nacimiento) ui->nacimiento->clear();
-        if(ui->email) ui->email->clear();
-        if(ui->contrasenya) ui->contrasenya->clear();
-        if(ui->enter_nickname) ui->enter_nickname->clear();
-        if(ui->lineEdit_2) ui->lineEdit_2->clear();
+        if (ui->nombre)
+            ui->nombre->clear();
+        if (ui->nacimiento)
+            ui->nacimiento->clear();
+        if (ui->email)
+            ui->email->clear();
+        if (ui->contrasenya)
+            ui->contrasenya->clear();
+        if (ui->enter_nickname)
+            ui->enter_nickname->clear();
+        if (ui->lineEdit_2)
+            ui->lineEdit_2->clear();
 
         // 5. Resetear imagen de perfil
         ui->PerfilImage->setIcon(QIcon());
-        ui->PerfilImage->setStyleSheet("QPushButton { border: 2px solid #555; border-radius: 60px; background-color: white; }");
+        ui->PerfilImage->setStyleSheet("QPushButton { border: 2px solid #555; border-radius: 60px; "
+                                       "background-color: white; }");
 
         // 6. Navegación y Toolbar
         ui->toolBar->hide();
@@ -308,7 +316,6 @@ MainWindow::MainWindow(QWidget *parent)
         ui->toolBar->hide();
     });
 
-
     //PERFIL IMAGE
 
     // Dentro de MainWindow::MainWindow, después de configurar el PerfilImage->setStyleSheet(...)
@@ -320,16 +327,16 @@ MainWindow::MainWindow(QWidget *parent)
     ui->gridLayout_8->setAlignment(ui->PerfilImage, Qt::AlignCenter);
 
     // 2. Aplicamos un estilo base LIMPIO (Bajamos el borde de 10px a 2px)
-    QString estiloBase =
-        "QPushButton {"
-        "   border: 2px solid #555;"
-        "   border-radius: 60px;"
-        "   background-color: white;"
-        "   border-image: url(:/images/userIcono.png) 0 0 0 0 stretched stretched;"
-        "}";
+    QString estiloBase = "QPushButton {"
+                         "   border: 2px solid #555;"
+                         "   border-radius: 60px;"
+                         "   background-color: white;"
+                         "   border-image: url(:/images/userIcono.png) 0 0 0 0 stretched stretched;"
+                         "}";
 
     ui->PerfilImage->setStyleSheet(estiloBase);
     ui->PerfilImageRegister->setStyleSheet(estiloBase);
+
 
     rutaImagenRegistro = "";
 }
@@ -417,6 +424,7 @@ void MainWindow::onLogInClicked()
 
         // 1. Cargamos la foto correctamente usando la maestra
         actualizarFotoBoton(ui->PerfilImage, u->avatar());
+        actualizarIconoAction(ui->actionPerfil, u->avatar());
 
         // 2. Actualizamos los textos de la interfaz
         ui->nombre->setText("Nickname: " + u->nickName());
@@ -494,9 +502,13 @@ void MainWindow::onRegisterClicked()
     currentUser = nav.findUser(nameReg);
 }
 
-void MainWindow::SeleccionarImagenPerfil() {
-    QPushButton *botonEmisor = qobject_cast<QPushButton*>(sender());
-    QString filePath = QFileDialog::getOpenFileName(this, tr("Seleccionar Imagen"), "", tr("Imágenes (*.png *.jpg *.jpeg)"));
+void MainWindow::SeleccionarImagenPerfil()
+{
+    QPushButton *botonEmisor = qobject_cast<QPushButton *>(sender());
+    QString filePath = QFileDialog::getOpenFileName(this,
+                                                    tr("Seleccionar Imagen"),
+                                                    "",
+                                                    tr("Imágenes (*.png *.jpg *.jpeg)"));
 
     if (!filePath.isEmpty()) {
         QImage nuevaImg(filePath);
@@ -507,19 +519,24 @@ void MainWindow::SeleccionarImagenPerfil() {
         if (currentUser && botonEmisor == ui->PerfilImage) {
             currentUser->setAvatar(nuevaImg);
             nav.updateUser(*currentUser);
+            actualizarIconoAction(ui->actionPerfil, nuevaImg);
         } else if (botonEmisor == ui->PerfilImageRegister) {
             rutaImagenRegistro = filePath;
         }
     }
 }
 
-
-void MainWindow::actualizarFotoBoton(QPushButton *boton, const QImage &img) {
-    if (img.isNull()) return; //
+void MainWindow::actualizarFotoBoton(QPushButton *boton, const QImage &img)
+{
+    if (img.isNull())
+        return; //
 
     // 1. Preparamos el tamaño (120x120 para que coincida con el botón)
     int side = 120;
-    QImage scaledImg = img.scaled(side, side, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation); //
+    QImage scaledImg = img.scaled(side,
+                                  side,
+                                  Qt::KeepAspectRatioByExpanding,
+                                  Qt::SmoothTransformation); //
 
     // 2. Creamos un Pixmap transparente para hacer el recorte circular
     QPixmap target(side, side);
@@ -532,7 +549,7 @@ void MainWindow::actualizarFotoBoton(QPushButton *boton, const QImage &img) {
 
     QPainterPath path;
     path.addEllipse(0, 0, side, side); // Creamos el camino circular
-    painter.setClipPath(path); // Todo lo que pintemos ahora solo se verá dentro del círculo
+    painter.setClipPath(path);         // Todo lo que pintemos ahora solo se verá dentro del círculo
 
     // Dibujamos la imagen centrada
     painter.drawImage(0, 0, scaledImg);
@@ -543,13 +560,35 @@ void MainWindow::actualizarFotoBoton(QPushButton *boton, const QImage &img) {
     boton->setIconSize(QSize(side, side)); //
 
     // 5. El CSS ahora solo sirve para el borde exterior
-    boton->setStyleSheet(
-        "QPushButton {"
-        "   border: 2px solid #555;"
-        "   border-radius: 60px;"
-        "   background-color: transparent;"
-        "}"
-        );
+    boton->setStyleSheet("QPushButton {"
+                         "   border: 2px solid #555;"
+                         "   border-radius: 60px;"
+                         "   background-color: transparent;"
+                         "}");
+}
+
+// En tu archivo .cpp, añade esta versión para QAction
+void MainWindow::actualizarIconoAction(QAction *action, const QImage &img)
+{
+    if (img.isNull() || !action) return;
+
+    int side = 64; // Tamaño estándar para iconos de toolbar
+    QImage scaledImg = img.scaled(side, side, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+
+    QPixmap target(side, side);
+    target.fill(Qt::transparent);
+
+    QPainter painter(&target);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setRenderHint(QPainter::SmoothPixmapTransform);
+
+    QPainterPath path;
+    path.addEllipse(0, 0, side, side);
+    painter.setClipPath(path);
+    painter.drawImage(0, 0, scaledImg);
+    painter.end();
+
+    action->setIcon(QIcon(target));
 }
 void MainWindow::toggleSidebar()
 {
@@ -697,6 +736,11 @@ void MainWindow::checkQuestion()
     }
 
     ui->verificarButton->setEnabled(false);
+}
+
+void MainWindow::returnToProblems()
+{
+    ui->sidebar_2->setCurrentIndex(0);
 }
 
 void MainWindow::mostrarHistorial()

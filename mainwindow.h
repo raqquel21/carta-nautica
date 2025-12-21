@@ -79,6 +79,7 @@ private:
     QList<QToolButton *> exclusiveButtons;
 
     void actualizarFotoBoton(QPushButton *boton, const QImage &img);
+    void actualizarIconoAction(QAction *action, const QImage &img);
     QString rutaImagenRegistro;
 
     double scale = 1;
@@ -141,6 +142,7 @@ private slots:
     void showNextQuestion();
     void checkQuestion();
     void onNextClicked();
+    void returnToProblems();
     void mostrarHistorial();
 
     void SeleccionarImagenPerfil();
