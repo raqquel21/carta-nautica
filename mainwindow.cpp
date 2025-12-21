@@ -1051,36 +1051,43 @@ void CompassItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
     QPointF scenePos = event->scenePos();
 
-    // --- BoundingRect y extremos ---
+    // --- Coordenadas locales ---
+    QPointF localLeft  = legLeft->mapFromScene(scenePos);
+    QPointF localRight = legRight->mapFromScene(scenePos);
+
     QRectF rectLeft  = legLeft->boundingRect();
     QRectF rectRight = legRight->boundingRect();
 
-    QPointF tipLeft  = legLeft->mapToScene(rectLeft.bottomCenter());
-    QPointF tipRight = legRight->mapToScene(rectRight.bottomCenter());
+    qreal hLeft  = rectLeft.height();
+    qreal hRight = rectRight.height();
 
-    // --- Distancia al extremo (en píxeles) ---
-    qreal tipThreshold = 10.0; // ajustar según escala
+    // Zona de rotación = 45% inferior
+    qreal splitLeft  = hLeft  * 0.45;
+    qreal splitRight = hRight * 0.45;
 
-    qreal distLeft  = QLineF(scenePos, tipLeft).length();
-    qreal distRight = QLineF(scenePos, tipRight).length();
+    // Margen lateral para descartar clics muy lejos de la pata
+    qreal marginX = 10.0; // pixels
 
-    bool clickedLeft  = legLeft->contains(legLeft->mapFromScene(scenePos));
-    bool clickedRight = legRight->contains(legRight->mapFromScene(scenePos));
+    bool clickedLeft  = rectLeft.adjusted(-marginX, 0, marginX, 0).contains(localLeft);
+    bool clickedRight = rectRight.adjusted(-marginX, 0, marginX, 0).contains(localRight);
+
+    QString zoneLeft  = (localLeft.y() >= hLeft - splitLeft) ? "BOTTOM" : "TOP";
+    QString zoneRight = (localRight.y() >= hRight - splitRight) ? "BOTTOM" : "TOP";
 
     DBG << "[COMPASS] CLICK scene:" << scenePos;
-    DBG << "[COMPASS]  LEFT:  contains=" << clickedLeft << "distTip=" << distLeft;
-    DBG << "[COMPASS]  RIGHT: contains=" << clickedRight << "distTip=" << distRight;
+    DBG << "[COMPASS]  LEFT:  contains=" << clickedLeft << "localY=" << localLeft.y() << "height=" << hLeft << "split=" << splitLeft << "zone=" << zoneLeft;
+    DBG << "[COMPASS]  RIGHT: contains=" << clickedRight << "localY=" << localRight.y() << "height=" << hRight << "split=" << splitRight << "zone=" << zoneRight;
 
     // --------------------------------------------------
-    // Lógica final basada en distancia a la punta
+    // Lógica
     // --------------------------------------------------
     m_mode = None;
     currentArc = nullptr;
 
-    if (clickedLeft && distLeft <= tipThreshold) {
+    if (clickedLeft && zoneLeft == "BOTTOM") {
         DBG << "[COMPASS] ? ACTION: ROTATE LEFT + DRAW";
-
         m_mode = RotatingLeft;
+
         pivotScene = legRight->mapToScene(legRight->transformOriginPoint());
         mouseInitialAngle   = QLineF(pivotScene, scenePos).angle();
         legLeftInitialAngle = legLeft->rotation();
@@ -1090,17 +1097,16 @@ void CompassItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
         currentArc->setPen(QPen(Qt::blue, 2));
         scene()->addItem(currentArc);
     }
-    else if (clickedRight && distRight <= tipThreshold) {
+    else if (clickedRight && zoneRight == "BOTTOM") {
         DBG << "[COMPASS] ? ACTION: ROTATE RIGHT";
-
         m_mode = RotatingRight;
+
         pivotScene = legLeft->mapToScene(legLeft->transformOriginPoint());
         mouseInitialAngle    = QLineF(pivotScene, scenePos).angle();
         legRightInitialAngle = legRight->rotation();
     }
     else {
         DBG << "[COMPASS] ? ACTION: MOVE";
-
         m_mode = Moving;
         dragStartScene = scenePos;
         dragOffset = scenePos - pos();

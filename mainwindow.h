@@ -71,17 +71,21 @@ protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
+    bool isInTipZone(QGraphicsItem *leg,
+                              const QPointF &scenePos,
+                     const QPointF &pivotScene);
 
 private:
     QGraphicsSvgItem *legLeft;
     QGraphicsSvgItem *legRight;
 
-    enum Mode { None, Moving, Rotating };
+    enum Mode { None, Moving, RotatingRight, RotatingLeft};
     Mode m_mode = None;
     bool rotatingLeft = false;
 
     QPointF lastMousePos;
     QPointF pivotScenePoint;
+    QPointF dragStartScene;
 
     qreal legLeftInitialAngle;
     qreal legRightInitialAngle;
@@ -104,6 +108,22 @@ private:
 
     static qreal normalizeAngleDelta(qreal delta);
 
+
+};
+
+class MovableSvgItem : public QGraphicsSvgItem
+{
+public:
+    explicit MovableSvgItem(const QString &fileName, QGraphicsItem *parent = nullptr);
+
+protected:
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
+    void hoverMoveEvent(QGraphicsSceneHoverEvent *event) override;
+
+private:
+    QPointF m_lastMousePos;
 
 };
 
@@ -168,13 +188,17 @@ private:
     RotatableSvgItem *rulerSvgItem = nullptr; // Puntero al objeto SVG
     bool svgRulerActive = false;
 
+    MovableSvgItem *protractorSvgItem = nullptr;
+    bool svgProtractorActive = false;
+
     CompassItem *compassItem = nullptr;
+
 
 private slots:
     void onZoomInButtonClicked();
     void onZoomOutButtonClicked();
     void onZoomSliderChanged(int value);
-    void setupMap();
+    //void setupMap();
 
     //void completeProfile();
     //void enlace_reg();
@@ -200,10 +224,12 @@ private slots:
     void placeMark();
     void toggleSvgRuler(bool checked);
     void toggleCompass(bool checked);
+    void toggleSvgProtractor(bool checked);
     void togglePointExtremes();
     void toggleText();
 
     QPointF snapToRuler(QPointF originalPos);
+    QPointF protractorCenter();
 
     void clearAllDrawings();
     void confirmAndClearAllDrawings();
