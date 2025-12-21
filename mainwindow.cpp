@@ -23,18 +23,20 @@
 #include <QMessageBox>
 #include <QShortcut>
 
-<<<<<<< HEAD
 #include <QFileDialog>
-=======
 #define DBG qDebug().noquote() << "[COMPASS]"
-
->>>>>>> rama-raquel
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    QFile file(":/estilos/style.qss");
+    if(file.open(QFile::ReadOnly)) {
+        QString StyleSheet = QLatin1String(file.readAll());
+        qApp->setStyleSheet(StyleSheet);
+    }
 
     showMaximized();
 
@@ -160,10 +162,11 @@ MainWindow::MainWindow(QWidget *parent)
         ui->stackedWidget->setCurrentIndex(2);
         ui->toolBar->hide();
     });
-    connect(ui->salirPerfil, &QPushButton::clicked, this, [=]() {
+    connect(ui->salirPerfil_2, &QPushButton::clicked, this, [=]() {
         ui->stackedWidget->setCurrentIndex(3);
         ui->toolBar->show();
     });
+
 
     /* Map button
     bool mapaListo = false;
@@ -321,6 +324,12 @@ MainWindow::MainWindow(QWidget *parent)
         ui->stackedWidget->setCurrentIndex(4);
         ui->toolBar->hide();
     });
+
+    ui->fechaHist->setCalendarPopup(true);
+    ui->fechaHist->setDate(QDate::currentDate());
+
+    connect(ui->histButton, &QPushButton::clicked, this, &MainWindow::filtrarHistorial);
+
 
     //PERFIL IMAGE
 
@@ -669,16 +678,29 @@ void MainWindow::onNextClicked()
 
 void MainWindow::showNextQuestion()
 {
+
+    const Problem &p = problemas[preg_actual];
+
     ui->res1->setText("");
     ui->res2->setText("");
     ui->res3->setText("");
     ui->res4->setText("");
     ui->verificarButton->setEnabled(true);
 
+    QLabel *labels[] = {ui->res1, ui->res2, ui->res3, ui->res4};
+
+    for (int i = 0; i < p.answers().size(); ++i) {
+        respbotones[i]->setProperty("class", "");
+        labels[i]->setProperty("class", "");
+        respbotones[i]->style()->unpolish(respbotones[i]);
+        respbotones[i]->style()->polish(respbotones[i]);
+        labels[i]->style()->unpolish(labels[i]);
+        labels[i]->style()->polish(labels[i]);
+    }
+
     if (preg_actual >= problemas.size())
         preg_actual = 0; // reiniciar si llegamos al final
 
-    const Problem &p = problemas[preg_actual];
 
     ui->enunciadoLabel->setText(p.text());
 
@@ -725,15 +747,24 @@ void MainWindow::checkQuestion()
 
     for (int i = 0; i < p.answers().size(); ++i) {
         if (p.answers()[i].validity()) {
-            respbotones[i]->setStyleSheet("color: green; font-weight: bold;");
             labels[i]->setText("✓");
-            labels[i]->setStyleSheet("color: green; font-size: 18px; font-weight: bold;");
+            respbotones[i]->setProperty("class", "correct-answer");
+            labels[i]->setProperty("class", "correct-answer");
         } else if (i == seleccionada) {
-            respbotones[i]->setStyleSheet("color: red; font-weight: bold;");
             labels[i]->setText("✗");
-            labels[i]->setStyleSheet("color: red; font-size: 18px; font-weight: bold;");
+            respbotones[i]->setProperty("class", "incorrect-answer");
+            labels[i]->setProperty("class", "incorrect-answer");
         }
+        // Forzar actualización del estilo después de cambiar la propiedad
+        respbotones[i]->style()->unpolish(respbotones[i]);
+        respbotones[i]->style()->polish(respbotones[i]);
+        respbotones[i]->update();
+
+        labels[i]->style()->unpolish(labels[i]);
+        labels[i]->style()->polish(labels[i]);
+        labels[i]->update();
     }
+
 
     if (p.answers()[seleccionada].validity()) {
         sessionHits++;
@@ -787,6 +818,40 @@ void MainWindow::mostrarHistorial()
     ui->tableHistorial->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableHistorial->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableHistorial->setSelectionMode(QAbstractItemView::NoSelection);
+}
+
+void MainWindow::filtrarHistorial(){
+
+    QDate fechafiltro = ui->fechaHist->date();
+
+    ui->tableHistorial->clearContents();
+    ui->tableHistorial->setRowCount(0);
+
+    if (!currentUser) return;
+
+    const QVector<Session> &sessions = currentUser->sessions();
+
+    for (const Session &s : sessions) {
+
+        if (s.timeStamp().date() >= fechafiltro) {
+
+            int row = ui->tableHistorial->rowCount();
+            ui->tableHistorial->insertRow(row);
+
+            ui->tableHistorial->setItem(
+                row, 0,
+                new QTableWidgetItem(
+                    s.timeStamp().toString("dd/MM/yyyy HH:mm")));
+
+            ui->tableHistorial->setItem(
+                row, 1,
+                new QTableWidgetItem(QString::number(s.hits())));
+
+            ui->tableHistorial->setItem(
+                row, 2,
+                new QTableWidgetItem(QString::number(s.faults())));
+        }
+    }
 }
 
 void MainWindow::togglePencil()

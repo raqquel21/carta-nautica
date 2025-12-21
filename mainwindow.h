@@ -219,6 +219,7 @@ private slots:
     void onNextClicked();
     void returnToProblems();
     void mostrarHistorial();
+    void filtrarHistorial();
 
     void SeleccionarImagenPerfil();
 
