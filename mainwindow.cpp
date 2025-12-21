@@ -39,6 +39,12 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    QFile file(":/estilos/style.qss");
+    if(file.open(QFile::ReadOnly)) {
+        QString StyleSheet = QLatin1String(file.readAll());
+        qApp->setStyleSheet(StyleSheet);
+    }
+
     showMaximized();
 
     //cargar problemas
@@ -442,6 +448,12 @@ void MainWindow::onRegisterClicked()
     //añadir a bbdd
     User u(nameReg, mail, password1, avatar, fecha);
     nav.addUser(u);
+    currentUser = nav.authenticate(nameReg, password1);
+
+    sessionHits = 0;
+    sessionFaults = 0;
+    sessionStart = QDateTime::currentDateTime();
+
 
     // Mostrar info en perfil
     ui->nombre->setText("Nickname: " + u.nickName());

@@ -36,4 +36,7 @@
         <file>compasIlum.png</file>
         <file>iconoChincheta.png</file>
     </qresource>
+    <qresource prefix="/">
+        <file>estilos/style.qss</file>
+    </qresource>
 </RCC>
