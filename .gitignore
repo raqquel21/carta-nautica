@@ -1,60 +1,65 @@
-# Carpetas de build
-build/
-build-*/
-*/build/
-*/build-*/
+# Reemplaza tu .gitignore con este contenido
+cat > .gitignore << 'EOF'
+# Directorios de build
+[bB]uild*/
+[Bb]uild-*/
+*/[bB]uild*/
+*/[bB]uild-*/
+*.[Dd]ebug/
+*.[Rr]elease/
+*_build/
+*.xcodeproj/
+*.xcworkspace/
 
-# C++ objects and libs
-*.slo
-*.lo
+# Qt
+.qtc_clangd/
+*.user
+*.user.*
+*.autosave
+moc_*.cpp
+moc_*.h
+qrc_*.cpp
+ui_*.h
+Makefile*
+*.pro.user
+*.qmake.cache
+*.qmake.stash
+*.qm
+
+# Objetos C++
 *.o
+*.obj
 *.a
-*.la
-*.lai
+*.lib
 *.so
 *.so.*
 *.dll
 *.dylib
 
-# Qt-es
-object_script.*.Release
-object_script.*.Debug
-*_plugin_import.cpp
-/.qmake.cache
-/.qmake.stash
-*.pro.user
-*.pro.user.*
-*.qbs.user
-*.qbs.user.*
-*.moc
-moc_*.cpp
-moc_*.h
-qrc_*.cpp
-ui_*.h
-*.qmlc
-*.jsc
-Makefile*
-*build-*
-*.qm
-*.prl
-
-# Qt unit tests
-target_wrapper.*
-
-# QtCreator
-*.autosave
-
-# QtCreator Qml
-*.qmlproject.user
-*.qmlproject.user.*
-
-# QtCreator CMake
+# Archivos generados por CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
 CMakeLists.txt.user*
 
-# QtCreator 4.8< compilation database
-compile_commands.json
+# Archivos de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
 
-# QtCreator local machine specific files for imported projects
-*creator.user*
+# Archivos de debug
+core
+*.core
+*.stackdump
 
-*_qmlcache.qrc
+# QML
+*.qmlc
+*.jsc
+
+# Unit tests
+target_wrapper.*
+EOF

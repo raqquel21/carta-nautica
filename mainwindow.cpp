@@ -32,118 +32,13 @@
 #include <QMessageBox>
 #include <QShortcut>
 
-// ==========================================================================
-// 1. IMPLEMENTACIÓN DE LA REGLA (RotatableSvgItem)
-// ==========================================================================
-// Colocamos esto al principio para asegurarnos de que el compilador lo ve.
-
-// --- EL CONSTRUCTOR QUE FALTABA ---
-RotatableSvgItem::RotatableSvgItem(const QString &fileName, QGraphicsItem *parent)
-    : QGraphicsSvgItem(fileName, parent), m_mode(None)
-{
-    // Quitamos ItemIsMovable para moverlo manualmente solo desde el centro
-    // Habilitamos Hover para cambiar el cursor al pasar por encima
-    setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemSendsGeometryChanges);
-    setAcceptHoverEvents(true);
-}
-
-void RotatableSvgItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-    QRectF bounds = boundingRect();
-    QPointF pos = event->pos();
-    qreal width = bounds.width();
-    qreal zoneSize = width * 0.15; // 15% para las zonas de rotación
-
-    m_lastMousePos = event->scenePos();
-
-    // Función auxiliar lambda para cambiar el pivote sin que la regla salte
-    auto setPivotSmart = [&](QPointF newPivotLocal) {
-        // 1. Guardamos dónde está ese punto visualmente AHORA MISMO en la escena
-        QPointF anchorSceneBefore = mapToScene(newPivotLocal);
-
-        // 2. Cambiamos el punto de origen de la transformación
-        setTransformOriginPoint(newPivotLocal);
-
-        // 3. Vemos dónde ha ido a parar ese punto tras el cambio (aquí ocurre el salto)
-        QPointF anchorSceneAfter = mapToScene(newPivotLocal);
-
-        // 4. Calculamos la diferencia y movemos la regla para compensar el salto
-        QPointF diff = anchorSceneBefore - anchorSceneAfter;
-        setPos(this->pos() + diff);
-
-        // 5. Guardamos este punto como el pivote fijo para la rotación
-        m_pivotPoint = anchorSceneBefore;
-    };
-
-    if (pos.x() < zoneSize) {
-        // --- Clic en IZQUIERDA -> Pivote en DERECHA ---
-        m_mode = Rotating;
-        setPivotSmart(QPointF(width, bounds.height() / 2));
-
-    } else if (pos.x() > width - zoneSize) {
-        // --- Clic en DERECHA -> Pivote en IZQUIERDA ---
-        m_mode = Rotating;
-        setPivotSmart(QPointF(0, bounds.height() / 2));
-
-    } else {
-        // --- Clic en CENTRO -> MOVER ---
-        m_mode = Moving;
-        setCursor(Qt::ClosedHandCursor);
-    }
-
-    event->accept();
-}
-
-void RotatableSvgItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-{
-    if (m_mode == Moving) {
-        // Mover manualmente sumando la diferencia
-        QPointF delta = event->scenePos() - m_lastMousePos;
-        setPos(pos() + delta);
-        m_lastMousePos = event->scenePos();
-    }
-    else if (m_mode == Rotating) {
-        // Calcular ángulo absoluto entre el pivote y el ratón
-        QLineF line(m_pivotPoint, event->scenePos());
-        double angle = -line.angle();
-
-        // Corregir orientación si estamos pivotando sobre el lado derecho
-        // (porque la regla "mira" hacia la izquierda en ese caso)
-        if (transformOriginPoint().x() > 0) {
-            angle += 180;
-        }
-
-        setRotation(angle);
-    }
-}
-
-void RotatableSvgItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
-{
-    m_mode = None;
-    hoverMoveEvent(nullptr); // Restaurar el cursor correcto
-    QGraphicsSvgItem::mouseReleaseEvent(event);
-}
-
-void RotatableSvgItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
-{
-    QPointF pos = (event) ? event->pos() : mapFromScene(QCursor::pos());
-    qreal width = boundingRect().width();
-    qreal zoneSize = width * 0.15;
-
-    if (pos.x() < zoneSize || pos.x() > width - zoneSize) {
-        setCursor(Qt::SizeHorCursor);
-    } else {
-        setCursor(Qt::OpenHandCursor);
-    }
-
-    if(event) QGraphicsSvgItem::hoverMoveEvent(event);
-}
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    showMaximized();
 
     //cargar problemas
     problemas = nav.problems();
@@ -193,6 +88,48 @@ MainWindow::MainWindow(QWidget *parent)
         ui->toolBar->hide();
     });
 
+    connect(ui->cerrarSesion, &QPushButton::clicked, this, [=]() {
+        Session s(sessionStart, sessionHits, sessionFaults);
+        nav.addSession(currentUser->nickName(), s);
+
+        currentUser = nullptr;
+
+        ui->nombre->clear();
+        ui->nacimiento->clear();
+        ui->email->clear();
+        ui->contrasenya->clear();
+
+        ui->stackedWidget->setCurrentIndex(0); // Volvemos a la pantalla de login
+        ui->toolBar->hide();                   // Ocultamos la toolbar
+        ui->enter_nickname->clear();
+        ui->lineEdit_2->clear();
+    });
+
+    // Botones ojo (mostrar/ocultar contraseña)
+    ui->pas1->setIcon(QIcon(":/images/ojoIlum.png"));
+    ui->pas2->setIcon(QIcon(":/images/ojoIlum.png"));
+    ui->pas3->setIcon(QIcon(":/images/ojoIlum.png"));
+
+    connect(ui->pas1, &QToolButton::clicked, this, [=]() {
+        togglePassword(ui->lineEdit_2, ui->pas1); // login
+    });
+
+    connect(ui->pas2, &QToolButton::clicked, this, [=]() {
+        togglePassword(ui->enter_password_r1, ui->pas2); // registro pass 1
+    });
+
+    connect(ui->pas3, &QToolButton::clicked, this, [=]() {
+        togglePassword(ui->enter_password_r2, ui->pas3); // registro pass 2
+    });
+
+    //login y registro con teclado
+    connect(ui->lineEdit_2, &QLineEdit::returnPressed, ui->buttonLogIn, &QPushButton::click);
+
+    connect(ui->enter_password_r2,
+            &QLineEdit::returnPressed,
+            ui->buttonRegister,
+            &QPushButton::click);
+
     // Conexiones botones
     connect(ui->actionPerfil, &QAction::triggered, this, [=]() {
         ui->stackedWidget->setCurrentIndex(2);
@@ -238,7 +175,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->colorButton, &QToolButton::clicked, this, &MainWindow::cambiarColor);
 
-    exclusiveButtons << ui->lapiz << ui->cursor << ui->goma << ui->texto << ui->marca << ui->regla;
+    exclusiveButtons << ui->lapiz << ui->cursor << ui->goma << ui->texto << ui->marca;
+    //<< ui->regla;
 
     for (QToolButton *button : exclusiveButtons) {
         button->installEventFilter(this);
@@ -251,12 +189,12 @@ MainWindow::MainWindow(QWidget *parent)
             connect(button, &QToolButton::toggled, this, &MainWindow::toggleRubber);
         if (button == ui->marca)
             connect(button, &QToolButton::toggled, this, &MainWindow::placeMark);
-        if (button == ui->regla)
-            connect(button, &QToolButton::toggled, this, &MainWindow::toggleSvgRuler);
+        //if (button == ui->regla) connect(button, &QToolButton::toggled, this, &MainWindow::toggleSvgRuler);
         if (button == ui->texto)
             connect(button, &QToolButton::toggled, this, &MainWindow::toggleText);
     }
 
+    connect(ui->regla, &QToolButton::toggled, this, &MainWindow::toggleSvgRuler);
     connect(ui->nuevaPag, &QToolButton::clicked, this, &MainWindow::clearAllDrawings);
     connect(ui->ojo, &QToolButton::clicked, this, &MainWindow::togglePointExtremes);
     ui->cursor->setChecked(true);
@@ -264,6 +202,12 @@ MainWindow::MainWindow(QWidget *parent)
     auto activateToolButton = [this](QToolButton *buttonToActivate) {
         if (!buttonToActivate->isCheckable())
             return;
+
+        if (buttonToActivate->isChecked()) {
+            buttonToActivate->setChecked(false);
+            ui->cursor->setChecked(true); // Activa el cursor
+            return;
+        }
 
         for (QToolButton *button : exclusiveButtons) {
             if (button != buttonToActivate && button->isChecked()) {
@@ -320,7 +264,6 @@ MainWindow::MainWindow(QWidget *parent)
         ui->sidebar_2->setCurrentIndex(1);
     });
 
-    // --- CREACIÓN DE LA REGLA ---
     rulerSvgItem = new RotatableSvgItem(":/images/ruler.svg");
     scene->addItem(rulerSvgItem);
     rulerSvgItem->setVisible(false);
@@ -335,6 +278,14 @@ MainWindow::MainWindow(QWidget *parent)
         }
     });
     updateTimer->start(50); // cada 50 ms revisa la posición
+
+    //HISTORIAL
+    connect(ui->actionHistorial, &QAction::triggered, this, [=] {
+        mostrarHistorial();
+
+        ui->stackedWidget->setCurrentIndex(4);
+        ui->toolBar->hide();
+    });
 }
 
 void MainWindow::setupMap() //funcion para hacer los cambios al mapa
@@ -402,26 +353,40 @@ void MainWindow::onLogInClicked()
 {
     QString nickname = ui->enter_nickname->text().trimmed();
     QString password = ui->lineEdit_2->text().trimmed();
-    User *u = nav.authenticate(nickname, password);
 
-    if (u) {
-        ui->stackedWidget->setCurrentIndex(3); // Si lo ha hecho bien, adelante
+    // ESTO LO TENDREMOS QUE QUITAR
+    if ((nickname == "user1") && (password == "User123!")) {
+        ui->stackedWidget->setCurrentIndex(3); // pantalla principal
         ui->sidebar_2->setCurrentIndex(0);
         ui->toolBar->show();
-    } else {
-        QMessageBox::warning(this, "Incorrecto", "LOGIN INCORRECTO");
-    }
-
-    if (nickname.isEmpty() || password.isEmpty()) {
-        ui->stackedWidget->setCurrentIndex(
-            0); // Que no pueda pasar al siguiente paso si no se ha logeado bien
-        QMessageBox::warning(this,
-                             "Advertencia",
-                             "Por favor, introduce el nickname y/o contraseña correctos.");
         return;
     }
-}
 
+    //Users *u = userManager.authenticate(nickname, password);
+
+    User *u = nav.authenticate(nickname, password);
+    currentUser = u;
+
+    if (!u) {
+        QMessageBox::warning(this, "Login incorrecto", "Nombre o contraseña incorrectos.");
+        return;
+    }
+
+    // Si login correcto, mostrar perfil o la pantalla principal
+    sessionHits = 0;
+    sessionFaults = 0;
+    sessionStart = QDateTime::currentDateTime();
+
+    ui->stackedWidget->setCurrentIndex(3);
+    ui->sidebar_2->setCurrentIndex(0);
+    ui->toolBar->show();
+
+    // Opcional: mostrar info en perfil
+    ui->nombre->setText("Nickname: " + u->nickName());
+    ui->nacimiento->setText("Date birth: " + u->birthdate().toString("dd/MM/yyyy"));
+    ui->email->setText("Email: " + u->email());
+    ui->contrasenya->setText("Password: " + u->password());
+}
 void MainWindow::onRegisterClicked()
 {
     QString nameReg = ui->enter_nickname_reg->text().trimmed();
@@ -430,12 +395,14 @@ void MainWindow::onRegisterClicked()
     QString password1 = ui->enter_password_r1->text().trimmed();
     QString password2 = ui->enter_password_r2->text().trimmed();
 
-    if (nameReg.isEmpty() || password1.isEmpty() || password2.isEmpty() || password1 != password2) {
-        ui->stackedWidget->setCurrentIndex(
-            1); // Que no pueda pasar al siguiente paso si no se ha logeado bien
-        QMessageBox::warning(this,
-                             "Advertencia",
-                             "Por favor, introduce el nickname y/o contraseña correctos.");
+    // Validaciones básicas
+    if (nameReg.isEmpty() || password1.isEmpty() || password2.isEmpty()) {
+        QMessageBox::warning(this, "Advertencia", "Rellena todos los campos.");
+        return;
+    }
+
+    if (password1 != password2) {
+        QMessageBox::warning(this, "Advertencia", "Las contraseñas no coinciden.");
         return;
     }
 
@@ -455,20 +422,25 @@ void MainWindow::onRegisterClicked()
         return;
     }
 
-    //crear el usuario
-    QImage avatar(":/images/userIcono.png"); //foto por defecto (esto habrá que arreglarlo xd)
+    // Crear usuario
+    QImage avatar(":/images/userIcono.png"); // avatar por defecto
 
+    //usuarios raquel:
+    //Users newUser(nameReg, mail, password1, avatar, fecha);
+    //userManager.addUser(newUser);
+
+    //añadir a bbdd
     User u(nameReg, mail, password1, avatar, fecha);
-
     nav.addUser(u);
 
-    //Ponerlo en el perfil
-    ui->nombre->setText("Nickname: " + nameReg);
-    ui->nacimiento->setText("Date birth: " + birthDate);
-    ui->email->setText("Email: " + mail);
-    ui->contrasenya->setText("Password: " + password1);
+    // Mostrar info en perfil
+    ui->nombre->setText("Nickname: " + u.nickName());
+    ui->nacimiento->setText("Date birth: " + u.birthdate().toString("dd/MM/yyyy"));
+    ui->email->setText("Email: " + u.email());
+    ui->contrasenya->setText("Password: " + u.password());
 
-    ui->stackedWidget->setCurrentIndex(2); // Si lo ha hecho bien, adelante
+    // Cambiar a la pantalla de perfil
+    ui->stackedWidget->setCurrentIndex(2);
 }
 
 void MainWindow::toggleSidebar()
@@ -516,19 +488,23 @@ void MainWindow::toggleSidebar()
 
 void MainWindow::listarPreguntas()
 {
-    for (int i = 0; i < problemas.size(); i++) {
-        QPushButton *butt = new QPushButton(this);
+    ui->listWidgetPreguntas->clear();
 
-        butt->setText(QString("Pregunta %1").arg(i + 1));
-        butt->setProperty("indice", i);
+    for (int i = 0; i < problemas.size(); ++i) {
+        QListWidgetItem *item = new QListWidgetItem();
+        ui->listWidgetPreguntas->addItem(item);
 
-        connect(butt, &QPushButton::clicked, this, [=]() {
-            preg_actual = butt->property("indice").toInt();
+        QPushButton *button = new QPushButton(QString("Pregunta %1").arg(i + 1));
+        button->setProperty("indice", i);
+
+        item->setSizeHint(QSize(0, 40)); // altura del item
+        ui->listWidgetPreguntas->setItemWidget(item, button);
+
+        connect(button, &QPushButton::clicked, this, [=]() {
+            preg_actual = button->property("indice").toInt();
             ui->sidebar_2->setCurrentIndex(1);
             showNextQuestion();
         });
-
-        ui->Elegir_problema->layout()->addWidget(butt);
     }
 }
 
@@ -540,6 +516,12 @@ void MainWindow::onNextClicked()
 
 void MainWindow::showNextQuestion()
 {
+    ui->res1->setText("");
+    ui->res2->setText("");
+    ui->res3->setText("");
+    ui->res4->setText("");
+    ui->verificarButton->setEnabled(true);
+
     if (preg_actual >= problemas.size())
         preg_actual = 0; // reiniciar si llegamos al final
 
@@ -560,40 +542,20 @@ void MainWindow::showNextQuestion()
     }
 }
 
+void MainWindow::togglePassword(QLineEdit *text, QToolButton *button)
+{
+    if (text->echoMode() == QLineEdit::Password) {
+        text->setEchoMode(QLineEdit::Normal);
+        button->setIcon(QIcon(":/images/ojoIlum.png"));
+    } else {
+        text->setEchoMode(QLineEdit::Password);
+        button->setIcon(QIcon(":/images/ojo.png"));
+    }
+}
+
 void MainWindow::checkQuestion()
 {
     Problem &p = problemas[preg_actual];
-
-    // DEPURACIÓN COMPLETA: Ver TODO lo que viene de la base de datos
-    qDebug() << "\n=== DEPURACIÓN COMPLETA DE PROBLEMA ===";
-    qDebug() << "Índice pregunta actual:" << preg_actual;
-    qDebug() << "Texto pregunta completo:";
-    qDebug() << p.text();
-    qDebug() << "--- RESPUESTAS Y SUS VALORES ---";
-
-    for (int i = 0; i < p.answers().size(); ++i) {
-        const Answer &resp = p.answers()[i];
-        qDebug() << "Respuesta" << i << ":";
-        qDebug() << "  Texto:" << resp.text();
-        qDebug() << "  Validez (bool):" << resp.validity();
-        qDebug() << "  Validez (int):" << (resp.validity() ? 1 : 0);
-    }
-
-    // También podemos imprimir TODOS los problemas al inicio
-    static bool primeraVez = true;
-    if (primeraVez) {
-        primeraVez = false;
-        qDebug() << "\n=== TODOS LOS PROBLEMAS CARGADOS ===";
-        for (int i = 0; i < problemas.size(); ++i) {
-            qDebug() << "\nProblema" << i << ":";
-            qDebug() << problemas[i].text().left(100) << "..."; // Primeros 100 chars
-
-            for (int j = 0; j < problemas[i].answers().size(); ++j) {
-                qDebug() << "  Resp" << j << ":" << problemas[i].answers()[j].text().left(50)
-                         << "| val:" << problemas[i].answers()[j].validity();
-            }
-        }
-    }
 
     int seleccionada = -1;
     for (int i = 0; i < respbotones.size(); ++i) {
@@ -603,45 +565,70 @@ void MainWindow::checkQuestion()
         }
     }
 
-    if (seleccionada == -1) {
-        QMessageBox::information(this, "Sin selección", "Por favor, selecciona una respuesta.");
+    if (seleccionada == -1)
         return;
-    }
 
-    // TEMPORAL: Usar validity() aunque falle, para ver qué pasa
-    int respuestaCorrecta = -1;
+    QLabel *labels[] = {ui->res1, ui->res2, ui->res3, ui->res4};
+
     for (int i = 0; i < p.answers().size(); ++i) {
         if (p.answers()[i].validity()) {
-            respuestaCorrecta = i;
-            qDebug() << "¡ENCONTRADA RESPUESTA CORRECTA! Índice:" << i;
-            break;
+            respbotones[i]->setStyleSheet("color: green; font-weight: bold;");
+            labels[i]->setText("✓");
+            labels[i]->setStyleSheet("color: green; font-size: 18px; font-weight: bold;");
+        } else if (i == seleccionada) {
+            respbotones[i]->setStyleSheet("color: red; font-weight: bold;");
+            labels[i]->setText("✗");
+            labels[i]->setStyleSheet("color: red; font-size: 18px; font-weight: bold;");
         }
     }
 
-    if (respuestaCorrecta == -1) {
-        qDebug() << "ADVERTENCIA: Ninguna respuesta marcada como válida según validity()";
-        // Temporal: asumir que la primera es correcta
-        respuestaCorrecta = 0;
+    if (p.answers()[seleccionada].validity()) {
+        sessionHits++;
+    } else {
+        sessionFaults++;
     }
 
-    qDebug() << "Respuesta seleccionada:" << seleccionada
-             << "| Respuesta correcta:" << respuestaCorrecta;
+    ui->verificarButton->setEnabled(false);
+}
 
-    // Resetear todos
-    for (int i = 0; i < p.answers().size(); ++i) {
-        respbotones[i]->setStyleSheet("");
-        respbotones[i]->setText(p.answers()[i].text());
+void MainWindow::mostrarHistorial()
+{
+    ui->tableHistorial->clearContents();
+    ui->tableHistorial->setRowCount(0);
+
+    ui->tableHistorial->setColumnCount(3);
+    ui->tableHistorial->setHorizontalHeaderLabels({"FECHA", "ACIERTOS", "FALLOS"});
+
+    if (!currentUser)
+        return;
+
+    const QVector<Session> &sessions = currentUser->sessions();
+
+    ui->tableHistorial->setRowCount(sessions.size());
+
+    for (int i = 0; i < sessions.size(); ++i) {
+        const Session &s = sessions[i];
+
+        QTableWidgetItem *fecha = new QTableWidgetItem(s.timeStamp().toString("dd/MM/yyyy hh:mm"));
+
+        QTableWidgetItem *aciertos = new QTableWidgetItem(QString::number(s.hits()));
+
+        QTableWidgetItem *fallos = new QTableWidgetItem(QString::number(s.faults()));
+
+        fecha->setTextAlignment(Qt::AlignCenter);
+        aciertos->setTextAlignment(Qt::AlignCenter);
+        fallos->setTextAlignment(Qt::AlignCenter);
+
+        ui->tableHistorial->setItem(i, 0, fecha);
+        ui->tableHistorial->setItem(i, 1, aciertos);
+        ui->tableHistorial->setItem(i, 2, fallos);
     }
 
-    // Marcar respuesta correcta
-    respbotones[respuestaCorrecta]->setStyleSheet("color: green; font-weight: bold;");
-    respbotones[respuestaCorrecta]->setText(p.answers()[respuestaCorrecta].text() + " ✔");
-
-    // Marcar respuesta incorrecta si la seleccionada no es la correcta
-    if (seleccionada != respuestaCorrecta) {
-        respbotones[seleccionada]->setStyleSheet("color: red; font-weight: bold;");
-        respbotones[seleccionada]->setText(p.answers()[seleccionada].text() + " ✘");
-    }
+    // Ajustes visuales bonitos
+    ui->tableHistorial->horizontalHeader()->setStretchLastSection(true);
+    ui->tableHistorial->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->tableHistorial->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->tableHistorial->setSelectionMode(QAbstractItemView::NoSelection);
 }
 
 void MainWindow::togglePencil()
@@ -685,7 +672,11 @@ void MainWindow::toggleCursor()
     measuringMode = false;
     textMode = false;
 
-    // Volvemos al modo de arrastrar el mapa
+    if (rulerSvgItem) {
+        rulerSvgItem->setVisible(false);
+        rulerSvgItem->setSelected(false);
+        svgRulerActive = false;
+    }
     ui->graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
 
     // Restauramos el cursor por defecto
@@ -741,30 +732,160 @@ void MainWindow::placeMark()
     ui->graphicsView->setCursor(Qt::PointingHandCursor);
 }
 
-void MainWindow::toggleSvgRuler()
+void MainWindow::toggleSvgRuler(bool checked)
 {
-    // Desactivar todos los demás modos de dibujo
-    drawingMode = false;
-    erasingMode = false;
-    markingMode = false;
-    measuringMode = false;
-    textMode = false;
-
-    // Restaurar cursor normal en la vista
-    toggleCursor();
-
-    svgRulerActive = !svgRulerActive;
-
+    // 1. Controlar la visibilidad y seleccionabilidad del ítem SVG
     if (rulerSvgItem) {
-        rulerSvgItem->setVisible(svgRulerActive);
+        rulerSvgItem->setVisible(checked);
+        rulerSvgItem->setSelected(checked);
+    }
 
-        // Si la activamos, la seleccionamos y le damos el foco
-        if (svgRulerActive) {
-            rulerSvgItem->setSelected(true);
+    // Sincronizar la variable de estado
+    svgRulerActive = checked;
+
+    // 2. Comprobar si el Lápiz o un modo de dibujo está activo
+    bool drawingModeIsActive = drawingMode || erasingMode || markingMode || textMode
+                               || measuringMode;
+
+    if (checked) {
+        // --- REGLA ACTIVADA ---
+
+        // Si el Lápiz está activo, lo dejamos en checked=true
+        // La lógica del QEventFilter nos garantiza que solo uno de los exclusivos esté activo.
+
+        // Permitimos mover la Regla SVG
+        ui->graphicsView->setDragMode(QGraphicsView::NoDrag);
+
+        // Si no hay modo de dibujo activo, ponemos cursor de arrastre de objeto (Regla SVG)
+        if (!drawingModeIsActive) {
+            ui->graphicsView->setCursor(Qt::OpenHandCursor);
+        }
+
+    } else {
+        // --- REGLA DESACTIVADA ---
+
+        // Si la herramienta Lápiz estaba activa antes de usar la Regla SVG:
+        if (ui->lapiz->isChecked()) {
+            togglePencil();
+
+        } else if (drawingModeIsActive) {
+            // Si cualquier otro modo de dibujo estaba activo, lo restauramos
+            // (esto incluye Goma, Marca, etc.)
+            if (erasingMode)
+                toggleRubber();
+            else if (markingMode)
+                placeMark();
+            else if (textMode)
+                toggleText();
+            else
+                toggleCursor(); // Si no era modo de dibujo, vamos al cursor normal.
         } else {
-            rulerSvgItem->setSelected(false);
+            // Si no había NINGÚN modo de dibujo activo, volvemos al modo cursor normal.
+            toggleCursor();
         }
     }
+}
+
+RotatableSvgItem::RotatableSvgItem(const QString &fileName, QGraphicsItem *parent)
+    : QGraphicsSvgItem(fileName, parent)
+    , m_mode(None)
+{
+    // Quitamos ItemIsMovable para moverlo manualmente solo desde el centro
+    // Habilitamos Hover para cambiar el cursor al pasar por encima
+    setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemSendsGeometryChanges);
+    setAcceptHoverEvents(true);
+}
+
+void RotatableSvgItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    QRectF bounds = boundingRect();
+    QPointF pos = event->pos();
+    qreal width = bounds.width();
+    qreal zoneSize = width * 0.15; // 15% para las zonas de rotación
+
+    m_lastMousePos = event->scenePos();
+
+    // Función auxiliar lambda para cambiar el pivote sin que la regla salte
+    auto setPivotSmart = [&](QPointF newPivotLocal) {
+        // 1. Guardamos dónde está ese punto visualmente AHORA MISMO en la escena
+        QPointF anchorSceneBefore = mapToScene(newPivotLocal);
+
+        // 2. Cambiamos el punto de origen de la transformación
+        setTransformOriginPoint(newPivotLocal);
+
+        // 3. Vemos dónde ha ido a parar ese punto tras el cambio (aquí ocurre el salto)
+        QPointF anchorSceneAfter = mapToScene(newPivotLocal);
+
+        // 4. Calculamos la diferencia y movemos la regla para compensar el salto
+        QPointF diff = anchorSceneBefore - anchorSceneAfter;
+        setPos(this->pos() + diff);
+
+        // 5. Guardamos este punto como el pivote fijo para la rotación
+        m_pivotPoint = anchorSceneBefore;
+    };
+
+    if (pos.x() < zoneSize) {
+        // --- Clic en IZQUIERDA -> Pivote en DERECHA ---
+        m_mode = Rotating;
+        setPivotSmart(QPointF(width, bounds.height() / 2));
+
+    } else if (pos.x() > width - zoneSize) {
+        // --- Clic en DERECHA -> Pivote en IZQUIERDA ---
+        m_mode = Rotating;
+        setPivotSmart(QPointF(0, bounds.height() / 2));
+
+    } else {
+        // --- Clic en CENTRO -> MOVER ---
+        m_mode = Moving;
+        setCursor(Qt::ClosedHandCursor);
+    }
+
+    event->accept();
+}
+
+void RotatableSvgItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    if (m_mode == Moving) {
+        // Mover manualmente sumando la diferencia
+        QPointF delta = event->scenePos() - m_lastMousePos;
+        setPos(pos() + delta);
+        m_lastMousePos = event->scenePos();
+    } else if (m_mode == Rotating) {
+        // Calcular ángulo absoluto entre el pivote y el ratón
+        QLineF line(m_pivotPoint, event->scenePos());
+        double angle = -line.angle();
+
+        // Corregir orientación si estamos pivotando sobre el lado derecho
+        // (porque la regla "mira" hacia la izquierda en ese caso)
+        if (transformOriginPoint().x() > 0) {
+            angle += 180;
+        }
+
+        setRotation(angle);
+    }
+}
+
+void RotatableSvgItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    m_mode = None;
+    hoverMoveEvent(nullptr); // Restaurar el cursor correcto
+    QGraphicsSvgItem::mouseReleaseEvent(event);
+}
+
+void RotatableSvgItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
+{
+    QPointF pos = (event) ? event->pos() : mapFromScene(QCursor::pos());
+    qreal width = boundingRect().width();
+    qreal zoneSize = width * 0.15;
+
+    if (pos.x() < zoneSize || pos.x() > width - zoneSize) {
+        setCursor(Qt::SizeHorCursor);
+    } else {
+        setCursor(Qt::OpenHandCursor);
+    }
+
+    if (event)
+        QGraphicsSvgItem::hoverMoveEvent(event);
 }
 
 void MainWindow::hidePointExtremes()
@@ -866,8 +987,8 @@ QPointF MainWindow::snapToRuler(QPointF scenePos)
     QPointF localPos = rulerSvgItem->mapFromScene(scenePos);
     QRectF rect = rulerSvgItem->boundingRect();
 
-    // Definimos un umbral de atracción (ej: 100 píxeles)
-    double threshold = 100.0;
+    // Definimos un umbral de atracción (ej: 30 píxeles)
+    double threshold = 60.0;
 
     // Calculamos distancias a los bordes superior e inferior (en local)
     double distTop = qAbs(localPos.y() - rect.top());
@@ -875,6 +996,9 @@ QPointF MainWindow::snapToRuler(QPointF scenePos)
 
     // 2. Comprobar si debemos activar el "imán"
     bool snapped = false;
+
+    // Opcional: Si quieres que solo pinte SI ESTÁ DENTRO del largo de la regla:
+    // if (localPos.x() >= rect.left() - threshold && localPos.x() <= rect.right() + threshold) { ... }
 
     // Lógica de imán:
     if (distTop < threshold) {
@@ -899,6 +1023,12 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
         QToolButton *clickedButton = qobject_cast<QToolButton *>(watched);
 
         if (exclusiveButtons.contains(clickedButton)) {
+            if (clickedButton->isChecked()) {
+                clickedButton->setChecked(false);
+                ui->cursor->setChecked(true);
+
+                return true;
+            }
             // Desactivar todos los demás botones del grupo ANTES de que el clic active el actual.
             for (QToolButton *button : exclusiveButtons) {
                 if (button != clickedButton && button->isCheckable()) {
@@ -912,7 +1042,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
         QGraphicsSceneMouseEvent *mouseEvent = static_cast<QGraphicsSceneMouseEvent *>(event);
 
         // ---------------------------------------------------------
-        // MODO 1: LÁPIZ (MODIFICADO CON REGLA)
+        // MODO 1: LÁPIZ
         // ---------------------------------------------------------
         if (drawingMode) {
             if (event->type() == QEvent::GraphicsSceneMousePress) {
@@ -986,7 +1116,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 QPixmap pixmap(":/images/iconoChincheta.png");
 
                 // Redimensionamos si es muy grande (opcional)
-                pixmap = pixmap.scaled(30, 30, Qt::KeepAspectRatio);
+                pixmap = pixmap.scaled(50, 50, Qt::KeepAspectRatio);
 
                 // 2. Añadimos el objeto al mapa
                 QGraphicsPixmapItem *marker = scene->addPixmap(pixmap);

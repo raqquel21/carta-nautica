@@ -31,6 +31,10 @@
 #include <QList>
 #include <QToolButton>
 
+#include <QLineEdit>
+
+#include "usermanager/usermanager.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -56,7 +60,6 @@ private:
     QPointF m_lastMousePos;
     QPointF m_pivotPoint;
 };
-
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -107,6 +110,12 @@ private:
     QVector<QRadioButton *> respbotones;
 
     Navigation &nav = Navigation::instance();
+    User *currentUser = nullptr;
+    int sessionHits = 0;
+    int sessionFaults = 0;
+    QDateTime sessionStart;
+
+    UserManager userManager; // gestor de usuarios
 
     RotatableSvgItem *rulerSvgItem = nullptr; // Puntero al objeto SVG
     bool svgRulerActive = false;
@@ -123,10 +132,13 @@ private slots:
 
     void toggleSidebar();
 
+    void togglePassword(QLineEdit *text, QToolButton *button);
+
     void listarPreguntas();
     void showNextQuestion();
     void checkQuestion();
     void onNextClicked();
+    void mostrarHistorial();
 
     void togglePencil();
     void SliderLapiz(int value);
@@ -135,7 +147,7 @@ private slots:
     void toggleCursor();
     void toggleRubber();
     void placeMark();
-    void toggleSvgRuler();
+    void toggleSvgRuler(bool checked);
     void togglePointExtremes();
     void toggleText();
 
