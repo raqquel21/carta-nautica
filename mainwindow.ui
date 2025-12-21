@@ -24,7 +24,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="login">
        <property name="minimumSize">
@@ -828,10 +828,27 @@ QPushButton:pressed {
            </size>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="Elegir_problema">
            <layout class="QGridLayout" name="gridLayout_13">
+            <item row="3" column="0" colspan="2">
+             <widget class="QPushButton" name="Problema_Random">
+              <property name="text">
+               <string>Problema Random</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" colspan="2">
+             <widget class="QListWidget" name="listWidgetPreguntas"/>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="Problemas">
+              <property name="text">
+               <string>Problemas</string>
+              </property>
+             </widget>
+            </item>
             <item row="0" column="1">
              <widget class="QPushButton" name="sidebarButton_2">
               <property name="styleSheet">
@@ -847,23 +864,6 @@ QPushButton:pressed {
               </property>
               <property name="text">
                <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="Problemas">
-              <property name="text">
-               <string>Problemas</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0" colspan="2">
-             <widget class="QListWidget" name="listWidgetPreguntas"/>
-            </item>
-            <item row="4" column="0" colspan="2">
-             <widget class="QPushButton" name="Problema_Random">
-              <property name="text">
-               <string>Problema Random</string>
               </property>
              </widget>
             </item>
@@ -1090,6 +1090,13 @@ QPushButton:pressed {
                </size>
               </property>
              </spacer>
+            </item>
+            <item row="1" column="0" colspan="2">
+             <widget class="QPushButton" name="ReturnToProblemsButton">
+              <property name="text">
+               <string>Volver</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </widget>
