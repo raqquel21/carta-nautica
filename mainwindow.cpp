@@ -145,6 +145,10 @@ MainWindow::MainWindow(QWidget *parent)
         ui->stackedWidget->setCurrentIndex(3);
         ui->toolBar->show();
     });
+    connect(ui->salirPerfil_2, &QPushButton::clicked, this, [=]() {
+        ui->stackedWidget->setCurrentIndex(3);
+        ui->toolBar->show();
+    });
 
     /* Map button
     bool mapaListo = false;
@@ -292,6 +296,12 @@ MainWindow::MainWindow(QWidget *parent)
         ui->stackedWidget->setCurrentIndex(4);
         ui->toolBar->hide();
     });
+
+    ui->fechaHist->setCalendarPopup(true);
+    ui->fechaHist->setDate(QDate::currentDate());
+
+    connect(ui->histButton, &QPushButton::clicked, this, &MainWindow::filtrarHistorial);
+
 }
 
 void MainWindow::setupMap() //funcion para hacer los cambios al mapa
@@ -641,6 +651,40 @@ void MainWindow::mostrarHistorial()
     ui->tableHistorial->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableHistorial->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableHistorial->setSelectionMode(QAbstractItemView::NoSelection);
+}
+
+void MainWindow::filtrarHistorial(){
+
+    QDate fechafiltro = ui->fechaHist->date();
+
+    ui->tableHistorial->clearContents();
+    ui->tableHistorial->setRowCount(0);
+
+    if (!currentUser) return;
+
+    const QVector<Session> &sessions = currentUser->sessions();
+
+    for (const Session &s : sessions) {
+
+        if (s.timeStamp().date() >= fechafiltro) {
+
+            int row = ui->tableHistorial->rowCount();
+            ui->tableHistorial->insertRow(row);
+
+            ui->tableHistorial->setItem(
+                row, 0,
+                new QTableWidgetItem(
+                    s.timeStamp().toString("dd/MM/yyyy HH:mm")));
+
+            ui->tableHistorial->setItem(
+                row, 1,
+                new QTableWidgetItem(QString::number(s.hits())));
+
+            ui->tableHistorial->setItem(
+                row, 2,
+                new QTableWidgetItem(QString::number(s.faults())));
+        }
+    }
 }
 
 void MainWindow::togglePencil()

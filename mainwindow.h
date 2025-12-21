@@ -139,6 +139,7 @@ private slots:
     void checkQuestion();
     void onNextClicked();
     void mostrarHistorial();
+    void filtrarHistorial();
 
     void togglePencil();
     void SliderLapiz(int value);
