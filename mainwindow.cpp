@@ -32,17 +32,13 @@
 #include <QMessageBox>
 #include <QShortcut>
 
+#include <QFileDialog>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
-    QFile file(":/estilos/style.qss");
-    if(file.open(QFile::ReadOnly)) {
-        QString StyleSheet = QLatin1String(file.readAll());
-        qApp->setStyleSheet(StyleSheet);
-    }
 
     showMaximized();
 
@@ -58,6 +54,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->sigButton, &QPushButton::clicked, this, &MainWindow::onNextClicked);
     connect(ui->verificarButton, &QPushButton::clicked, this, &MainWindow::checkQuestion);
+    connect(ui->ReturnToProblemsButton, &QPushButton::clicked, this, &MainWindow::returnToProblems);
 
     showNextQuestion(); //para que salga la primera xd
 
@@ -95,20 +92,46 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     connect(ui->cerrarSesion, &QPushButton::clicked, this, [=]() {
-        Session s(sessionStart, sessionHits, sessionFaults);
-        nav.addSession(currentUser->nickName(), s);
+        // 1. Guardar datos solo si el puntero es válido
+        if (currentUser != nullptr) {
+            try {
+                Session s(sessionStart, sessionHits, sessionFaults);
+                nav.addSession(currentUser->nickName(), s);
+            } catch (...) {
+                qDebug() << "Error al guardar la sesión en la DB";
+            }
+        }
 
+        // 2. Desactivar el puntero
         currentUser = nullptr;
 
-        ui->nombre->clear();
-        ui->nacimiento->clear();
-        ui->email->clear();
-        ui->contrasenya->clear();
+        // 3. Bloquear señales de la UI temporalmente para evitar que se disparen eventos de cambio
+        ui->stackedWidget->blockSignals(true);
 
-        ui->stackedWidget->setCurrentIndex(0); // Volvemos a la pantalla de login
-        ui->toolBar->hide();                   // Ocultamos la toolbar
-        ui->enter_nickname->clear();
-        ui->lineEdit_2->clear();
+        // 4. Limpieza segura de campos (verificando que no sean nulos)
+        if (ui->nombre)
+            ui->nombre->clear();
+        if (ui->nacimiento)
+            ui->nacimiento->clear();
+        if (ui->email)
+            ui->email->clear();
+        if (ui->contrasenya)
+            ui->contrasenya->clear();
+        if (ui->enter_nickname)
+            ui->enter_nickname->clear();
+        if (ui->lineEdit_2)
+            ui->lineEdit_2->clear();
+
+        // 5. Resetear imagen de perfil
+        ui->PerfilImage->setIcon(QIcon());
+        ui->PerfilImage->setStyleSheet("QPushButton { border: 2px solid #555; border-radius: 60px; "
+                                       "background-color: white; }");
+
+        // 6. Navegación y Toolbar
+        ui->toolBar->hide();
+        ui->stackedWidget->setCurrentIndex(0);
+
+        ui->stackedWidget->blockSignals(false);
     });
 
     // Botones ojo (mostrar/ocultar contraseña)
@@ -142,10 +165,6 @@ MainWindow::MainWindow(QWidget *parent)
         ui->toolBar->hide();
     });
     connect(ui->salirPerfil, &QPushButton::clicked, this, [=]() {
-        ui->stackedWidget->setCurrentIndex(3);
-        ui->toolBar->show();
-    });
-    connect(ui->salirPerfil_2, &QPushButton::clicked, this, [=]() {
         ui->stackedWidget->setCurrentIndex(3);
         ui->toolBar->show();
     });
@@ -297,11 +316,29 @@ MainWindow::MainWindow(QWidget *parent)
         ui->toolBar->hide();
     });
 
-    ui->fechaHist->setCalendarPopup(true);
-    ui->fechaHist->setDate(QDate::currentDate());
+    //PERFIL IMAGE
 
-    connect(ui->histButton, &QPushButton::clicked, this, &MainWindow::filtrarHistorial);
+    // Dentro de MainWindow::MainWindow, después de configurar el PerfilImage->setStyleSheet(...)
+    connect(ui->PerfilImage, &QPushButton::clicked, this, &MainWindow::SeleccionarImagenPerfil);
+    connect(ui->PerfilImageRegister, &QPushButton::clicked, this, &MainWindow::SeleccionarImagenPerfil);
+    // Forzamos el tamaño para que el círculo (radius 60) sea perfecto
+    ui->PerfilImage->setFixedSize(120, 120);
+    ui->PerfilImageRegister->setFixedSize(120, 120);
+    ui->gridLayout_8->setAlignment(ui->PerfilImage, Qt::AlignCenter);
 
+    // 2. Aplicamos un estilo base LIMPIO (Bajamos el borde de 10px a 2px)
+    QString estiloBase = "QPushButton {"
+                         "   border: 2px solid #555;"
+                         "   border-radius: 60px;"
+                         "   background-color: white;"
+                         "   border-image: url(:/images/userIcono.png) 0 0 0 0 stretched stretched;"
+                         "}";
+
+    ui->PerfilImage->setStyleSheet(estiloBase);
+    ui->PerfilImageRegister->setStyleSheet(estiloBase);
+
+
+    rutaImagenRegistro = "";
 }
 
 void MainWindow::setupMap() //funcion para hacer los cambios al mapa
@@ -381,27 +418,26 @@ void MainWindow::onLogInClicked()
     //Users *u = userManager.authenticate(nickname, password);
 
     User *u = nav.authenticate(nickname, password);
-    currentUser = u;
 
-    if (!u) {
+    if (u) {
+        currentUser = u;
+
+        // 1. Cargamos la foto correctamente usando la maestra
+        actualizarFotoBoton(ui->PerfilImage, u->avatar());
+        actualizarIconoAction(ui->actionPerfil, u->avatar());
+
+        // 2. Actualizamos los textos de la interfaz
+        ui->nombre->setText("Nickname: " + u->nickName());
+        ui->nacimiento->setText("Date birth: " + u->birthdate().toString("dd/MM/yyyy"));
+        ui->email->setText("Email: " + u->email());
+        ui->contrasenya->setText("Password: " + u->password());
+
+        ui->stackedWidget->setCurrentIndex(3);
+        ui->sidebar_2->setCurrentIndex(0);
+        ui->toolBar->show();
+    } else {
         QMessageBox::warning(this, "Login incorrecto", "Nombre o contraseña incorrectos.");
-        return;
     }
-
-    // Si login correcto, mostrar perfil o la pantalla principal
-    sessionHits = 0;
-    sessionFaults = 0;
-    sessionStart = QDateTime::currentDateTime();
-
-    ui->stackedWidget->setCurrentIndex(3);
-    ui->sidebar_2->setCurrentIndex(0);
-    ui->toolBar->show();
-
-    // Opcional: mostrar info en perfil
-    ui->nombre->setText("Nickname: " + u->nickName());
-    ui->nacimiento->setText("Date birth: " + u->birthdate().toString("dd/MM/yyyy"));
-    ui->email->setText("Email: " + u->email());
-    ui->contrasenya->setText("Password: " + u->password());
 }
 void MainWindow::onRegisterClicked()
 {
@@ -438,22 +474,20 @@ void MainWindow::onRegisterClicked()
         return;
     }
 
-    // Crear usuario
-    QImage avatar(":/images/userIcono.png"); // avatar por defecto
+    QImage avatarFinal;
+    if (!rutaImagenRegistro.isEmpty()) {
+        avatarFinal.load(rutaImagenRegistro);
+    } else {
+        avatarFinal.load(":/images/userIcono.png"); // Imagen por defecto
+    }
 
-    //usuarios raquel:
-    //Users newUser(nameReg, mail, password1, avatar, fecha);
-    //userManager.addUser(newUser);
+    QImage fotoRegistro;
+    fotoRegistro.load(rutaImagenRegistro); // "Abrir normal" desde el archivo
 
-    //añadir a bbdd
-    User u(nameReg, mail, password1, avatar, fecha);
+    User u(nameReg, mail, password1, fotoRegistro, fecha); // Metemos la QImage en el objeto
     nav.addUser(u);
-    currentUser = nav.authenticate(nameReg, password1);
 
-    sessionHits = 0;
-    sessionFaults = 0;
-    sessionStart = QDateTime::currentDateTime();
-
+    rutaImagenRegistro.clear();
 
     // Mostrar info en perfil
     ui->nombre->setText("Nickname: " + u.nickName());
@@ -462,9 +496,100 @@ void MainWindow::onRegisterClicked()
     ui->contrasenya->setText("Password: " + u.password());
 
     // Cambiar a la pantalla de perfil
-    ui->stackedWidget->setCurrentIndex(2);
+    ui->stackedWidget->setCurrentIndex(0);
+
+    // Establece el usuario
+    currentUser = nav.findUser(nameReg);
 }
 
+void MainWindow::SeleccionarImagenPerfil()
+{
+    QPushButton *botonEmisor = qobject_cast<QPushButton *>(sender());
+    QString filePath = QFileDialog::getOpenFileName(this,
+                                                    tr("Seleccionar Imagen"),
+                                                    "",
+                                                    tr("Imágenes (*.png *.jpg *.jpeg)"));
+
+    if (!filePath.isEmpty()) {
+        QImage nuevaImg(filePath);
+
+        // Aplicamos el círculo correctamente
+        actualizarFotoBoton(botonEmisor, nuevaImg);
+
+        if (currentUser && botonEmisor == ui->PerfilImage) {
+            currentUser->setAvatar(nuevaImg);
+            nav.updateUser(*currentUser);
+            actualizarIconoAction(ui->actionPerfil, nuevaImg);
+        } else if (botonEmisor == ui->PerfilImageRegister) {
+            rutaImagenRegistro = filePath;
+        }
+    }
+}
+
+void MainWindow::actualizarFotoBoton(QPushButton *boton, const QImage &img)
+{
+    if (img.isNull())
+        return; //
+
+    // 1. Preparamos el tamaño (120x120 para que coincida con el botón)
+    int side = 120;
+    QImage scaledImg = img.scaled(side,
+                                  side,
+                                  Qt::KeepAspectRatioByExpanding,
+                                  Qt::SmoothTransformation); //
+
+    // 2. Creamos un Pixmap transparente para hacer el recorte circular
+    QPixmap target(side, side);
+    target.fill(Qt::transparent);
+
+    // 3. Usamos QPainter para "recortar" la imagen en un círculo
+    QPainter painter(&target);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setRenderHint(QPainter::SmoothPixmapTransform);
+
+    QPainterPath path;
+    path.addEllipse(0, 0, side, side); // Creamos el camino circular
+    painter.setClipPath(path);         // Todo lo que pintemos ahora solo se verá dentro del círculo
+
+    // Dibujamos la imagen centrada
+    painter.drawImage(0, 0, scaledImg);
+    painter.end();
+
+    // 4. Aplicamos al botón
+    boton->setIcon(QIcon(target));
+    boton->setIconSize(QSize(side, side)); //
+
+    // 5. El CSS ahora solo sirve para el borde exterior
+    boton->setStyleSheet("QPushButton {"
+                         "   border: 2px solid #555;"
+                         "   border-radius: 60px;"
+                         "   background-color: transparent;"
+                         "}");
+}
+
+// En tu archivo .cpp, añade esta versión para QAction
+void MainWindow::actualizarIconoAction(QAction *action, const QImage &img)
+{
+    if (img.isNull() || !action) return;
+
+    int side = 64; // Tamaño estándar para iconos de toolbar
+    QImage scaledImg = img.scaled(side, side, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+
+    QPixmap target(side, side);
+    target.fill(Qt::transparent);
+
+    QPainter painter(&target);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setRenderHint(QPainter::SmoothPixmapTransform);
+
+    QPainterPath path;
+    path.addEllipse(0, 0, side, side);
+    painter.setClipPath(path);
+    painter.drawImage(0, 0, scaledImg);
+    painter.end();
+
+    action->setIcon(QIcon(target));
+}
 void MainWindow::toggleSidebar()
 {
     const int fullWidth = 300;
@@ -538,29 +663,16 @@ void MainWindow::onNextClicked()
 
 void MainWindow::showNextQuestion()
 {
-
-    const Problem &p = problemas[preg_actual];
-
     ui->res1->setText("");
     ui->res2->setText("");
     ui->res3->setText("");
     ui->res4->setText("");
     ui->verificarButton->setEnabled(true);
 
-    QLabel *labels[] = {ui->res1, ui->res2, ui->res3, ui->res4};
-
-    for (int i = 0; i < p.answers().size(); ++i) {
-        respbotones[i]->setProperty("class", "");
-        labels[i]->setProperty("class", "");
-        respbotones[i]->style()->unpolish(respbotones[i]);
-        respbotones[i]->style()->polish(respbotones[i]);
-        labels[i]->style()->unpolish(labels[i]);
-        labels[i]->style()->polish(labels[i]);
-    }
-
     if (preg_actual >= problemas.size())
         preg_actual = 0; // reiniciar si llegamos al final
 
+    const Problem &p = problemas[preg_actual];
 
     ui->enunciadoLabel->setText(p.text());
 
@@ -607,24 +719,15 @@ void MainWindow::checkQuestion()
 
     for (int i = 0; i < p.answers().size(); ++i) {
         if (p.answers()[i].validity()) {
+            respbotones[i]->setStyleSheet("color: green; font-weight: bold;");
             labels[i]->setText("✓");
-            respbotones[i]->setProperty("class", "correct-answer");
-            labels[i]->setProperty("class", "correct-answer");
+            labels[i]->setStyleSheet("color: green; font-size: 18px; font-weight: bold;");
         } else if (i == seleccionada) {
+            respbotones[i]->setStyleSheet("color: red; font-weight: bold;");
             labels[i]->setText("✗");
-            respbotones[i]->setProperty("class", "incorrect-answer");
-            labels[i]->setProperty("class", "incorrect-answer");
+            labels[i]->setStyleSheet("color: red; font-size: 18px; font-weight: bold;");
         }
-        // Forzar actualización del estilo después de cambiar la propiedad
-        respbotones[i]->style()->unpolish(respbotones[i]);
-        respbotones[i]->style()->polish(respbotones[i]);
-        respbotones[i]->update();
-
-        labels[i]->style()->unpolish(labels[i]);
-        labels[i]->style()->polish(labels[i]);
-        labels[i]->update();
     }
-
 
     if (p.answers()[seleccionada].validity()) {
         sessionHits++;
@@ -633,6 +736,11 @@ void MainWindow::checkQuestion()
     }
 
     ui->verificarButton->setEnabled(false);
+}
+
+void MainWindow::returnToProblems()
+{
+    ui->sidebar_2->setCurrentIndex(0);
 }
 
 void MainWindow::mostrarHistorial()
@@ -673,40 +781,6 @@ void MainWindow::mostrarHistorial()
     ui->tableHistorial->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableHistorial->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableHistorial->setSelectionMode(QAbstractItemView::NoSelection);
-}
-
-void MainWindow::filtrarHistorial(){
-
-    QDate fechafiltro = ui->fechaHist->date();
-
-    ui->tableHistorial->clearContents();
-    ui->tableHistorial->setRowCount(0);
-
-    if (!currentUser) return;
-
-    const QVector<Session> &sessions = currentUser->sessions();
-
-    for (const Session &s : sessions) {
-
-        if (s.timeStamp().date() >= fechafiltro) {
-
-            int row = ui->tableHistorial->rowCount();
-            ui->tableHistorial->insertRow(row);
-
-            ui->tableHistorial->setItem(
-                row, 0,
-                new QTableWidgetItem(
-                    s.timeStamp().toString("dd/MM/yyyy HH:mm")));
-
-            ui->tableHistorial->setItem(
-                row, 1,
-                new QTableWidgetItem(QString::number(s.hits())));
-
-            ui->tableHistorial->setItem(
-                row, 2,
-                new QTableWidgetItem(QString::number(s.faults())));
-        }
-    }
 }
 
 void MainWindow::togglePencil()
