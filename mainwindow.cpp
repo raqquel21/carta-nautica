@@ -25,6 +25,9 @@
 
 #include <QFileDialog>
 
+#include <algorithm>
+#include <random>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -848,10 +851,21 @@ void MainWindow::showNextQuestion()
 
     ui->enunciadoLabel->setText(p.text());
 
-    // actualizar radiobuttons
+    // MEZCLAR LAS RESPUESTAS ALEATORIAMENTE
+    QVector<Answer> respuestasMezcladas = p.answers();
+
+    // Crear orden aleatorio usando std::shuffle
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(respuestasMezcladas.begin(), respuestasMezcladas.end(), g);
+
+    // Guardar el orden aleatorio para verificar después
+    respuestasAleatorias = respuestasMezcladas;
+
+    // actualizar radiobuttons CON ORDEN ALEATORIO
     for (int i = 0; i < respbotones.size(); ++i) {
-        if (i < p.answers().size()) {
-            respbotones[i]->setText(p.answers()[i].text());
+        if (i < respuestasAleatorias.size()) {
+            respbotones[i]->setText(respuestasAleatorias[i].text());
             respbotones[i]->setVisible(true);
             respbotones[i]->setChecked(false);
             respbotones[i]->setStyleSheet(""); // resetear color
@@ -861,6 +875,7 @@ void MainWindow::showNextQuestion()
         }
     }
 }
+
 
 void MainWindow::togglePassword(QLineEdit *text, QToolButton *button)
 {
@@ -890,8 +905,9 @@ void MainWindow::checkQuestion()
 
     QLabel *labels[] = {ui->res1, ui->res2, ui->res3, ui->res4};
 
-    for (int i = 0; i < p.answers().size(); ++i) {
-        if (p.answers()[i].validity()) {
+    // VERIFICAR USANDO EL ORDEN ALEATORIO
+    for (int i = 0; i < respuestasAleatorias.size(); ++i) {
+        if (respuestasAleatorias[i].validity()) {
             labels[i]->setText("✓");
             respbotones[i]->setProperty("class", "correct-answer");
             labels[i]->setProperty("class", "correct-answer");
@@ -910,7 +926,9 @@ void MainWindow::checkQuestion()
         labels[i]->update();
     }
 
-    if (p.answers()[seleccionada].validity()) {
+    // VERIFICAR SI LA RESPUESTA SELECCIONADA ES CORRECTA USANDO EL ORDEN ALEATORIO
+    if (seleccionada < respuestasAleatorias.size() &&
+        respuestasAleatorias[seleccionada].validity()) {
         sessionHits++;
     } else {
         sessionFaults++;
