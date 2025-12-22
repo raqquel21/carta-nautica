@@ -25,7 +25,6 @@
 #include <QGraphicsSceneMouseEvent> // Necesario para mouse events
 #include <QGraphicsSvgItem>         // Asegúrate de que este include esté aquí
 #include <QPointF>                  // Necesario para QPointF
-#include <QtMath>                   // Necesario para qRadiansToDegrees y atan2
 
 #include <QEvent>
 #include <QList>
@@ -36,6 +35,7 @@
 #include "compassitem/compassitem.h"       // compas
 #include "movablesvgitem/movablesvgitem.h" //transportador
 #include "usermanager/usermanager.h"
+#include "rotablesvgitem/rotatablesvgitem.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -43,25 +43,6 @@ class MainWindow;
 }
 QT_END_NAMESPACE
 
-class RotatableSvgItem : public QGraphicsSvgItem
-{
-public:
-    explicit RotatableSvgItem(const QString &fileName, QGraphicsItem *parent = nullptr);
-
-protected:
-    // Declaramos las funciones que hemos implementado en el .cpp
-    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
-    void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
-    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
-    void hoverMoveEvent(QGraphicsSceneHoverEvent *event) override;
-
-private:
-    // Variables internas para controlar el movimiento y rotación
-    enum Mode { None, Moving, Rotating };
-    Mode m_mode;
-    QPointF m_lastMousePos;
-    QPointF m_pivotPoint;
-};
 
 class MainWindow : public QMainWindow
 {

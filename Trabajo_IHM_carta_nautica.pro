@@ -16,6 +16,7 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     movablesvgitem/movablesvgitem.cpp \
+    rotablesvgitem/rotatablesvgitem.cpp \
     usermanager/usermanager.cpp \
     users/users.cpp
 
@@ -23,6 +24,7 @@ HEADERS += \
     compassitem/compassitem.h \
     mainwindow.h \
     movablesvgitem/movablesvgitem.h \
+    rotablesvgitem/rotatablesvgitem.h \
     usermanager/usermanager.h \
     users/users.h
 
