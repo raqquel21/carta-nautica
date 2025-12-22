@@ -70,6 +70,8 @@ private:
     QPointF calculateOptimalPivot(QPointF fixedPivot, QPointF movingPoint);
 
     qreal lastAngle = 0.0;
+    qreal accumulatedSpan = 0.0;
+
     qreal totalAngle = 0.0;
     bool arcStarted = false;
     QPainterPath arcPath;

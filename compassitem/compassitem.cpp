@@ -6,6 +6,7 @@
 CompassItem::CompassItem(QGraphicsItem *parent)
     : QGraphicsItemGroup(parent)
 {
+    setPos(70,0);
     legLeft = new QGraphicsSvgItem(":/images/compass_leg.svg");
     legRight = new QGraphicsSvgItem(":/images/compass_leg.svg");
 
@@ -108,7 +109,10 @@ void CompassItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
         pivotScene = legRight->mapToScene(legRight->transformOriginPoint());
         mouseInitialAngle = QLineF(pivotScene, scenePos).angle();
         legLeftInitialAngle = legLeft->rotation();
+
         startAngle = mouseInitialAngle;
+        lastAngle = startAngle;
+        accumulatedSpan = 0.0;
 
         currentArc = new QGraphicsPathItem();
         currentArc->setPen(QPen(Qt::blue, 2));
@@ -142,16 +146,31 @@ void CompassItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
         legLeft->setRotation(legLeftInitialAngle - deltaAngle);
 
         if (currentArc) {
-            QPointF tipCurrent = legLeft->mapToScene(legLeft->boundingRect().bottomRight());
-            qreal radius = QLineF(pivotScene, tipCurrent).length();
-            QRectF arcRect(pivotScene.x() - radius, pivotScene.y() - radius, 2 * radius, 2 * radius);
+            QPointF tipCurrent = legLeft->mapToScene(
+                legLeft->boundingRect().bottomRight()
+                );
 
-            qreal start = startAngle;
-            qreal span = QLineF(pivotScene, tipCurrent).angle() - start;
+            qreal radius = QLineF(pivotScene, tipCurrent).length();
+            QRectF arcRect(
+                pivotScene.x() - radius,
+                pivotScene.y() - radius,
+                2 * radius,
+                2 * radius
+                );
+
+            qreal currentAngle = QLineF(pivotScene, tipCurrent).angle();
+
+            // Corrección del salto 360°
+            qreal delta = currentAngle - lastAngle;
+            if (delta > 180)  delta -= 360;
+            if (delta < -180) delta += 360;
+
+            accumulatedSpan += delta;
+            lastAngle = currentAngle;
 
             QPainterPath path;
-            path.arcMoveTo(arcRect, start);
-            path.arcTo(arcRect, start, span);
+            path.arcMoveTo(arcRect, startAngle);
+            path.arcTo(arcRect, startAngle, accumulatedSpan);
             currentArc->setPath(path);
         }
     } else if (m_mode == RotatingRight) {
