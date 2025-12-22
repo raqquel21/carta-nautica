@@ -98,6 +98,7 @@ private:
     int preg_actual = 0;
     QVector<Problem> problemas;
     QVector<QRadioButton *> respbotones;
+    QVector<Answer> respuestasAleatorias;
 
     Navigation &nav = Navigation::instance();
     User *currentUser = nullptr;
