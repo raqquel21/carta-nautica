@@ -32,6 +32,7 @@ QPushButton {
     border-radius: 6px;
     padding: 10px;
     font-weight: bold;
+    border: none;
 }
 
 QPushButton:hover {
@@ -74,6 +75,10 @@ QToolButton:hover,
 QToolButton:pressed,
 QToolButton:checked {
     background-color: #f2e8de;
+}
+
+QToolButton[clase="iconBut"]:pressed{
+    border: 2px solid #a76e3d;
 }
 
 /* CAMPOS DE TEXTO */
@@ -149,7 +154,6 @@ QRadioButton::indicator:checked:disabled {
     background-color: #9AA1B3;
 }
 
-
 /* BARRA DE HERRAMIENTAS */
 QToolBar {
     background-color: #FBF6F0;
@@ -170,6 +174,7 @@ QPushButton#sidebarButton_2[clase="iconBut"]{
 }
 QPushButton#sidebarButton_2[clase="iconBut"]:hover{
     background-color: #d4cac1;
+    border: 2px solid #a76e3d;
 }
 
 /* BOTONES DE RESPUESTA EN LISTA */
