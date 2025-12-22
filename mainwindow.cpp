@@ -593,7 +593,6 @@ void MainWindow::actualizarFotoBoton(QPushButton *boton, const QImage &img)
                          "}");
 }
 
-// En tu archivo .cpp, añade esta versión para QAction
 void MainWindow::actualizarIconoAction(QAction *action, const QImage &img)
 {
     if (img.isNull() || !action)
@@ -918,7 +917,7 @@ void MainWindow::togglePencil()
     ui->graphicsView->setCursor(Cursor);
 }
 
-void MainWindow::toggleRubber() // <--- NUEVA IMPLEMENTACIÓN
+void MainWindow::toggleRubber()
 {
     drawingMode = false;
     erasingMode = true;
@@ -941,11 +940,11 @@ void MainWindow::toggleCursor()
     measuringMode = false;
     textMode = false;
 
-    if (rulerSvgItem) {
-        rulerSvgItem->setVisible(false);
-        rulerSvgItem->setSelected(false);
-        svgRulerActive = false;
-    }
+    // if (rulerSvgItem) {
+    //     rulerSvgItem->setVisible(false);
+    //     rulerSvgItem->setSelected(false);
+    //     svgRulerActive = false;
+    // }
     ui->graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
 
     // Restauramos el cursor por defecto
@@ -997,161 +996,58 @@ void MainWindow::placeMark()
     ui->graphicsView->setCursor(Qt::PointingHandCursor);
 }
 
+// Funciones de la regla:
 void MainWindow::toggleSvgRuler(bool checked)
 {
-    // 1. Controlar la visibilidad y seleccionabilidad del ítem SVG
-    if (rulerSvgItem) {
-        rulerSvgItem->setVisible(checked);
-        rulerSvgItem->setSelected(checked);
-    }
+    if (!rulerSvgItem)
+        return;
 
-    // Sincronizar la variable de estado
+    rulerSvgItem->setVisible(checked);
+    rulerSvgItem->setSelected(checked);
     svgRulerActive = checked;
+}
 
-    // 2. Comprobar si el Lápiz o un modo de dibujo está activo
-    bool drawingModeIsActive = drawingMode || erasingMode || markingMode || textMode
-                               || measuringMode;
+QPointF MainWindow::snapToRuler(QPointF scenePos)
+{
+    // Si la regla no existe o está oculta, devolvemos el punto normal
+    if (!rulerSvgItem || !rulerSvgItem->isVisible()) {
+        return scenePos;
+    }
 
-    if (checked) {
-        // --- REGLA ACTIVADA ---
+    // 1. Convertir la posición del ratón (Escena) a coordenadas locales de la regla
+    QPointF localPos = rulerSvgItem->mapFromScene(scenePos);
+    QRectF rect = rulerSvgItem->boundingRect();
 
-        // Si el Lápiz está activo, lo dejamos en checked=true
-        // La lógica del QEventFilter nos garantiza que solo uno de los exclusivos esté activo.
+    // Definimos un umbral de atracción (ej: 30 píxeles)
+    double threshold = 60.0;
 
-        // Permitimos mover la Regla SVG
-        ui->graphicsView->setDragMode(QGraphicsView::NoDrag);
+    // Calculamos distancias a los bordes superior e inferior (en local)
+    double distTop = qAbs(localPos.y() - rect.top());
+    double distBottom = qAbs(localPos.y() - rect.bottom());
 
-        // Si no hay modo de dibujo activo, ponemos cursor de arrastre de objeto (Regla SVG)
-        if (!drawingModeIsActive) {
-            ui->graphicsView->setCursor(Qt::OpenHandCursor);
-        }
+    // 2. Comprobar si debemos activar el "imán"
+    bool snapped = false;
 
+    // Opcional: Si quieres que solo pinte SI ESTÁ DENTRO del largo de la regla:
+    // if (localPos.x() >= rect.left() - threshold && localPos.x() <= rect.right() + threshold) { ... }
+
+    // Lógica de imán:
+    if (distTop < threshold) {
+        localPos.setY(rect.top()); // Fijar al borde superior
+        snapped = true;
+    } else if (distBottom < threshold) {
+        localPos.setY(rect.bottom()); // Fijar al borde inferior
+        snapped = true;
+    }
+
+    // 3. Devolver la posición corregida (o la original)
+    if (snapped) {
+        return rulerSvgItem->mapToScene(localPos);
     } else {
-        // --- REGLA DESACTIVADA ---
-
-        // Si la herramienta Lápiz estaba activa antes de usar la Regla SVG:
-        if (ui->lapiz->isChecked()) {
-            togglePencil();
-
-        } else if (drawingModeIsActive) {
-            // Si cualquier otro modo de dibujo estaba activo, lo restauramos
-            // (esto incluye Goma, Marca, etc.)
-            if (erasingMode)
-                toggleRubber();
-            else if (markingMode)
-                placeMark();
-            else if (textMode)
-                toggleText();
-            else
-                toggleCursor(); // Si no era modo de dibujo, vamos al cursor normal.
-        } else {
-            // Si no había NINGÚN modo de dibujo activo, volvemos al modo cursor normal.
-            toggleCursor();
-        }
+        return scenePos;
     }
 }
-
-RotatableSvgItem::RotatableSvgItem(const QString &fileName, QGraphicsItem *parent)
-    : QGraphicsSvgItem(fileName, parent)
-    , m_mode(None)
-{
-    // Quitamos ItemIsMovable para moverlo manualmente solo desde el centro
-    // Habilitamos Hover para cambiar el cursor al pasar por encima
-    setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemSendsGeometryChanges);
-    setAcceptHoverEvents(true);
-}
-
-void RotatableSvgItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-    QRectF bounds = boundingRect();
-    QPointF pos = event->pos();
-    qreal width = bounds.width();
-    qreal zoneSize = width * 0.15; // 15% para las zonas de rotación
-
-    m_lastMousePos = event->scenePos();
-
-    // Función auxiliar lambda para cambiar el pivote sin que la regla salte
-    auto setPivotSmart = [&](QPointF newPivotLocal) {
-        // 1. Guardamos dónde está ese punto visualmente AHORA MISMO en la escena
-        QPointF anchorSceneBefore = mapToScene(newPivotLocal);
-
-        // 2. Cambiamos el punto de origen de la transformación
-        setTransformOriginPoint(newPivotLocal);
-
-        // 3. Vemos dónde ha ido a parar ese punto tras el cambio (aquí ocurre el salto)
-        QPointF anchorSceneAfter = mapToScene(newPivotLocal);
-
-        // 4. Calculamos la diferencia y movemos la regla para compensar el salto
-        QPointF diff = anchorSceneBefore - anchorSceneAfter;
-        setPos(this->pos() + diff);
-
-        // 5. Guardamos este punto como el pivote fijo para la rotación
-        m_pivotPoint = anchorSceneBefore;
-    };
-
-    if (pos.x() < zoneSize) {
-        // --- Clic en IZQUIERDA -> Pivote en DERECHA ---
-        m_mode = Rotating;
-        setPivotSmart(QPointF(width, bounds.height() / 2));
-
-    } else if (pos.x() > width - zoneSize) {
-        // --- Clic en DERECHA -> Pivote en IZQUIERDA ---
-        m_mode = Rotating;
-        setPivotSmart(QPointF(0, bounds.height() / 2));
-
-    } else {
-        // --- Clic en CENTRO -> MOVER ---
-        m_mode = Moving;
-        setCursor(Qt::ClosedHandCursor);
-    }
-
-    event->accept();
-}
-
-void RotatableSvgItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-{
-    if (m_mode == Moving) {
-        // Mover manualmente sumando la diferencia
-        QPointF delta = event->scenePos() - m_lastMousePos;
-        setPos(pos() + delta);
-        m_lastMousePos = event->scenePos();
-    } else if (m_mode == Rotating) {
-        // Calcular ángulo absoluto entre el pivote y el ratón
-        QLineF line(m_pivotPoint, event->scenePos());
-        double angle = -line.angle();
-
-        // Corregir orientación si estamos pivotando sobre el lado derecho
-        // (porque la regla "mira" hacia la izquierda en ese caso)
-        if (transformOriginPoint().x() > 0) {
-            angle += 180;
-        }
-
-        setRotation(angle);
-    }
-}
-
-void RotatableSvgItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
-{
-    m_mode = None;
-    hoverMoveEvent(nullptr); // Restaurar el cursor correcto
-    QGraphicsSvgItem::mouseReleaseEvent(event);
-}
-
-void RotatableSvgItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
-{
-    QPointF pos = (event) ? event->pos() : mapFromScene(QCursor::pos());
-    qreal width = boundingRect().width();
-    qreal zoneSize = width * 0.15;
-
-    if (pos.x() < zoneSize || pos.x() > width - zoneSize) {
-        setCursor(Qt::SizeHorCursor);
-    } else {
-        setCursor(Qt::OpenHandCursor);
-    }
-
-    if (event)
-        QGraphicsSvgItem::hoverMoveEvent(event);
-}
+// -------
 
 // Funciones del transportador:
 QPointF MainWindow::protractorCenter()
@@ -1182,6 +1078,7 @@ void MainWindow::toggleSvgProtractor(bool checked)
 }
 // ----
 
+// Funcion compás
 void MainWindow::toggleCompass(bool checked)
 {
     if (checked) {
@@ -1193,10 +1090,10 @@ void MainWindow::toggleCompass(bool checked)
         textMode = false;
 
         // Ocultar regla si estaba activa
-        if (rulerSvgItem) {
-            rulerSvgItem->setVisible(false);
-            svgRulerActive = false;
-        }
+        // if (rulerSvgItem) {
+        //     rulerSvgItem->setVisible(false);
+        //     svgRulerActive = false;
+        // }
 
         compassItem->setVisible(true);
         ui->graphicsView->setDragMode(QGraphicsView::NoDrag);
@@ -1206,7 +1103,8 @@ void MainWindow::toggleCompass(bool checked)
         toggleCursor();
     }
 }
-
+// -----
+// Funciones de los puntos de corte (ojo)
 void MainWindow::hidePointExtremes()
 {
     if (eyeProjectionGroup) {
@@ -1282,7 +1180,8 @@ void MainWindow::togglePointExtremes()
     showPointExtremes(item);
     eyeActive = true;
 }
-
+// -----
+//Función de la herramienta de texto:
 void MainWindow::toggleText()
 {
     drawingMode = false;
@@ -1294,48 +1193,7 @@ void MainWindow::toggleText()
     ui->graphicsView->setDragMode(QGraphicsView::NoDrag);
     ui->graphicsView->setCursor(Qt::IBeamCursor);
 }
-
-QPointF MainWindow::snapToRuler(QPointF scenePos)
-{
-    // Si la regla no existe o está oculta, devolvemos el punto normal
-    if (!rulerSvgItem || !rulerSvgItem->isVisible()) {
-        return scenePos;
-    }
-
-    // 1. Convertir la posición del ratón (Escena) a coordenadas locales de la regla
-    QPointF localPos = rulerSvgItem->mapFromScene(scenePos);
-    QRectF rect = rulerSvgItem->boundingRect();
-
-    // Definimos un umbral de atracción (ej: 30 píxeles)
-    double threshold = 60.0;
-
-    // Calculamos distancias a los bordes superior e inferior (en local)
-    double distTop = qAbs(localPos.y() - rect.top());
-    double distBottom = qAbs(localPos.y() - rect.bottom());
-
-    // 2. Comprobar si debemos activar el "imán"
-    bool snapped = false;
-
-    // Opcional: Si quieres que solo pinte SI ESTÁ DENTRO del largo de la regla:
-    // if (localPos.x() >= rect.left() - threshold && localPos.x() <= rect.right() + threshold) { ... }
-
-    // Lógica de imán:
-    if (distTop < threshold) {
-        localPos.setY(rect.top()); // Fijar al borde superior
-        snapped = true;
-    } else if (distBottom < threshold) {
-        localPos.setY(rect.bottom()); // Fijar al borde inferior
-        snapped = true;
-    }
-
-    // 3. Devolver la posición corregida (o la original)
-    if (snapped) {
-        return rulerSvgItem->mapToScene(localPos);
-    } else {
-        return scenePos;
-    }
-}
-
+// -----
 bool MainWindow::eventFilter(QObject *watched, QEvent *event)
 {
     if (event->type() == QEvent::MouseButtonPress && qobject_cast<QToolButton *>(watched)) {

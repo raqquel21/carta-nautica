@@ -17,7 +17,7 @@ CompassItem::CompassItem(QGraphicsItem *parent)
     legRight->setPos(0, 0);
 
     QRectF r = legLeft->boundingRect();
-    qDebug() << "BoundingRect:" << r;
+    //qDebug() << "BoundingRect:" << r;
 
     QPointF pivot(0, r.height() / 2.0);
 
@@ -33,12 +33,7 @@ CompassItem::CompassItem(QGraphicsItem *parent)
     setHandlesChildEvents(true);
     setFlags(QGraphicsItem::ItemIsSelectable);
 
-    arcItem = new QGraphicsPathItem(this);
-    QPen pen(Qt::blue);
-    pen.setWidth(2);
-    arcItem->setPen(pen);
-
-    double scaleFactor = 1.75;
+    double scaleFactor = 2;
     setScale(scaleFactor);
 
     setData(Qt::UserRole, "tool_compass");
