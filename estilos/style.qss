@@ -70,11 +70,15 @@ QPushButton[clase="iconBut"] {
     border: 2px solid #a76e3d;
     padding: 6px;
     border-radius: 4px;
+
+    /* 🔑 evita que Qt recoloree iconos */
+    color: #394589;
 }
 
 QToolButton[clase="iconBut"]:hover,
 QPushButton[clase="iconBut"]:hover {
     background-color: #E5C8A7;
+    color: #394589;
 }
 
 QToolButton[clase="iconBut"]:checked {
@@ -167,17 +171,17 @@ QWidget#sidebar_2 {
     background-color: #FFFFFF;
     border-left: 1px solid #E5C8A7;
 }
-QPushButton#sidebarButton,
-QPushButton#sidebarButton_2 {
-    background-color: #394589;
-    color: #FBF6F0;
-    border: 1px solid #71A3BC; /* Añadimos un borde para que se vea el recuadro */
-    border-radius: 6px;
+QPushButton#sidebarButton[clase="iconBut"],
+QPushButton#sidebarButton_2[clase="iconBut"] {
+    background-color: transparent;
+    color: #394589;
+    border: 2px solid #a76e3d;
+    padding: 6px;
+    border-radius: 4px;
 }
-
-QPushButton#sidebarButton:hover,
-QPushButton#sidebarButton_2:hover {
-    background-color: #4a55a0;
+QPushButton#sidebarButton[clase="iconBut"]:hover,
+QPushButton#sidebarButton_2[clase="iconBut"]:hover {
+    background-color: #E5C8A7;
 }
 /* BOTONES DE RESPUESTA EN LISTA */
 QListWidget QPushButton {
