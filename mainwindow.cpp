@@ -158,17 +158,17 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Conexiones botones
     connect(ui->actionPerfil, &QAction::triggered, this, [=]() {
-            if (currentUser) {
-                // El nombre de usuario se queda como Label (no editable)
-                ui->nombre->setText(currentUser->nickName());
+        if (currentUser) {
+            // El nombre de usuario se queda como Label (no editable)
+            ui->nombre->setText(currentUser->nickName());
 
-                // Rellenar campos editables
-                ui->emailEdit->setText(currentUser->email());
-                ui->passwordEdit->setText(currentUser->password());
-                ui->dateEdit->setDate(currentUser->birthdate());
+            // Rellenar campos editables
+            ui->emailEdit->setText(currentUser->email());
+            ui->passwordEdit->setText(currentUser->password());
+            ui->dateEdit->setDate(currentUser->birthdate());
         }
         ui->stackedWidget->setCurrentIndex(2);
-            ui->toolBar->hide();
+        ui->toolBar->hide();
     });
 
     connect(ui->salirPerfil, &QPushButton::clicked, this, [=]() {
@@ -215,8 +215,16 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->grosorSlider, &QSlider::valueChanged, this, &MainWindow::SliderLapiz);
 
     connect(ui->colorButton, &QToolButton::clicked, this, &MainWindow::cambiarColor);
+    connect(ui->markColorButton, &QToolButton::clicked, this, [=]() {
+        QColor newColor = QColorDialog::getColor(currentMarkColor, this, "Color para Marcadores");
+        if (newColor.isValid()) {
+            currentMarkColor = newColor;
+            ui->markColorButton->setStyleSheet(
+                QString("background-color: %1;").arg(newColor.name()));
+        }
+    });
 
-    exclusiveButtons << ui->lapiz << ui->cursor << ui->goma << ui->texto << ui->marca;
+    exclusiveButtons << ui->lapiz << ui->cursor << ui->goma << ui->texto << ui->marca << ui->regla << ui->compas;
     //<< ui->regla;
 
     for (QToolButton *button : exclusiveButtons) {
@@ -230,7 +238,6 @@ MainWindow::MainWindow(QWidget *parent)
             connect(button, &QToolButton::toggled, this, &MainWindow::toggleRubber);
         if (button == ui->marca)
             connect(button, &QToolButton::toggled, this, &MainWindow::placeMark);
-        //if (button == ui->regla) connect(button, &QToolButton::toggled, this, &MainWindow::toggleSvgRuler);
         if (button == ui->texto)
             connect(button, &QToolButton::toggled, this, &MainWindow::toggleText);
     }
@@ -287,6 +294,14 @@ MainWindow::MainWindow(QWidget *parent)
     // --- Atajo para Regla (6) ---
     QShortcut *rulerShortcut = new QShortcut(QKeySequence(Qt::Key_6), this);
     connect(rulerShortcut, &QShortcut::activated, this, [=]() { activateToolButton(ui->regla); });
+
+    // --- Atajo para Transportador (7) ---
+    QShortcut *transportadorShortcut = new QShortcut(QKeySequence(Qt::Key_7), this);
+    connect(transportadorShortcut, &QShortcut::activated, this, [=]() { activateToolButton(ui->transportador); });
+
+    // --- Atajo para Compás (8) ---
+    QShortcut *compasShortcut = new QShortcut(QKeySequence(Qt::Key_8), this);
+    connect(compasShortcut, &QShortcut::activated, this, [=]() { activateToolButton(ui->compas); });
 
     QShortcut *deleteShortcut = new QShortcut(QKeySequence(Qt::Key_Delete), this);
     connect(deleteShortcut, &QShortcut::activated, this, &MainWindow::confirmAndClearAllDrawings);
@@ -364,6 +379,12 @@ MainWindow::MainWindow(QWidget *parent)
     ui->PerfilImageRegister->setStyleSheet(estiloBase);
 
     rutaImagenRegistro = "";
+
+    connect(ui->guardarPerfil, &QPushButton::clicked, this, &MainWindow::onGuardarCambiosPerfil);
+
+    connect(ui->emailEdit, &QLineEdit::textChanged, this, &MainWindow::checkProfileChanges);
+    connect(ui->passwordEdit, &QLineEdit::textChanged, this, &MainWindow::checkProfileChanges);
+    connect(ui->dateEdit, &QDateEdit::userDateChanged, this, &MainWindow::checkProfileChanges);
 }
 
 MainWindow::~MainWindow()
@@ -428,14 +449,6 @@ void MainWindow::onLogInClicked()
 {
     QString nickname = ui->enter_nickname->text().trimmed();
     QString password = ui->lineEdit_2->text().trimmed();
-
-    // ESTO LO TENDREMOS QUE QUITAR
-    if ((nickname == "user1") && (password == "User123!")) {
-        ui->stackedWidget->setCurrentIndex(3); // pantalla principal
-        ui->sidebar_2->setCurrentIndex(0);
-        ui->toolBar->show();
-        return;
-    }
 
     //Users *u = userManager.authenticate(nickname, password);
 
@@ -620,27 +633,40 @@ void MainWindow::actualizarIconoAction(QAction *action, const QImage &img)
 void MainWindow::onGuardarCambiosPerfil() {
     if (!currentUser) return;
 
-        // 1. Validaciones previas
-        QString nuevoEmail = ui->emailEdit->text().trimmed(); // Asumiendo nuevo nombre de objeto
-    QString nuevaPass = ui->passwordEdit->text().trimmed();
-        QDate nuevaFecha = ui->dateEdit->date();
-
-        if (nuevoEmail.isEmpty() || nuevaPass.isEmpty()) {
-            QMessageBox::warning(this, "Error", "El email y la contraseña no pueden estar vacíos.");
-        return;
-    }
-
-    // 2. Actualizar el objeto en memoria
-    currentUser->setEmail(nuevoEmail);
-        currentUser->setPassword(nuevaPass);
-        currentUser->setBirthdate(nuevaFecha);
+    // 1. Actualizar el objeto User en memoria con los nuevos datos
+    currentUser->setEmail(ui->emailEdit->text().trimmed());
+    currentUser->setPassword(ui->passwordEdit->text().trimmed());
+    currentUser->setBirthdate(ui->dateEdit->date());
 
     try {
+        // 2. Persistir los cambios en el archivo de base de datos
         nav.updateUser(*currentUser);
-            QMessageBox::information(this, "Perfil Actualizado", "Los cambios se han guardado correctamente.");
+
+        // 3. Actualizar la interfaz visual (las etiquetas fijas)
+        ui->nombre->setText("Nombre: " + currentUser->nickName());
+        ui->email->setText("Email: " + currentUser->email());
+        ui->contrasenya->setText("Password: " + currentUser->password());
+        ui->nacimiento->setText("Date birth: " + currentUser->birthdate().toString("dd/MM/yyyy"));
+
+        // 4. Desactivar el botón porque ya no hay cambios pendientes
+        ui->guardarPerfil->setEnabled(false);
+
+        QMessageBox::information(this, "Éxito", "Perfil actualizado correctamente.");
     } catch (...) {
-        QMessageBox::critical(this, "Error", "Hubo un fallo al acceder a la base de datos.");
+        QMessageBox::critical(this, "Error", "No se pudo guardar en la base de datos.");
     }
+}
+
+void MainWindow::checkProfileChanges() {
+    if (!currentUser) return;
+
+    // Comprobar si alguno de los campos es diferente al objeto en memoria
+    bool haCambiado = (ui->emailEdit->text() != currentUser->email()) ||
+                      (ui->passwordEdit->text() != currentUser->password()) ||
+                      (ui->dateEdit->date() != currentUser->birthdate());
+
+    // El botón se activa solo si hay diferencias
+    ui->guardarPerfil->setEnabled(haCambiado);
 }
 
 void MainWindow::toggleSidebar()
@@ -952,10 +978,19 @@ void MainWindow::toggleCursor()
 void MainWindow::clearAllDrawings()
 {
     for (QGraphicsItem *item : scene->items()) {
-        if (item != mapItem
-            && (item->type() == QGraphicsPathItem::Type || item->type() == QGraphicsPixmapItem::Type
-                || item->type() == QGraphicsLineItem::Type || item->type() == QGraphicsTextItem::Type
-                || item->type() == QGraphicsItemGroup::Type)) {
+        // 1. Nunca borramos el mapa
+        if (item == mapItem)
+            continue;
+
+        // 2. No borramos los elementos "bloqueados" (como las guías del ojo/proyecciones)
+        if (item->data(Qt::UserRole).toString() == "locked_helper")
+            continue;
+
+        // 3. Borramos si es cualquiera de los tipos de anotación
+        if (item->type() == QGraphicsPathItem::Type || item->type() == QGraphicsPixmapItem::Type
+            || item->type() == QGraphicsLineItem::Type || item->type() == QGraphicsTextItem::Type
+            || item->type() == QGraphicsEllipseItem::Type || // <--- AÑADIDO: Para borrar los puntos
+            item->type() == QGraphicsItemGroup::Type) {
             scene->removeItem(item);
             delete item;
         }
@@ -1087,18 +1122,15 @@ void MainWindow::toggleCompass(bool checked)
         measuringMode = false;
         textMode = false;
 
-        // Ocultar regla si estaba activa
-        // if (rulerSvgItem) {
-        //     rulerSvgItem->setVisible(false);
-        //     svgRulerActive = false;
-        // }
-
         compassItem->setVisible(true);
         ui->graphicsView->setDragMode(QGraphicsView::NoDrag);
         ui->graphicsView->setCursor(Qt::OpenHandCursor);
     } else {
         compassItem->setVisible(false);
         toggleCursor();
+        if (!ui->cursor->isChecked()) {
+            ui->cursor->setChecked(true);
+        }
     }
 }
 // -----
@@ -1261,24 +1293,21 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 if (item && item->group()) {
                     item = item->group();
                 }
-                // AÑADIMOS "item != mapItem" A LA CONDICIÓN
 
-                // --- NUEVA COMPROBACIÓN ---
-                // Si el item tiene la marca "locked_helper", LO IGNORAMOS y no borramos
-                if (item && item->data(Qt::UserRole).toString() == "locked_helper") {
+                // Evitar borrar guías o el compás
+                if (item && item->data(Qt::UserRole).toString() == "locked_helper")
                     return true;
-                }
-                // --------------------------
-                if (item && item->data(Qt::UserRole).toString() == "tool_compass") {
+                if (item && item->data(Qt::UserRole).toString() == "tool_compass")
                     return true;
-                }
 
-                // Condición original de borrado
+                // --- LISTA DE OBJETOS BORRABLES ---
                 if (item && item != mapItem
                     && (item->type() == QGraphicsPathItem::Type
                         || item->type() == QGraphicsPixmapItem::Type
                         || item->type() == QGraphicsLineItem::Type
                         || item->type() == QGraphicsTextItem::Type
+                        || item->type()
+                               == QGraphicsEllipseItem::Type // <--- LÍNEA IMPORTANTE: Permite borrar puntos
                         || item->type() == QGraphicsItemGroup::Type)) {
                     scene->removeItem(item);
                     delete item;
@@ -1292,43 +1321,25 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
         // ---------------------------------------------------------
         else if (markingMode) {
             if (event->type() == QEvent::GraphicsSceneMousePress) {
-                // 1. Cargamos la imagen (Asegúrate de tener un icono llamado pin.png o similar en tus recursos)
-                // Si no tienes imagen, usa ":/images/flechaIzq.png" temporalmente para probar
-                QPixmap pixmap(":/images/iconoChincheta.png");
+                qreal radio = 7.0;
 
-                // Redimensionamos si es muy grande (opcional)
-                pixmap = pixmap.scaled(50, 50, Qt::KeepAspectRatio);
+                // Creamos la elipse centrada en el clic
+                QGraphicsEllipseItem *marker = scene->addEllipse(-radio,
+                                                                 -radio,
+                                                                 radio * 2,
+                                                                 radio * 2);
 
-                // 2. Añadimos el objeto al mapa
-                QGraphicsPixmapItem *marker = scene->addPixmap(pixmap);
+                // Usamos el color específico de marcas (currentMarkColor)
+                QBrush brush(currentMarkColor);
+                // Borde negro de 2px para que se note que es un marcador sobre el mapa
+                QPen pen(Qt::black, 2);
 
-                // 3. Centramos la imagen en el clic (si no, el clic queda en la esquina superior izq de la imagen)
-                marker->setOffset(-pixmap.width() / 2, -pixmap.height() / 2);
+                marker->setBrush(brush);
+                marker->setPen(pen);
+                marker->setZValue(10); // Siempre por encima de los trazos del lápiz
+
                 marker->setPos(mouseEvent->scenePos());
-
-                // Hacer que la marca se pueda mover después
                 marker->setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable);
-
-                if (protractorSvgItem && protractorSvgItem->isVisible()) {
-                    QPointF center = protractorSvgItem->mapToScene(
-                        protractorSvgItem->boundingRect().center());
-
-                    QPen pen(Qt::magenta);
-                    pen.setWidth(2);
-
-                    QGraphicsLineItem *line = scene->addLine(QLineF(center, marker->pos()), pen);
-                    line->setZValue(marker->zValue() + 1); // encima del mapa
-                    line->setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable);
-                }
-
-                return true;
-            } else if (event->type() == QEvent::GraphicsSceneMouseMove
-                       && eyeActive) { // actualizar las posiciones de la chincheta
-                // Recalcular las líneas de los extremos del item seleccionado
-                QList<QGraphicsItem *> selected = scene->selectedItems();
-                if (!selected.isEmpty()) {
-                    showPointExtremes(selected.first());
-                }
 
                 return true;
             }

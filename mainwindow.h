@@ -34,15 +34,14 @@
 
 #include "compassitem/compassitem.h"       // compas
 #include "movablesvgitem/movablesvgitem.h" //transportador
-#include "usermanager/usermanager.h"
 #include "rotablesvgitem/rotatablesvgitem.h"
+#include "usermanager/usermanager.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
 }
 QT_END_NAMESPACE
-
 
 class MainWindow : public QMainWindow
 {
@@ -65,11 +64,13 @@ private:
     void actualizarFotoBoton(QPushButton *boton, const QImage &img);
     void actualizarIconoAction(QAction *action, const QImage &img);
     void onGuardarCambiosPerfil();
+    void checkProfileChanges();
     QString rutaImagenRegistro;
 
     double scale = 1;
     int grosorLapiz;
     QColor currentColor = Qt::red;
+    QColor currentMarkColor = Qt::red;
     void applyZoom(double factor);
     bool drawingMode = false;
     bool erasingMode = false;

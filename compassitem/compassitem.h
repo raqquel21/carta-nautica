@@ -26,7 +26,7 @@ private:
     QGraphicsSvgItem *legLeft;
     QGraphicsSvgItem *legRight;
 
-    enum Mode { None, Moving, RotatingRight, RotatingLeft};
+    enum Mode { None, Moving, RotatingRight, RotatingLeft, CompassRotate};
     Mode m_mode = None;
 
     qreal legLeftInitialAngle;
@@ -43,6 +43,14 @@ private:
 
     qreal lastAngle = 0.0;
     qreal accumulatedSpan = 0.0;
+
+    // Modo shift:
+    QGraphicsSvgItem* pivotLeg = nullptr;
+    QGraphicsSvgItem* drawingLeg = nullptr;
+
+    qreal drawingLegInitialAngle = 0.0;
+    qreal initialGroupRotation = 0.0;
+
 };
 
 
