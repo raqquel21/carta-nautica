@@ -12,13 +12,17 @@ CONFIG += c++17
 # DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    compassitem/compassitem.cpp \
     main.cpp \
     mainwindow.cpp \
+    movablesvgitem/movablesvgitem.cpp \
     usermanager/usermanager.cpp \
     users/users.cpp
 
 HEADERS += \
+    compassitem/compassitem.h \
     mainwindow.h \
+    movablesvgitem/movablesvgitem.h \
     usermanager/usermanager.h \
     users/users.h
 
