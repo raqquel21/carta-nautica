@@ -436,14 +436,6 @@ void MainWindow::onLogInClicked()
     QString nickname = ui->enter_nickname->text().trimmed();
     QString password = ui->lineEdit_2->text().trimmed();
 
-    // ESTO LO TENDREMOS QUE QUITAR
-    if ((nickname == "user1") && (password == "User123!")) {
-        ui->stackedWidget->setCurrentIndex(3); // pantalla principal
-        ui->sidebar_2->setCurrentIndex(0);
-        ui->toolBar->show();
-        return;
-    }
-
     //Users *u = userManager.authenticate(nickname, password);
 
     User *u = nav.authenticate(nickname, password);
