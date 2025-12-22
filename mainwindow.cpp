@@ -75,7 +75,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->registrarse->setTextFormat(Qt::RichText);
     ui->registrarse->setTextInteractionFlags(Qt::TextBrowserInteraction);
     ui->registrarse->setOpenExternalLinks(false);
-    ui->registrarse->setText("Don't have an account? <a href=\"registrar\">Register</a>");
+    ui->registrarse->setText("¿No tienes cuenta? <a href=\"registrar\">Registrar</a>");
     connect(ui->registrarse, &QLabel::linkActivated, this, [=](const QString &) {
         ui->stackedWidget->setCurrentIndex(1);
         ui->toolBar->hide();
@@ -84,8 +84,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->iniciar_sesion->setTextFormat(Qt::RichText);
     ui->iniciar_sesion->setTextInteractionFlags(Qt::TextBrowserInteraction);
     ui->iniciar_sesion->setOpenExternalLinks(false);
-    ui->iniciar_sesion->setText(
-        "Do you already have an account? <a href=\"registrar\"> Log in</a>");
+    ui->iniciar_sesion->setText("¿Tienes una cuenta ya? <a href=\"registrar\"> Iniciar sesión</a>");
     connect(ui->iniciar_sesion, &QLabel::linkActivated, this, [=](const QString &) {
         ui->stackedWidget->setCurrentIndex(0);
         ui->toolBar->hide();
@@ -1070,11 +1069,23 @@ void MainWindow::clearAllDrawings()
         if (item->data(Qt::UserRole).toString() == "locked_helper")
             continue;
 
-        // 3. Borramos si es cualquiera de los tipos de anotación
-        if (item->type() == QGraphicsPathItem::Type || item->type() == QGraphicsPixmapItem::Type
-            || item->type() == QGraphicsLineItem::Type || item->type() == QGraphicsTextItem::Type
-            || item->type() == QGraphicsEllipseItem::Type || // <--- AÑADIDO: Para borrar los puntos
-            item->type() == QGraphicsItemGroup::Type) {
+        // 3. NO BORRAMOS EL COMPÁS (Esta es la parte que faltaba)
+        // Buscamos la marca "tool_compass" que definiste en el constructor del compás
+        if (item->data(Qt::UserRole).toString() == "tool_compass")
+            continue;
+
+        // También verificamos si el ítem es hijo del compás (las patas legLeft/legRight)
+        if (item->parentItem() && item->parentItem()->data(Qt::UserRole).toString() == "tool_compass")
+            continue;
+
+        // 4. Borramos el resto de anotaciones
+        if (item->type() == QGraphicsPathItem::Type ||
+            item->type() == QGraphicsPixmapItem::Type ||
+            item->type() == QGraphicsLineItem::Type ||
+            item->type() == QGraphicsTextItem::Type ||
+            item->type() == QGraphicsEllipseItem::Type ||
+            item->type() == QGraphicsItemGroup::Type)
+        {
             scene->removeItem(item);
             delete item;
         }
@@ -1207,7 +1218,7 @@ void MainWindow::toggleCompass(bool checked)
         textMode = false;
 
         compassItem->setVisible(true);
-        ui->graphicsView->setDragMode(QGraphicsView::NoDrag);
+        ui->graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
         ui->graphicsView->setCursor(Qt::OpenHandCursor);
     } else {
         compassItem->setVisible(false);
