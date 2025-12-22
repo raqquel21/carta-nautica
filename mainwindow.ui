@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>796</width>
+    <width>1165</width>
     <height>685</height>
    </rect>
   </property>
@@ -24,7 +24,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="login">
        <property name="minimumSize">
@@ -1465,6 +1465,19 @@ QToolButton:checked {
               </property>
               <property name="checkable">
                <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="markColorButton">
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+    background-color: #FF0000; 
+  
+}</string>
+              </property>
+              <property name="text">
+               <string/>
               </property>
              </widget>
             </item>
