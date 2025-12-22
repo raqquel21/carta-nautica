@@ -64,6 +64,7 @@ private:
     void actualizarFotoBoton(QPushButton *boton, const QImage &img);
     void actualizarIconoAction(QAction *action, const QImage &img);
     void onGuardarCambiosPerfil();
+    void checkProfileChanges();
     QString rutaImagenRegistro;
 
     double scale = 1;
