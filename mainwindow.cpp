@@ -1034,11 +1034,6 @@ void MainWindow::toggleCursor()
     measuringMode = false;
     textMode = false;
 
-    // if (rulerSvgItem) {
-    //     rulerSvgItem->setVisible(false);
-    //     rulerSvgItem->setSelected(false);
-    //     svgRulerActive = false;
-    // }
     ui->graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
 
     // Restauramos el cursor por defecto
