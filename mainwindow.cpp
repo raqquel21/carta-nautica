@@ -90,12 +90,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->cerrarSesion, &QPushButton::clicked, this, [=]() {
         // 1. Guardar datos solo si el puntero es válido
-        if (currentUser != nullptr) {
-            try {
+        if(currentUser != nullptr){
+            try{
                 Session s(sessionStart, sessionHits, sessionFaults);
                 nav.addSession(currentUser->nickName(), s);
-            } catch (...) {
-                qDebug() << "Error al guardar la sesión en la DB";
+            } catch(...){
+                 qDebug() << "Error al guardar la sesión en la DB";
             }
         }
 
@@ -456,6 +456,9 @@ void MainWindow::onLogInClicked()
 
     if (u) {
         currentUser = u;
+        sessionHits = 0;
+        sessionFaults = 0;
+        sessionStart = QDateTime::currentDateTime();
 
         // 1. Cargamos la foto correctamente usando la maestra
         actualizarFotoBoton(ui->PerfilImage, u->avatar());
