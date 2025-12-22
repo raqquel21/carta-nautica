@@ -60,26 +60,20 @@ QToolButton:hover {
 }
 
 QToolButton:checked {
-    background-color: #71A3BC;
-    color: #FBF6F0;
+    background-color: #f2e8de;
 }
 
 QToolButton[clase="iconBut"],
 QPushButton[clase="iconBut"] {
     background-color: transparent;
-    border: 2px solid #a76e3d;
     padding: 6px;
     border-radius: 4px;
 }
 
-QToolButton[clase="iconBut"]:hover,
-QPushButton[clase="iconBut"]:hover {
-    background-color: #E5C8A7;
-}
-
-QToolButton[clase="iconBut"]:checked {
-    background-color: #71A3BC;
-    color: #FBF6F0;
+QToolButton:hover,
+QToolButton:pressed,
+QToolButton:checked {
+    background-color: #f2e8de;
 }
 
 /* CAMPOS DE TEXTO */
@@ -167,18 +161,17 @@ QWidget#sidebar_2 {
     background-color: #FFFFFF;
     border-left: 1px solid #E5C8A7;
 }
-QPushButton#sidebarButton,
-QPushButton#sidebarButton_2 {
-    background-color: #394589;
-    color: #FBF6F0;
-    border: 1px solid #71A3BC; /* Añadimos un borde para que se vea el recuadro */
-    border-radius: 6px;
+QPushButton#sidebarButton_2[clase="iconBut"]{
+    background-color: #f2e8de;
+    color: #394589;
+    border: 2px solid #a76e3d;
+    padding: 6px;
+    border-radius: 4px;
+}
+QPushButton#sidebarButton_2[clase="iconBut"]:hover{
+    background-color: #d4cac1;
 }
 
-QPushButton#sidebarButton:hover,
-QPushButton#sidebarButton_2:hover {
-    background-color: #4a55a0;
-}
 /* BOTONES DE RESPUESTA EN LISTA */
 QListWidget QPushButton {
     background-color: #71A3BC;
