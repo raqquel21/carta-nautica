@@ -352,6 +352,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->fechaHist->setCalendarPopup(true);
     ui->fechaHist->setDate(QDate::currentDate());
 
+    ui->dateEdit->setCalendarPopup(true);
+
     connect(ui->histButton, &QPushButton::clicked, this, &MainWindow::filtrarHistorial);
 
     //PERFIL IMAGE
