@@ -811,7 +811,20 @@ void MainWindow::onNextClicked()
 
 void MainWindow::showNextQuestion()
 {
+    // LIMPIAR SELECCIÓN
+    for (QRadioButton *rb : respbotones) {
+        rb->setAutoExclusive(false);
+        rb->setChecked(false);
+        rb->setEnabled(true);
+    }
+    for (QRadioButton *rb : respbotones) {
+        rb->setAutoExclusive(true);
+    }
+
+    ui->verificarButton->setEnabled(true);
+
     const Problem &p = problemas[preg_actual];
+    ui->enunciadoLabel->setText(p.text());
 
     ui->res1->setText("");
     ui->res2->setText("");
