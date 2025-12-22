@@ -366,9 +366,6 @@ MainWindow::MainWindow(QWidget *parent)
     rutaImagenRegistro = "";
 }
 
-// void MainWindow::setupMap() //funcion para hacer los cambios al mapa
-// {}
-
 MainWindow::~MainWindow()
 {
     delete ui;
@@ -645,6 +642,7 @@ void MainWindow::onGuardarCambiosPerfil() {
         QMessageBox::critical(this, "Error", "Hubo un fallo al acceder a la base de datos.");
     }
 }
+
 void MainWindow::toggleSidebar()
 {
     const int fullWidth = 300;
@@ -1104,6 +1102,7 @@ void MainWindow::toggleCompass(bool checked)
     }
 }
 // -----
+
 // Funciones de los puntos de corte (ojo)
 void MainWindow::hidePointExtremes()
 {
@@ -1181,6 +1180,7 @@ void MainWindow::togglePointExtremes()
     eyeActive = true;
 }
 // -----
+
 //Función de la herramienta de texto:
 void MainWindow::toggleText()
 {
@@ -1194,6 +1194,7 @@ void MainWindow::toggleText()
     ui->graphicsView->setCursor(Qt::IBeamCursor);
 }
 // -----
+
 bool MainWindow::eventFilter(QObject *watched, QEvent *event)
 {
     if (event->type() == QEvent::MouseButtonPress && qobject_cast<QToolButton *>(watched)) {
