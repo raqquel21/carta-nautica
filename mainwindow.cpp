@@ -455,6 +455,7 @@ void MainWindow::onLogInClicked()
         QMessageBox::warning(this, "Login incorrecto", "Nombre o contraseña incorrectos.");
     }
 }
+
 void MainWindow::onRegisterClicked()
 {
     QString nameReg = ui->enter_nickname_reg->text().trimmed();
@@ -610,6 +611,7 @@ void MainWindow::actualizarIconoAction(QAction *action, const QImage &img)
 
     action->setIcon(QIcon(target));
 }
+
 void MainWindow::toggleSidebar()
 {
     const int fullWidth = 300;
