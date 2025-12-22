@@ -1476,19 +1476,6 @@ QToolButton:checked {
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="markColorButton">
-              <property name="styleSheet">
-               <string notr="true">QPushButton {
-    background-color: #FF0000; 
-  
-}</string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item>
              <widget class="QToolButton" name="ojo">
               <property name="styleSheet">
                <string notr="true">QToolButton {
@@ -1637,6 +1624,19 @@ QToolButton:pressed {
               </property>
               <property name="checkable">
                <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="colorSeleccionButton">
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+    background-color: #FF0000; 
+  
+}</string>
+              </property>
+              <property name="text">
+               <string/>
               </property>
              </widget>
             </item>
