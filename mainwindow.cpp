@@ -436,6 +436,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->dateEdit, &QDateEdit::userDateChanged, this, &MainWindow::checkProfileChanges);
 
     connect(ui->cursor, &QToolButton::toggled, this, &MainWindow::toggleCursor);
+
 }
 
 MainWindow::~MainWindow()
