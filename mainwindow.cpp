@@ -158,8 +158,17 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Conexiones botones
     connect(ui->actionPerfil, &QAction::triggered, this, [=]() {
+            if (currentUser) {
+                // El nombre de usuario se queda como Label (no editable)
+                ui->nombre->setText(currentUser->nickName());
+
+                // Rellenar campos editables
+                ui->emailEdit->setText(currentUser->email());
+                ui->passwordEdit->setText(currentUser->password());
+                ui->dateEdit->setDate(currentUser->birthdate());
+        }
         ui->stackedWidget->setCurrentIndex(2);
-        ui->toolBar->hide();
+            ui->toolBar->hide();
     });
 
     connect(ui->salirPerfil, &QPushButton::clicked, this, [=]() {
@@ -611,7 +620,32 @@ void MainWindow::actualizarIconoAction(QAction *action, const QImage &img)
 
     action->setIcon(QIcon(target));
 }
+// Función para guardar los cambios en el perfil
+void MainWindow::onGuardarCambiosPerfil() {
+    if (!currentUser) return;
 
+        // 1. Validaciones previas
+        QString nuevoEmail = ui->emailEdit->text().trimmed(); // Asumiendo nuevo nombre de objeto
+    QString nuevaPass = ui->passwordEdit->text().trimmed();
+        QDate nuevaFecha = ui->dateEdit->date();
+
+        if (nuevoEmail.isEmpty() || nuevaPass.isEmpty()) {
+            QMessageBox::warning(this, "Error", "El email y la contraseña no pueden estar vacíos.");
+        return;
+    }
+
+    // 2. Actualizar el objeto en memoria
+    currentUser->setEmail(nuevoEmail);
+        currentUser->setPassword(nuevaPass);
+        currentUser->setBirthdate(nuevaFecha);
+
+    try {
+        nav.updateUser(*currentUser);
+            QMessageBox::information(this, "Perfil Actualizado", "Los cambios se han guardado correctamente.");
+    } catch (...) {
+        QMessageBox::critical(this, "Error", "Hubo un fallo al acceder a la base de datos.");
+    }
+}
 void MainWindow::toggleSidebar()
 {
     const int fullWidth = 300;
@@ -631,6 +665,7 @@ void MainWindow::toggleSidebar()
         ui->listWidgetPreguntas->setVisible(false);
         ui->Problemas->setVisible(false);
         ui->ReturnToProblemsButton->setVisible(false);
+        ui->verticalSpacer_14->changeSize(40, 20, QSizePolicy::Expanding, QSizePolicy::Expanding);
         for (int i = 0; i < respbotones.size(); ++i) {
             respbotones[i]->setVisible(false);
         }
@@ -649,6 +684,8 @@ void MainWindow::toggleSidebar()
         ui->listWidgetPreguntas->setVisible(true);
         ui->Problemas->setVisible(true);
         ui->ReturnToProblemsButton->setVisible(true);
+
+        ui->verticalSpacer_14->changeSize(0, 0, QSizePolicy::Ignored, QSizePolicy::Ignored);
         for (int i = 0; i < respbotones.size(); ++i) {
             respbotones[i]->setVisible(true);
         }

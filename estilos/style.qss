@@ -251,3 +251,95 @@ QLabel#enunciadoLabel {
     border-radius: 4px;
     border: 1px solid #71A3BC;
 }
+
+/* SCROLL HORIZONTAL */
+QScrollBar:horizontal {
+    border: none;
+    background: #E5C8A7; /* Contraste arena sobre el fondo blanco */
+    height: 12px;
+    margin: 0px 0px 0px 0px;
+    border-radius: 6px;
+}
+
+/* El tirador (parte que se arrastra) */
+QScrollBar::handle:horizontal {
+    background: #394589; /* Azul principal de la paleta */
+    min-width: 30px;
+    border-radius: 6px;
+}
+
+/* Efecto al pasar el ratón por el tirador */
+QScrollBar::handle:horizontal:hover {
+    background: #5574A3; /* Azul secundario para feedback visual */
+}
+
+/* Eliminación de botones de flecha laterales para un diseño limpio */
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+    width: 0px;
+    background: none;
+}
+
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+    background: none;
+}
+/*  SCROLLBAR VERTICAL */
+QScrollBar:vertical {
+    border: none;
+    background: #E5C8A7; /* Fondo arena para contraste [cite: 1] */
+    width: 12px;
+    margin: 0px;
+    border-radius: 6px;
+}
+
+QScrollBar::handle:vertical {
+    background: #394589; /* Azul principal [cite: 4] */
+    min-height: 30px;
+    border-radius: 6px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: #5574A3; /* Azul secundario al pasar el ratón */
+}
+
+/* Eliminar flechas y espacios extra */
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0px;
+}
+
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+    background: none;
+}
+
+/*  QSLIDER (Zoom y Grosor) */
+/* Carril del Slider */
+QSlider::groove:horizontal {
+    border: 1px solid #71A3BC; /* Borde azul claro [cite: 11] */
+    height: 6px;
+    background: #FFFFFF;
+    margin: 2px 0;
+    border-radius: 3px;
+}
+
+/* El círculo/manejador */
+QSlider::handle:horizontal {
+    background: #394589; /* Azul principal [cite: 4] */
+    border: 1px solid #394589;
+    width: 16px;
+    height: 16px;
+    margin: -6px 0; /* Centrado vertical */
+    border-radius: 8px;
+}
+
+QSlider::handle:horizontal:hover {
+    background: #5574A3;
+    width: 18px; /* Crece un poco al pasar el ratón para feedback */
+    height: 18px;
+    margin: -7px 0;
+    border-radius: 9px;
+}
+
+/* Parte del carril que ya ha sido recorrida */
+QSlider::sub-page:horizontal {
+    background: #71A3BC; /* Azul claro para indicar progreso [cite: 13] */
+    border-radius: 3px;
+}

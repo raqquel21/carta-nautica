@@ -33,9 +33,9 @@
 
 #include <QLineEdit>
 
-#include "usermanager/usermanager.h"
-#include "compassitem/compassitem.h" // compas
+#include "compassitem/compassitem.h"       // compas
 #include "movablesvgitem/movablesvgitem.h" //transportador
+#include "usermanager/usermanager.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -83,6 +83,7 @@ private:
 
     void actualizarFotoBoton(QPushButton *boton, const QImage &img);
     void actualizarIconoAction(QAction *action, const QImage &img);
+    void onGuardarCambiosPerfil();
     QString rutaImagenRegistro;
 
     double scale = 1;
@@ -131,7 +132,6 @@ private:
     bool svgProtractorActive = false;
 
     CompassItem *compassItem = nullptr;
-
 
 private slots:
     void onZoomInButtonClicked();
