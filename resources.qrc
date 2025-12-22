@@ -35,6 +35,7 @@
         <file>compas.png</file>
         <file>compasIlum.png</file>
         <file>iconoChincheta.png</file>
+        <file>ojoCerrado.png</file>
     </qresource>
     <qresource prefix="/">
         <file>estilos/style.qss</file>

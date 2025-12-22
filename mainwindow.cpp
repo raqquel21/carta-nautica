@@ -33,7 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     QFile file(":/estilos/style.qss");
-    if(file.open(QFile::ReadOnly)) {
+    if (file.open(QFile::ReadOnly)) {
         QString StyleSheet = QLatin1String(file.readAll());
         qApp->setStyleSheet(StyleSheet);
     }
@@ -133,9 +133,9 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     // Botones ojo (mostrar/ocultar contraseña)
-    ui->pas1->setIcon(QIcon(":/images/ojoIlum.png"));
-    ui->pas2->setIcon(QIcon(":/images/ojoIlum.png"));
-    ui->pas3->setIcon(QIcon(":/images/ojoIlum.png"));
+    ui->pas1->setIcon(QIcon(":/images/ojoCerrado.png"));
+    ui->pas2->setIcon(QIcon(":/images/ojoCerrado.png"));
+    ui->pas3->setIcon(QIcon(":/images/ojoCerrado.png"));
 
     connect(ui->pas1, &QToolButton::clicked, this, [=]() {
         togglePassword(ui->lineEdit_2, ui->pas1); // login
@@ -172,7 +172,6 @@ MainWindow::MainWindow(QWidget *parent)
         ui->stackedWidget->setCurrentIndex(3);
         ui->toolBar->show();
     });
-
 
     /* Map button
     bool mapaListo = false;
@@ -235,7 +234,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->compas, &QToolButton::toggled, this, &MainWindow::toggleCompass);
     connect(ui->transportador, &QToolButton::toggled, this, &MainWindow::toggleSvgProtractor);
-
 
     auto activateToolButton = [this](QToolButton *buttonToActivate) {
         if (!buttonToActivate->isCheckable())
@@ -309,9 +307,6 @@ MainWindow::MainWindow(QWidget *parent)
     scene->addItem(compassItem);
     compassItem->setVisible(false);
 
-
-
-
     QTimer *updateTimer = new QTimer(this); //Se usa para actualizar las marcas del 'ojo'
     connect(updateTimer, &QTimer::timeout, this, [=]() {
         if (eyeActive) {
@@ -336,12 +331,14 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->histButton, &QPushButton::clicked, this, &MainWindow::filtrarHistorial);
 
-
     //PERFIL IMAGE
 
     // Dentro de MainWindow::MainWindow, después de configurar el PerfilImage->setStyleSheet(...)
     connect(ui->PerfilImage, &QPushButton::clicked, this, &MainWindow::SeleccionarImagenPerfil);
-    connect(ui->PerfilImageRegister, &QPushButton::clicked, this, &MainWindow::SeleccionarImagenPerfil);
+    connect(ui->PerfilImageRegister,
+            &QPushButton::clicked,
+            this,
+            &MainWindow::SeleccionarImagenPerfil);
     // Forzamos el tamaño para que el círculo (radius 60) sea perfecto
     ui->PerfilImage->setFixedSize(120, 120);
     ui->PerfilImageRegister->setFixedSize(120, 120);
@@ -357,7 +354,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->PerfilImage->setStyleSheet(estiloBase);
     ui->PerfilImageRegister->setStyleSheet(estiloBase);
-
 
     rutaImagenRegistro = "";
 }
@@ -591,10 +587,14 @@ void MainWindow::actualizarFotoBoton(QPushButton *boton, const QImage &img)
 // En tu archivo .cpp, añade esta versión para QAction
 void MainWindow::actualizarIconoAction(QAction *action, const QImage &img)
 {
-    if (img.isNull() || !action) return;
+    if (img.isNull() || !action)
+        return;
 
     int side = 64; // Tamaño estándar para iconos de toolbar
-    QImage scaledImg = img.scaled(side, side, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+    QImage scaledImg = img.scaled(side,
+                                  side,
+                                  Qt::KeepAspectRatioByExpanding,
+                                  Qt::SmoothTransformation);
 
     QPixmap target(side, side);
     target.fill(Qt::transparent);
@@ -626,6 +626,10 @@ void MainWindow::toggleSidebar()
         ui->enunciadoLabel->setVisible(false);
         ui->verificarButton->setVisible(false);
         ui->sigButton->setVisible(false);
+        ui->Problema_Random->setVisible(false);
+        ui->listWidgetPreguntas->setVisible(false);
+        ui->Problemas->setVisible(false);
+        ui->ReturnToProblemsButton->setVisible(false);
         for (int i = 0; i < respbotones.size(); ++i) {
             respbotones[i]->setVisible(false);
         }
@@ -640,6 +644,10 @@ void MainWindow::toggleSidebar()
         ui->enunciadoLabel->setVisible(true);
         ui->verificarButton->setVisible(true);
         ui->sigButton->setVisible(true);
+        ui->Problema_Random->setVisible(true);
+        ui->listWidgetPreguntas->setVisible(true);
+        ui->Problemas->setVisible(true);
+        ui->ReturnToProblemsButton->setVisible(true);
         for (int i = 0; i < respbotones.size(); ++i) {
             respbotones[i]->setVisible(true);
         }
@@ -684,7 +692,6 @@ void MainWindow::onNextClicked()
 
 void MainWindow::showNextQuestion()
 {
-
     const Problem &p = problemas[preg_actual];
 
     ui->res1->setText("");
@@ -707,7 +714,6 @@ void MainWindow::showNextQuestion()
     if (preg_actual >= problemas.size())
         preg_actual = 0; // reiniciar si llegamos al final
 
-
     ui->enunciadoLabel->setText(p.text());
 
     // actualizar radiobuttons
@@ -728,10 +734,10 @@ void MainWindow::togglePassword(QLineEdit *text, QToolButton *button)
 {
     if (text->echoMode() == QLineEdit::Password) {
         text->setEchoMode(QLineEdit::Normal);
-        button->setIcon(QIcon(":/images/ojoIlum.png"));
+        button->setIcon(QIcon(":/images/ojo.png"));
     } else {
         text->setEchoMode(QLineEdit::Password);
-        button->setIcon(QIcon(":/images/ojo.png"));
+        button->setIcon(QIcon(":/images/ojoCerrado.png"));
     }
 }
 
@@ -771,7 +777,6 @@ void MainWindow::checkQuestion()
         labels[i]->style()->polish(labels[i]);
         labels[i]->update();
     }
-
 
     if (p.answers()[seleccionada].validity()) {
         sessionHits++;
@@ -830,36 +835,29 @@ void MainWindow::mostrarHistorial()
     ui->tableHistorial->setSelectionMode(QAbstractItemView::NoSelection);
 }
 
-void MainWindow::filtrarHistorial(){
-
+void MainWindow::filtrarHistorial()
+{
     QDate fechafiltro = ui->fechaHist->date();
 
     ui->tableHistorial->clearContents();
     ui->tableHistorial->setRowCount(0);
 
-    if (!currentUser) return;
+    if (!currentUser)
+        return;
 
     const QVector<Session> &sessions = currentUser->sessions();
 
     for (const Session &s : sessions) {
-
         if (s.timeStamp().date() >= fechafiltro) {
-
             int row = ui->tableHistorial->rowCount();
             ui->tableHistorial->insertRow(row);
 
-            ui->tableHistorial->setItem(
-                row, 0,
-                new QTableWidgetItem(
-                    s.timeStamp().toString("dd/MM/yyyy HH:mm")));
+            ui->tableHistorial
+                ->setItem(row, 0, new QTableWidgetItem(s.timeStamp().toString("dd/MM/yyyy HH:mm")));
 
-            ui->tableHistorial->setItem(
-                row, 1,
-                new QTableWidgetItem(QString::number(s.hits())));
+            ui->tableHistorial->setItem(row, 1, new QTableWidgetItem(QString::number(s.hits())));
 
-            ui->tableHistorial->setItem(
-                row, 2,
-                new QTableWidgetItem(QString::number(s.faults())));
+            ui->tableHistorial->setItem(row, 2, new QTableWidgetItem(QString::number(s.faults())));
         }
     }
 }
@@ -920,18 +918,14 @@ void MainWindow::clearAllDrawings()
 {
     for (QGraphicsItem *item : scene->items()) {
         if (item != mapItem
-            && (item->type() == QGraphicsPathItem::Type
-                || item->type() == QGraphicsPixmapItem::Type
-                || item->type() == QGraphicsLineItem::Type
-                || item->type() == QGraphicsTextItem::Type
+            && (item->type() == QGraphicsPathItem::Type || item->type() == QGraphicsPixmapItem::Type
+                || item->type() == QGraphicsLineItem::Type || item->type() == QGraphicsTextItem::Type
                 || item->type() == QGraphicsItemGroup::Type)) {
-
             scene->removeItem(item);
             delete item;
         }
     }
 }
-
 
 void MainWindow::confirmAndClearAllDrawings()
 {
@@ -1131,14 +1125,13 @@ QPointF MainWindow::protractorCenter()
     return protractorSvgItem->mapToScene(protractorSvgItem->boundingRect().center());
 }
 
-
 void MainWindow::toggleSvgProtractor(bool checked)
 {
     if (checked) {
         if (!protractorSvgItem) {
             protractorSvgItem = new MovableSvgItem(":/images/transportador.svg");
             protractorSvgItem->setPos(0, 0);   // esquina superior izquierda
-            protractorSvgItem->setScale(0.45);  // mitad de tamaño
+            protractorSvgItem->setScale(0.45); // mitad de tamaño
             scene->addItem(protractorSvgItem);
         }
         protractorSvgItem->setVisible(true);
@@ -1209,18 +1202,16 @@ void MainWindow::toggleCompass(bool checked)
         compassItem->setVisible(true);
         ui->graphicsView->setDragMode(QGraphicsView::NoDrag);
         ui->graphicsView->setCursor(Qt::OpenHandCursor);
-    }
-    else {
+    } else {
         compassItem->setVisible(false);
         toggleCursor();
     }
 }
 
-
 CompassItem::CompassItem(QGraphicsItem *parent)
     : QGraphicsItemGroup(parent)
 {
-    legLeft  = new QGraphicsSvgItem(":/images/compass_leg.svg");
+    legLeft = new QGraphicsSvgItem(":/images/compass_leg.svg");
     legRight = new QGraphicsSvgItem(":/images/compass_leg.svg");
 
     addToGroup(legLeft);
@@ -1237,8 +1228,8 @@ CompassItem::CompassItem(QGraphicsItem *parent)
     legLeft->setTransformOriginPoint(pivot);
     legRight->setTransformOriginPoint(pivot);
 
-    legLeft->setRotation(90 -15);
-    legRight->setRotation(90 +15);
+    legLeft->setRotation(90 - 15);
+    legRight->setRotation(90 + 15);
 
     legLeft->setAcceptHoverEvents(true);
     legRight->setAcceptHoverEvents(true);
@@ -1281,31 +1272,33 @@ void CompassItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     QPointF scenePos = event->scenePos();
 
     // --- Coordenadas locales ---
-    QPointF localLeft  = legLeft->mapFromScene(scenePos);
+    QPointF localLeft = legLeft->mapFromScene(scenePos);
     QPointF localRight = legRight->mapFromScene(scenePos);
 
-    QRectF rectLeft  = legLeft->boundingRect();
+    QRectF rectLeft = legLeft->boundingRect();
     QRectF rectRight = legRight->boundingRect();
 
-    qreal hLeft  = rectLeft.height();
+    qreal hLeft = rectLeft.height();
     qreal hRight = rectRight.height();
 
     // Zona de rotación = 45% inferior
-    qreal splitLeft  = hLeft  * 0.45;
+    qreal splitLeft = hLeft * 0.45;
     qreal splitRight = hRight * 0.45;
 
     // Margen lateral para descartar clics muy lejos de la pata
     qreal marginX = 10.0; // pixels
 
-    bool clickedLeft  = rectLeft.adjusted(-marginX, 0, marginX, 0).contains(localLeft);
+    bool clickedLeft = rectLeft.adjusted(-marginX, 0, marginX, 0).contains(localLeft);
     bool clickedRight = rectRight.adjusted(-marginX, 0, marginX, 0).contains(localRight);
 
-    QString zoneLeft  = (localLeft.y() >= hLeft - splitLeft) ? "BOTTOM" : "TOP";
+    QString zoneLeft = (localLeft.y() >= hLeft - splitLeft) ? "BOTTOM" : "TOP";
     QString zoneRight = (localRight.y() >= hRight - splitRight) ? "BOTTOM" : "TOP";
 
     DBG << "[COMPASS] CLICK scene:" << scenePos;
-    DBG << "[COMPASS]  LEFT:  contains=" << clickedLeft << "localY=" << localLeft.y() << "height=" << hLeft << "split=" << splitLeft << "zone=" << zoneLeft;
-    DBG << "[COMPASS]  RIGHT: contains=" << clickedRight << "localY=" << localRight.y() << "height=" << hRight << "split=" << splitRight << "zone=" << zoneRight;
+    DBG << "[COMPASS]  LEFT:  contains=" << clickedLeft << "localY=" << localLeft.y()
+        << "height=" << hLeft << "split=" << splitLeft << "zone=" << zoneLeft;
+    DBG << "[COMPASS]  RIGHT: contains=" << clickedRight << "localY=" << localRight.y()
+        << "height=" << hRight << "split=" << splitRight << "zone=" << zoneRight;
 
     // --------------------------------------------------
     // Lógica
@@ -1318,23 +1311,21 @@ void CompassItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
         m_mode = RotatingLeft;
 
         pivotScene = legRight->mapToScene(legRight->transformOriginPoint());
-        mouseInitialAngle   = QLineF(pivotScene, scenePos).angle();
+        mouseInitialAngle = QLineF(pivotScene, scenePos).angle();
         legLeftInitialAngle = legLeft->rotation();
-        startAngle          = mouseInitialAngle;
+        startAngle = mouseInitialAngle;
 
         currentArc = new QGraphicsPathItem();
         currentArc->setPen(QPen(Qt::blue, 2));
         scene()->addItem(currentArc);
-    }
-    else if (clickedRight && zoneRight == "BOTTOM") {
+    } else if (clickedRight && zoneRight == "BOTTOM") {
         DBG << "[COMPASS] ? ACTION: ROTATE RIGHT";
         m_mode = RotatingRight;
 
         pivotScene = legLeft->mapToScene(legLeft->transformOriginPoint());
-        mouseInitialAngle    = QLineF(pivotScene, scenePos).angle();
+        mouseInitialAngle = QLineF(pivotScene, scenePos).angle();
         legRightInitialAngle = legRight->rotation();
-    }
-    else {
+    } else {
         DBG << "[COMPASS] ? ACTION: MOVE";
         m_mode = Moving;
         dragStartScene = scenePos;
@@ -1350,8 +1341,7 @@ void CompassItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
     if (m_mode == Moving) {
         setPos(pos - dragOffset);
-    }
-    else if (m_mode == RotatingLeft) {
+    } else if (m_mode == RotatingLeft) {
         QLineF line(pivotScene, pos);
         qreal deltaAngle = line.angle() - mouseInitialAngle;
         legLeft->setRotation(legLeftInitialAngle - deltaAngle);
@@ -1362,15 +1352,14 @@ void CompassItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
             QRectF arcRect(pivotScene.x() - radius, pivotScene.y() - radius, 2 * radius, 2 * radius);
 
             qreal start = startAngle;
-            qreal span  = QLineF(pivotScene, tipCurrent).angle() - start;
+            qreal span = QLineF(pivotScene, tipCurrent).angle() - start;
 
             QPainterPath path;
             path.arcMoveTo(arcRect, start);
             path.arcTo(arcRect, start, span);
             currentArc->setPath(path);
         }
-    }
-    else if (m_mode == RotatingRight) {
+    } else if (m_mode == RotatingRight) {
         QLineF line(pivotScene, pos);
         qreal deltaAngle = line.angle() - mouseInitialAngle;
         legRight->setRotation(legRightInitialAngle - deltaAngle);
@@ -1626,8 +1615,6 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 // 2. Añadimos el objeto al mapa
                 QGraphicsPixmapItem *marker = scene->addPixmap(pixmap);
 
-
-
                 // 3. Centramos la imagen en el clic (si no, el clic queda en la esquina superior izq de la imagen)
                 marker->setOffset(-pixmap.width() / 2, -pixmap.height() / 2);
                 marker->setPos(mouseEvent->scenePos());
@@ -1636,7 +1623,8 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 marker->setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable);
 
                 if (protractorSvgItem && protractorSvgItem->isVisible()) {
-                    QPointF center = protractorSvgItem->mapToScene(protractorSvgItem->boundingRect().center());
+                    QPointF center = protractorSvgItem->mapToScene(
+                        protractorSvgItem->boundingRect().center());
 
                     QPen pen(Qt::magenta);
                     pen.setWidth(2);
@@ -1646,7 +1634,6 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                     line->setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable);
                 }
 
-
                 return true;
             } else if (event->type() == QEvent::GraphicsSceneMouseMove
                        && eyeActive) { // actualizar las posiciones de la chincheta
@@ -1655,7 +1642,6 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 if (!selected.isEmpty()) {
                     showPointExtremes(selected.first());
                 }
-
 
                 return true;
             }
