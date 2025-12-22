@@ -3,6 +3,12 @@
 #define DBG qDebug().noquote() << "[COMPASS]"
 
 
+// Cada pata se mueve de manera independiente (una dibuja y otra no)
+// porque así se puede usar para medir las distancias
+// Se mueve el compás desde la parte superior
+
+// Si clickas shift y clickas al compás, rota sobre su punto de apoyo (la pata que no dibuja)
+
 CompassItem::CompassItem(QGraphicsItem *parent)
     : QGraphicsItemGroup(parent)
 {
@@ -65,9 +71,70 @@ void CompassItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     // Reset de estado
     m_mode = None;
     currentArc = nullptr;
+    pivotLeg = nullptr;
+    drawingLeg = nullptr;
+
+    // Detectar si Shift está pulsado
+
+    bool shiftPressed = event->modifiers() & Qt::ShiftModifier;
+    if (shiftPressed) {
+        QPointF scenePos = event->scenePos();
+
+        // 1. Obtener las puntas reales de las patas (bottomRight del SVG)
+        QPointF leftTip  = legLeft->mapToScene(legLeft->boundingRect().bottomRight());
+        QPointF rightTip = legRight->mapToScene(legRight->boundingRect().bottomRight());
+
+        // 2. Determinar cuál es la pata fija (la más lejana al click suele ser la fija,
+        // o la más cercana la que "arrastra" el dibujo)
+        if (QLineF(scenePos, leftTip).length() < QLineF(scenePos, rightTip).length()) {
+            drawingLeg = legLeft;
+            pivotLeg   = legRight; // La derecha se queda fija
+        } else {
+            drawingLeg = legRight;
+            pivotLeg   = legLeft;  // La izquierda se queda fija
+        }
+
+        // 3. EL CENTRO: La punta inferior de la pata fija
+        pivotScene = pivotLeg->mapToScene(pivotLeg->boundingRect().bottomRight());
+
+        // 4. Ángulo inicial desde el centro (punta fija) hacia el ratón
+        mouseInitialAngle = QLineF(pivotScene, scenePos).angle();
+
+        // 5. Para el arco, el ángulo inicial es donde está la pata que dibuja
+        QPointF drawingTip = drawingLeg->mapToScene(drawingLeg->boundingRect().bottomRight());
+        startAngle = QLineF(pivotScene, drawingTip).angle();
+        lastAngle = startAngle;
+        accumulatedSpan = 0.0;
+
+        currentArc = new QGraphicsPathItem();
+        currentArc->setPen(QPen(Qt::blue, 2));
+        scene()->addItem(currentArc);
+
+        m_mode = CompassRotate;
+        event->accept();
+        return;
+    }
+
+
+    // if (!legLeft || !legRight || !pivotLeg) {
+    //     qWarning() << "[DEBUG] puntero nulo, saltando debug";
+    // } else {
+    //     QPointF pivotTipScene = pivotLeg->mapToScene(pivotLeg->transformOriginPoint());
+    //     QPointF leftTipScene  = legLeft->mapToScene(legLeft->boundingRect().bottomRight());
+    //     QPointF rightTipScene = legRight->mapToScene(legRight->boundingRect().bottomRight());
+
+    //     qDebug() << "[DEBUG] Shift pressed:";
+    //     qDebug() << "Mouse scenePos:" << scenePos;
+    //     qDebug() << "Pivot tip scene:" << pivotTipScene;
+    //     qDebug() << "Left tip scene:" << leftTipScene;
+    //     qDebug() << "Right tip scene:" << rightTipScene;
+    //     qDebug() << "Initial group rotation:" << rotation();
+    // }
+
+
 
     // --------------------------------------------------
-    // Puntas reales en coordenadas de escena
+    // Puntas reales en coordenadas de escena (sin shift)
     // --------------------------------------------------
     QPointF leftTipScene = legLeft->mapToScene(
         legLeft->boundingRect().bottomRight()
@@ -140,7 +207,8 @@ void CompassItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
     if (m_mode == Moving) {
         setPos(pos - dragOffset);
-    } else if (m_mode == RotatingLeft) {
+    }
+    else if (m_mode == RotatingLeft) {
         QLineF line(pivotScene, pos);
         qreal deltaAngle = line.angle() - mouseInitialAngle;
         legLeft->setRotation(legLeftInitialAngle - deltaAngle);
@@ -159,8 +227,6 @@ void CompassItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
                 );
 
             qreal currentAngle = QLineF(pivotScene, tipCurrent).angle();
-
-            // Corrección del salto 360°
             qreal delta = currentAngle - lastAngle;
             if (delta > 180)  delta -= 360;
             if (delta < -180) delta += 360;
@@ -173,13 +239,63 @@ void CompassItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
             path.arcTo(arcRect, startAngle, accumulatedSpan);
             currentArc->setPath(path);
         }
-    } else if (m_mode == RotatingRight) {
+    }
+    else if (m_mode == RotatingRight) {
         QLineF line(pivotScene, pos);
         qreal deltaAngle = line.angle() - mouseInitialAngle;
         legRight->setRotation(legRightInitialAngle - deltaAngle);
-
         // No dibuja arco
     }
+
+    else if (m_mode == CompassRotate) {
+        QPointF mousePos = event->scenePos();
+
+        // 1. Calcular cuánto ha movido el usuario el ratón respecto al centro
+        qreal currentMouseAngle = QLineF(pivotScene, mousePos).angle();
+        qreal deltaAngle = currentMouseAngle - mouseInitialAngle;
+
+        // Normalizar ángulo para evitar saltos de 0 a 360
+        if (deltaAngle > 180)  deltaAngle -= 360;
+        if (deltaAngle < -180) deltaAngle += 360;
+
+        // 2. Rotar el compás completo alrededor de la punta fija
+        // Guardamos la posición de la punta antes de rotar
+        QPointF tipBefore = pivotLeg->mapToScene(pivotLeg->boundingRect().bottomRight());
+
+        // Aplicamos rotación al grupo
+        this->setRotation(this->rotation() - deltaAngle);
+
+        // 3. CORRECCIÓN DE POSICIÓN (Crucial)
+        // Tras rotar, la punta se habrá movido. La movemos de vuelta a pivotScene.
+        QPointF tipAfter = pivotLeg->mapToScene(pivotLeg->boundingRect().bottomRight());
+        QPointF offset = tipBefore - tipAfter;
+        this->moveBy(offset.x(), offset.y());
+
+        // 4. Actualizar estado para el siguiente frame
+        mouseInitialAngle = currentMouseAngle;
+
+        // 5. Dibujar el arco
+        if (currentArc && drawingLeg) {
+            QPointF drawingTip = drawingLeg->mapToScene(drawingLeg->boundingRect().bottomRight());
+            qreal radius = QLineF(pivotScene, drawingTip).length();
+            QRectF arcRect(pivotScene.x() - radius, pivotScene.y() - radius, 2 * radius, 2 * radius);
+
+            qreal currentDrawingAngle = QLineF(pivotScene, drawingTip).angle();
+            qreal angleStep = currentDrawingAngle - lastAngle;
+
+            if (angleStep > 180)  angleStep -= 360;
+            if (angleStep < -180) angleStep += 360;
+
+            accumulatedSpan += angleStep;
+            lastAngle = currentDrawingAngle;
+
+            QPainterPath path;
+            path.arcMoveTo(arcRect, startAngle);
+            path.arcTo(arcRect, startAngle, accumulatedSpan);
+            currentArc->setPath(path);
+        }
+    }
+
 
     event->accept();
 }
@@ -187,6 +303,9 @@ void CompassItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 void CompassItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     m_mode = None;
+    pivotLeg = nullptr;
+    drawingLeg = nullptr;
     currentArc = nullptr;
     event->accept();
 }
+
