@@ -13,14 +13,16 @@ QWidget {
 /* TÍTULOS */
 QLabel[clase="titulo"] {
     font-family: 'Castellar', serif;
-    font-size: 32px;
+    font-size: 70px;
     color: #394589;
-    padding: 10px 0;
+    font-weight: bold;
 }
 
 QLabel[clase="subtitulo"] {
+    font-family: 'Castellar', serif;
     font-size: 18px;
-    color: #5574A3;
+    color: #a76e3d;
+    font-weight: bold;
 }
 
 /* BOTONES PRINCIPALES */
@@ -40,6 +42,13 @@ QPushButton:pressed {
     background-color: #2e356e;
 }
 
+QPushButton:disabled {
+    background-color: #BFC6D9;
+    color: #6B7280;
+    border: 1px solid #A0A7BD;
+}
+
+
 /* BOTONES DE HERRAMIENTAS */
 QToolButton {
     color: #394589;
@@ -51,6 +60,24 @@ QToolButton:hover {
 }
 
 QToolButton:checked {
+    background-color: #71A3BC;
+    color: #FBF6F0;
+}
+
+QToolButton[clase="iconBut"],
+QPushButton[clase="iconBut"] {
+    background-color: transparent;
+    border: 2px solid #a76e3d;
+    padding: 6px;
+    border-radius: 4px;
+}
+
+QToolButton[clase="iconBut"]:hover,
+QPushButton[clase="iconBut"]:hover {
+    background-color: #E5C8A7;
+}
+
+QToolButton[clase="iconBut"]:checked {
     background-color: #71A3BC;
     color: #FBF6F0;
 }
@@ -115,6 +142,20 @@ QRadioButton::indicator:checked {
     background-color: #394589;
 }
 
+QRadioButton:disabled {
+    color: #9AA1B3;
+}
+
+QRadioButton::indicator:disabled {
+    border: 2px solid #BFC6D9;
+    background-color: #E5E7EB;
+}
+
+QRadioButton::indicator:checked:disabled {
+    background-color: #9AA1B3;
+}
+
+
 /* BARRA DE HERRAMIENTAS */
 QToolBar {
     background-color: #FBF6F0;
@@ -167,16 +208,7 @@ QLabel#res1, QLabel#res2, QLabel#res3, QLabel#res4 {
     qproperty-alignment: AlignCenter;
 }
 
-/* SCROLLBARS */
-QScrollBar:vertical {
-    background: #FBF6F0;
-    width: 12px;
-}
 
-QScrollBar::handle:vertical {
-    background: #71A3BC;
-    border-radius: 6px;
-}
 
 /* MENÚS */
 QMenuBar {
@@ -205,6 +237,6 @@ QDateEdit {
 QLabel#enunciadoLabel {
     background-color: #FFFFFF;
     padding: 12px;
-    border-radius: 6px;
+    border-radius: 4px;
     border: 1px solid #71A3BC;
 }
