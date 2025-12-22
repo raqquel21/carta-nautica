@@ -162,6 +162,12 @@ MainWindow::MainWindow(QWidget *parent)
         ui->stackedWidget->setCurrentIndex(2);
         ui->toolBar->hide();
     });
+
+    connect(ui->salirPerfil, &QPushButton::clicked, this, [=]() {
+        ui->stackedWidget->setCurrentIndex(3);
+        ui->toolBar->show();
+    });
+
     connect(ui->salirPerfil_2, &QPushButton::clicked, this, [=]() {
         ui->stackedWidget->setCurrentIndex(3);
         ui->toolBar->show();
@@ -711,6 +717,7 @@ void MainWindow::showNextQuestion()
             respbotones[i]->setVisible(true);
             respbotones[i]->setChecked(false);
             respbotones[i]->setStyleSheet(""); // resetear color
+            respbotones[i]->setEnabled(true);
         } else {
             respbotones[i]->setVisible(false);
         }
@@ -773,6 +780,9 @@ void MainWindow::checkQuestion()
     }
 
     ui->verificarButton->setEnabled(false);
+    for (QRadioButton *rb : respbotones) {
+        rb->setEnabled(false);
+    }
 }
 
 void MainWindow::returnToProblems()
