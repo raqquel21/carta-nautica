@@ -121,7 +121,7 @@ MainWindow::MainWindow(QWidget *parent)
 
         // 5. Resetear imagen de perfil
         ui->PerfilImage->setIcon(QIcon());
-        ui->PerfilImage->setStyleSheet("QPushButton { border: 2px solid #555; border-radius: 60px; "
+        ui->PerfilImage->setStyleSheet("QPushButton {  border-radius: 60px; "
                                        "background-color: white; }");
 
         // 6. Navegación y Toolbar
@@ -369,7 +369,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     // 2. Aplicamos un estilo base LIMPIO (Bajamos el borde de 10px a 2px)
     QString estiloBase = "QPushButton {"
-                         "   border: 2px solid #555;"
                          "   border-radius: 60px;"
                          "   background-color: white;"
                          "   border-image: url(:/images/userIcono.png) 0 0 0 0 stretched stretched;"
@@ -600,7 +599,6 @@ void MainWindow::actualizarFotoBoton(QPushButton *boton, const QImage &img)
 
     // 5. El CSS ahora solo sirve para el borde exterior
     boton->setStyleSheet("QPushButton {"
-                         "   border: 2px solid #555;"
                          "   border-radius: 60px;"
                          "   background-color: transparent;"
                          "}");

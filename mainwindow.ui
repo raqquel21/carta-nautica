@@ -866,7 +866,7 @@ QPushButton:pressed {
              <widget class="QPushButton" name="sidebarButton_2">
               <property name="styleSheet">
                <string notr="true">QPushButton {
-    border: none;
+    
 	background-repeat: no-repeat;
     background-position: center;
 
@@ -1198,7 +1198,6 @@ QToolButton:pressed {
 }
 QToolButton:checked {
 
-    border: 2px solid #FF8C00; 
     border-radius: 4px;
     
  
@@ -1220,6 +1219,9 @@ QToolButton:checked {
               </property>
               <property name="checkable">
                <bool>false</bool>
+              </property>
+              <property name="clase" stdset="0">
+               <string>iconBut</string>
               </property>
              </widget>
             </item>
@@ -1253,13 +1255,10 @@ QToolButton:pressed {
 	background-repeat: no-repeat;
 }
 QToolButton:checked {
-
-    border: 2px solid #CCCCCC; 
     border-radius: 4px;
-    
- 
     background-image: url(:/images/cursorIlum.png); 
     background-repeat: no-repeat;
+	border: 2px solid #a76e3d;
 }
 </string>
               </property>
@@ -1268,6 +1267,9 @@ QToolButton:checked {
               </property>
               <property name="checkable">
                <bool>true</bool>
+              </property>
+              <property name="clase" stdset="0">
+               <string>iconBut</string>
               </property>
              </widget>
             </item>
@@ -1295,12 +1297,12 @@ QToolButton:pressed {
 }
 QToolButton:checked {
 
-    border: 2px solid #CCCCCC; 
     border-radius: 4px;
     
  
     background-image: url(:/images/lapizIlum.png); 
     background-repeat: no-repeat;
+	border: 2px solid #a76e3d;
 }
 
 </string>
@@ -1319,6 +1321,9 @@ QToolButton:checked {
               </property>
               <property name="checked">
                <bool>false</bool>
+              </property>
+              <property name="clase" stdset="0">
+               <string>iconBut</string>
               </property>
              </widget>
             </item>
@@ -1382,9 +1387,8 @@ QToolButton:pressed {
 }
 QToolButton:checked {
 
-    border: 2px solid #CCCCCC; 
     border-radius: 4px;
-    
+    border: 2px solid #a76e3d;
  
     background-image: url(:/images/gomaIlum.png); 
     background-repeat: no-repeat;
@@ -1422,9 +1426,8 @@ QToolButton:pressed {
 }
 QToolButton:checked {
 
-    border: 2px solid #CCCCCC; 
     border-radius: 4px;
-    
+    border: 2px solid #a76e3d;
  
     background-image: url(:/images/textoIlum.png); 
     background-repeat: no-repeat;
@@ -1462,9 +1465,8 @@ QToolButton:pressed {
 }
 QToolButton:checked {
 
-    border: 2px solid #CCCCCC; 
     border-radius: 4px;
-    
+    border: 2px solid #a76e3d;
  
     background-image: url(:/images/marcaIlum.png); 
     background-repeat: no-repeat;
@@ -1515,9 +1517,8 @@ QToolButton:pressed {
 }
 QToolButton:checked {
 
-    border: 2px solid #CCCCCC; 
     border-radius: 4px;
-    
+    border: 2px solid #a76e3d;
  
     background-image: url(:/images/ojoIlum.png); 
     background-repeat: no-repeat;
@@ -1555,9 +1556,8 @@ QToolButton:pressed {
 }
 QToolButton:checked {
 
-    border: 2px solid #CCCCCC; 
     border-radius: 4px;
-    
+    border: 2px solid #a76e3d;
  
     background-image: url(:/images/ruleIlum.png); 
     background-repeat: no-repeat;
@@ -1595,9 +1595,8 @@ QToolButton:pressed {
 }
 QToolButton:checked {
 
-    border: 2px solid #CCCCCC; 
     border-radius: 4px;
-    
+    border: 2px solid #a76e3d;
  
     background-image: url(:/images/transportadorIlum.png); 
     background-repeat: no-repeat;
@@ -1632,6 +1631,8 @@ QToolButton:hover {
 QToolButton:pressed {
 	background-image: url(:/images/compasIlum.png);
 	background-repeat: no-repeat;
+	border: 2px solid #a76e3d;
+	border-radius: 4px;
 }
 </string>
               </property>
@@ -1893,7 +1894,7 @@ QPushButton:pressed {
   </widget>
   <action name="actionPerfil">
    <property name="icon">
-    <iconset>
+    <iconset resource="resources.qrc">
      <normaloff>:/images/userIcono.png</normaloff>:/images/userIcono.png</iconset>
    </property>
    <property name="text">
@@ -1950,6 +1951,8 @@ QPushButton:pressed {
   <tabstop>graphicsView</tabstop>
   <tabstop>salirPerfil</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
